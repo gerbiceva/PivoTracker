@@ -15,37 +15,37 @@ interface Order {
     paid: number;
 }
 
-const pivoVGajba = (ordered: number, paid: number) => {
-    const gajbaPrice = 30;
-    const pivoPrice = 1.5;
-    let owed = 0;
-    let numGajb = Math.floor(ordered / 24);
-    owed += numGajb * gajbaPrice;
-    ordered -= numGajb * 24;
-    owed += ordered * pivoPrice;
+// const pivoVGajba = (ordered: number, paid: number) => {
+//     const gajbaPrice = 30;
+//     const pivoPrice = 1.5;
+//     let owed = 0;
+//     let numGajb = Math.floor(ordered / 24);
+//     owed += numGajb * gajbaPrice;
+//     ordered -= numGajb * 24;
+//     owed += ordered * pivoPrice;
 
-    return owed - paid;
-};
+//     return owed - paid;
+// };
 
-const getTableData = () => {
-    const offset = 10;
+// const getTableData = () => {
+//     const offset = 10;
 
-    supabaseClient.from("everything_sum")
-        .select()
-        .then((res) => {
-            if (!res.error) {
-                res.data.forEach((vals) => {
-                    vals.total_paid /= offset;
-                    vals.owed = pivoVGajba(vals.total_ordered, vals.total_paid);
-                });
+//     supabaseClient.from("everything_sum")
+//         .select()
+//         .then((res) => {
+//             if (!res.error) {
+//                 res.data.forEach((vals) => {
+//                     vals.total_paid! /= offset;
+//                     vals.owed! = pivoVGajba(vals.total_ordered, vals.total_paid);
+//                 });
 
-                console.log(res.data);
-            }
-            else {
-                console.log(res.error);
-            }
-        });
-};
+//                 console.log(res.data);
+//             }
+//             else {
+//                 console.log(res.error);
+//             }
+//         });
+// };
 
 const addOrder = ({ fullname, order, paid }: Order) => {
     const ordered = order;
@@ -89,7 +89,6 @@ export const BeerAdded = () => {
 
     useEffect(() => {
         form.setFieldValue('paid', form.values.order * 1.5);
-        getTableData();
     }, [form.values.order]);
 
     const [isLoading, setIsLoading] = useState(false);
@@ -136,7 +135,7 @@ export const BeerAdded = () => {
                     </SimpleGrid>
                     <Group justify="space-between">
                         <Box mt="md">
-                            <Button type="submit" variant="gradient">Dodaj</Button>
+                            <Button type="submit" variant="gradient" disabled={form.values.fullname == null}>Dodaj</Button>
                         </Box>
                     </Group>
                 </Stack>
