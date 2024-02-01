@@ -5,6 +5,7 @@ import { supabaseClient } from "../../../supabase/supabaseClient";
 import { notifications } from "@mantine/notifications";
 import { NameCombobox } from "./NameCombobox";
 import { Tables } from "../../../supabase/supabase";
+import { useFocusTrap } from "@mantine/hooks";
 
 // SELECT c.fullname, t.ordered_at, t.ordered, t.paid FROM customers AS c LEFT JOIN transactions AS t ON c.id = t.customer_id; 
 // SELECT c.fullname, SUM(t.paid) FROM customers AS c LEFT JOIN transactions AS t ON c.id = t.customer_id GROUP BY c.fullname; 
@@ -110,10 +111,12 @@ export const BeerAdded = () => {
         });
     }
 
+    const focusTrapRef = useFocusTrap();
+
     return (<form onSubmit={form.onSubmit(order)}>
         <Paper withBorder w="100%" pos="relative" shadow="sm">
             <Group w="100%" p="md">
-                <Stack style={{ flex: 1 }}>
+                <Stack style={{ flex: 1 }} ref={focusTrapRef}>
                     <Title order={2}>Dodajanje bjre</Title>
                     <NameCombobox
                         value={form.getInputProps('fullname').value}

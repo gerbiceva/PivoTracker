@@ -1,53 +1,71 @@
-import { ActionIcon, Button, Group, NumberInput, Pagination, Paper, ScrollArea, Stack, Table } from "@mantine/core";
+import { ActionIcon, Badge, Box, Button, Group, LoadingOverlay, NumberInput, Pagination, Paper, ScrollArea, Stack, Table, Text } from "@mantine/core";
+import { numberToEur, pivoVGajba } from "../../../utils/Converter";
+import { useGetElements } from "./useGetElements";
+import { Tables } from "../../../supabase/supabase";
 
-const elements = [
-    { position: 6, mass: 12.011, symbol: 'C', name: 'Carbon' },
-    { position: 7, mass: 14.007, symbol: 'N', name: 'Nitrogen' },
-    { position: 39, mass: 88.906, symbol: 'Y', name: 'Yttrium' },
-    { position: 56, mass: 137.33, symbol: 'Ba', name: 'Barium' },
-    { position: 58, mass: 140.12, symbol: 'Ce', name: 'Cerium' },
-];
+interface hehe extends Tables<"everything_sum"> {
+    owed: number
+}
+
+const getElementsParsed = (elements: Tables<"everything_sum">[]) => {
+    return elements.map((vals) => ({
+        fullname: vals.fullname!,
+        ordered: vals.total_ordered!,
+        paid: vals.total_paid! / 10 || 0,
+        owed: pivoVGajba(vals.total_ordered!, vals.total_paid! / 10)
+    }));
+};
+
+
 
 export function Tab() {
-    const rows = elements.map((element) => (
-        <Table.Tr key={element.name}>
-            <Table.Td>{element.name}</Table.Td>
-            <Table.Td>{element.position}</Table.Td>
-            <Table.Td>
-                <Group>
-                    <NumberInput
-                        maw={70}
-                        defaultValue={1}
-                        placeholder="2"
-                    />
-                    <Button variant="subtle">Dodaj</Button>
+    const { loading, elements } = useGetElements();
+    const elementsParsed = getElementsParsed(elements);
+    console.log(elementsParsed);
+
+    const rows = elementsParsed.map((element) => (
+        <Table.Tr key={element.fullname}>
+            <Table.Td align="left">{element.fullname}</Table.Td>
+            <Table.Td align="right">{element.ordered}</Table.Td>
+            <Table.Td align="right">{numberToEur(element.paid)} €</Table.Td>
+            <Table.Td align="right"><Badge variant="light" radius="sm" size="lg" color={element.owed <= 0 ? "green" :"red"}>{numberToEur(element.owed)}</Badge></Table.Td>
+            {/* <Table.Td>
+                <Group justify="space-around">
+                    <Group>
+                        <NumberInput
+                            maw={70}
+                            defaultValue={1}
+                            placeholder="2"
+                        />
+                        <Button variant="subtle">Dodaj</Button>
+                    </Group>
+                    <Button variant="subtle">Dodaj gajbo</Button>
                 </Group>
-            </Table.Td>
-            <Table.Td>
-                <Button variant="light">Dodaj gajbo</Button>
-            </Table.Td>
+            </Table.Td> */}
         </Table.Tr>
     ));
 
     return (
-        <Paper withBorder p="sm">
+        <Paper withBorder p="sm" pos="relative">
+            <LoadingOverlay visible={loading} />
             <Stack>
-                <Table.ScrollContainer minWidth={500}>
-                    <Table striped>
+                <Table.ScrollContainer minWidth={200}>
+                    <Table striped highlightOnHover withColumnBorders stickyHeader>
                         <Table.Thead>
                             <Table.Tr>
-                                <Table.Th>Polno ime</Table.Th>
-                                <Table.Th>Dolguje</Table.Th>
-                                <Table.Th>Bjra</Table.Th>
-                                <Table.Th>Gajba</Table.Th>
+                                <Table.Th style={{textAlign: "left"}}>Polno ime</Table.Th>
+                                <Table.Th style={{textAlign: "right"}}>Vseh piv</Table.Th>
+                                <Table.Th style={{textAlign: "right"}}>Skupaj plačano</Table.Th>
+                                <Table.Th style={{textAlign: "right"}}>Razlika</Table.Th>
+                                {/* <Table.Th>Utils</Table.Th> */}
                             </Table.Tr>
                         </Table.Thead>
-                            <Table.Tbody>{rows}</Table.Tbody>
+                        <Table.Tbody>{rows}</Table.Tbody>
                     </Table>
                 </Table.ScrollContainer>
-                <Group w="100%" justify="end">
+                {/* <Group w="100%" justify="end">
                     <Pagination total={10} />
-                </Group>
+                </Group> */}
             </Stack>
         </Paper>
     );

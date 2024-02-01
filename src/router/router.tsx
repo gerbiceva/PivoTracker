@@ -4,6 +4,7 @@ import { ProtectedPath } from "../components/ProtectedPath";
 import App from "./views/App";
 import { Transactions } from "./views/Transactions/Transactions";
 import { BeerAdded } from "./views/Adder/Adder";
+import { Pufflist } from "./views/Pufflist/Pufflist";
 
 export const router = createBrowserRouter([
   
@@ -31,6 +32,10 @@ export const router = createBrowserRouter([
       {
         path: "/",
         element: <BeerAdded /> ,
+      },
+      {
+        path: "/puff",
+        element: <Pufflist /> ,
       },
     ],
   },

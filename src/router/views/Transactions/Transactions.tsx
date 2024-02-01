@@ -1,22 +1,6 @@
 import { Box, Group, LoadingOverlay, Paper, Stack, Table, Text } from "@mantine/core";
 import { useGetTransactions } from "./useTransactions";
-
-// 150 => 1.5€
-const intToEur = (cents: number) => {
-    return (cents / 100);
-}
-
-const pivoCena = (ordered: number) => {
-    const gajbaPrice = 30;
-    const pivoPrice = 1.5;
-    let owed = 0;
-    let numGajb = Math.floor(ordered / 24);
-    owed += numGajb * gajbaPrice;
-    ordered -= numGajb * 24;
-    owed += ordered * pivoPrice;
-
-    return owed;
-};
+import { intToEur, pivoCena } from "../../../utils/Converter";
 
 
 export const Transactions = () => {
@@ -38,19 +22,19 @@ export const Transactions = () => {
     return (
         <>
             <LoadingOverlay visible={loading} />
-            <Table stickyHeader stickyHeaderOffset={60}>
+            <Table stickyHeader stickyHeaderOffset={60} striped highlightOnHover >
                 <Table.Thead>
                     <Table.Tr>
                         <Table.Th>Id</Table.Th>
-                        <Table.Th>Name</Table.Th>
-                        <Table.Th>Ordered</Table.Th>
-                        <Table.Th>Paid</Table.Th>
-                        <Table.Th>Difference</Table.Th>
-                        <Table.Th>ordered_at</Table.Th>
+                        <Table.Th>Polno ime</Table.Th>
+                        <Table.Th>Naročeno</Table.Th>
+                        <Table.Th>Plačano</Table.Th>
+                        <Table.Th>Razlika</Table.Th>
+                        <Table.Th>Datum naročila</Table.Th>
                     </Table.Tr>
                 </Table.Thead>
                 <Table.Tbody>{rows}</Table.Tbody>
-                <Table.Caption>Scroll page to see sticky thead</Table.Caption>
+                {/* <Table.Caption>Scroll page to see sticky thead</Table.Caption> */}
             </Table>
         </>
     )
