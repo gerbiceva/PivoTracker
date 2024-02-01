@@ -58,7 +58,42 @@ export interface Database {
       }
     }
     Views: {
-      [_ in never]: never
+      everything: {
+        Row: {
+          fullname: string | null
+          ordered: number | null
+          ordered_at: string | null
+          paid: number | null
+        }
+        Relationships: []
+      }
+      everything_sum: {
+        Row: {
+          fullname: string | null
+          total_ordered: number | null
+          total_paid: number | null
+        }
+        Relationships: []
+      }
+      named_transactions: {
+        Row: {
+          customer_id: number | null
+          fullname: string | null
+          id: number | null
+          ordered: number | null
+          ordered_at: string | null
+          paid: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "transactions_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
     }
     Functions: {
       [_ in never]: never

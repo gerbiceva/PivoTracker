@@ -1,32 +1,23 @@
 import { rem } from "@mantine/core";
-import { IconDashboard, IconFileText, IconHome } from "@tabler/icons-react";
+import { IconBeer, IconDashboard, IconFileText, IconHome, IconTransactionEuro } from "@tabler/icons-react";
 
 const Spotlightactions: SpotlightActionData[] = [
   {
-    id: "home",
-    label: "Home",
-    description: "Get to home page",
-    onClick: () => console.log("Home"),
+    id: "add",
+    label: "Add Beer",
+    description: "Sell beer to a customer",
+    onClick: () => window.location.replace("/"),
     leftSection: (
-      <IconHome style={{ width: rem(24), height: rem(24) }} stroke={1.5} />
+      <IconBeer style={{ width: rem(24), height: rem(24) }} stroke={1.5} />
     ),
   },
   {
-    id: "dashboard",
-    label: "Dashboard",
-    description: "Get full information about current system status",
-    onClick: () => console.log("Dashboard"),
+    id: "transactions",
+    label: "Transactions",
+    description: "View all transactions",
+    onClick: () => window.location.replace("/transactions"),
     leftSection: (
-      <IconDashboard style={{ width: rem(24), height: rem(24) }} stroke={1.5} />
-    ),
-  },
-  {
-    id: "documentation",
-    label: "Documentation",
-    description: "Visit documentation to lean more about all features",
-    onClick: () => console.log("Documentation"),
-    leftSection: (
-      <IconFileText style={{ width: rem(24), height: rem(24) }} stroke={1.5} />
+      <IconTransactionEuro style={{ width: rem(24), height: rem(24) }} stroke={1.5} />
     ),
   },
 ];

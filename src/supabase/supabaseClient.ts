@@ -16,9 +16,3 @@ export const supabaseClient = createClient<Database>(
   import.meta.env.VITE_SUPABASE_ANON_KEY,
   options
 );
-
-
-supabaseClient.from("customers").select("*").then((res) => {
-  console.log(res);
-}
-);

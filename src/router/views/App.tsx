@@ -4,21 +4,20 @@ import { $currUser } from "../../global-state/user";
 import { BeerAdded } from "./Adder/Adder";
 import { Navbar } from "./Navbar/Nav";
 import { Tab } from "./Tabela/Tabela";
+import { CustomSpotlight } from "../../mantine/spotlight";
+import { Outlet } from "react-router-dom";
 
 function App() {
   const user = useStore($currUser);
 
   return (
     <Stack p="md">
-      <Navbar></Navbar>
-
+      <Navbar />
+      <CustomSpotlight />
       <Container w="100%">
-        <Stack>
-          <BeerAdded />
-          <Tab />
-        </Stack>
+        <Outlet />
       </Container>
-    </Stack>
+      </Stack>
   );
 }
 

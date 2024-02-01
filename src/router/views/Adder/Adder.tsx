@@ -49,7 +49,7 @@ const getTableData = () => {
 
 const addOrder = ({ fullname, order, paid }: Order) => {
     const ordered = order;
-    const offset = 10;
+    const offset = 100;
     paid = paid * offset; // max ena decimalka, zato množimo z 10
     return new Promise<void>((resolve, reject) => {
         supabaseClient.from("transactions").insert({ customer_id: fullname?.id || -1, ordered, paid }).then((res) => {
@@ -112,7 +112,7 @@ export const BeerAdded = () => {
     }
 
     return (<form onSubmit={form.onSubmit(order)}>
-        <Paper withBorder w="100%" pos="relative">
+        <Paper withBorder w="100%" pos="relative" shadow="sm">
             <Group w="100%" p="md">
                 <Stack style={{ flex: 1 }}>
                     <Title order={2}>Dodajanje bjre</Title>

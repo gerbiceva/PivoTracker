@@ -1,39 +1,37 @@
 import { Outlet, createBrowserRouter } from "react-router-dom";
 import { Authentication } from "./views/Auth";
 import { ProtectedPath } from "../components/ProtectedPath";
-import App from "./views/Hello";
+import App from "./views/App";
+import { Transactions } from "./views/Transactions/Transactions";
+import { BeerAdded } from "./views/Adder/Adder";
 
 export const router = createBrowserRouter([
-  {
-    path: "/",
-    element: (
-      // <ProtectedPath redirectUrl="/auth">
-        <Outlet />
-      // </ProtectedPath>
-    ),
-    children: [
-      {
-        path: "/about",
-        element: <div>About</div>,
-      },
-      {
-        path: "/",
-        element: <App /> ,
-      },
-    ],
-  },
-
+  
   {
     path: "/auth",
     element: (
       <ProtectedPath
-        redirectUrl="/"
-        shouldRedirect={(user) => {
-          return user != null;
-        }}
+      redirectUrl="/"
+      shouldRedirect={(user) => {
+        return user != null;
+      }}
       >
         <Authentication />
       </ProtectedPath>
     ),
+  },
+  {
+    path: "/",
+    element: (<App />),
+    children: [
+      {
+        path: "/transactions",
+        element: <Transactions/>,
+      },
+      {
+        path: "/",
+        element: <BeerAdded /> ,
+      },
+    ],
   },
 ]);
