@@ -1,5 +1,5 @@
 export const intToEur = (cents: number) => {
-    return (cents / 100);
+    return (cents / 10);
 }
 
 export const pivoCena = (ordered: number) => {
@@ -30,3 +30,9 @@ export const numberToEur = (num: number) => {
     // format number to eur on two decimals
     return num.toFixed(2) ;
 }
+
+export const getDateFromString = (date: string) => {
+    let dParsed = Date.parse(date);
+    let d = new Date(dParsed);
+    return [d.toLocaleTimeString(), d.toLocaleDateString()];
+};

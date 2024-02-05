@@ -1,10 +1,10 @@
-import { Outlet, createBrowserRouter } from "react-router-dom";
+import { createBrowserRouter } from "react-router-dom";
 import { Authentication } from "./views/Auth";
 import { ProtectedPath } from "../components/ProtectedPath";
 import App from "./views/App";
 import { Transactions } from "./views/Transactions/Transactions";
 import { BeerAdded } from "./views/Adder/Adder";
-import { Pufflist } from "./views/Pufflist/Pufflist";
+import { Tab } from "./views/Tabela/Tabela";
 
 export const router = createBrowserRouter([
   
@@ -35,7 +35,7 @@ export const router = createBrowserRouter([
       },
       {
         path: "/puff",
-        element: <Pufflist /> ,
+        element: <Tab /> ,
       },
     ],
   },

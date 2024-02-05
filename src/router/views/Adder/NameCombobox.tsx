@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Combobox, Input, InputBase, Loader, TableScrollContainer, useCombobox } from '@mantine/core';
+import { Combobox, InputBase, useCombobox } from '@mantine/core';
 import { useDebouncedState } from '@mantine/hooks';
 import { supabaseClient } from '../../../supabase/supabaseClient';
 import { notifications } from '@mantine/notifications';
@@ -67,11 +67,26 @@ export const NameCombobox = ({onChange, value}:Props) => {
             store={combobox}
             withinPortal={false}
             onOptionSubmit={(val) => {
-                (customerFromId(val, filteredOptions) || null);
-                // setValue(customerFromId(val, filteredOptions) || null);
-                const newValue = customerFromId(val, filteredOptions)
-                onChange(newValue);
-                setSearch(newValue?.fullname || '');
+                if(val == "$create") {
+                    console.log("create: " + search);
+                    supabaseClient.from("customers").insert({fullname: search}).select().then((res) => {
+                        if(!res.error) {
+                            onChange({fullname: search, id: res.data[0].id});
+                            setSearch(search || '');
+                        }
+                        else {
+
+                        }
+                    });
+                }
+                else {
+
+                    (customerFromId(val, filteredOptions) || null);
+                    // setValue(customerFromId(val, filteredOptions) || null);
+                    const newValue = customerFromId(val, filteredOptions);
+                    onChange(newValue);
+                    setSearch(newValue?.fullname || '');
+                }
                 combobox.closeDropdown();
             }}
         >
@@ -99,7 +114,11 @@ export const NameCombobox = ({onChange, value}:Props) => {
 
             <Combobox.Dropdown>
                 <Combobox.Options>
-                    {options.length > 0 ? options : <Combobox.Empty>Nothing found</Combobox.Empty>}
+                    {/* {options.length > 0 ? options : <Combobox.Empty>Nothing found</Combobox.Empty>} */}
+                    {options}
+                    {filteredOptions.length == 0 && search.length > 0 && (
+                        <Combobox.Option value="$create">+ Dodaj {search}</Combobox.Option>
+                    )}
                 </Combobox.Options>
             </Combobox.Dropdown>
         </Combobox>

@@ -1,4 +1,4 @@
-import { Paper, Stack, Title, TextInput, SimpleGrid, NumberInput, Box, Button, LoadingOverlay, Group, Text, Alert } from "@mantine/core";
+import { Paper, Stack, Title, SimpleGrid, NumberInput, Box, Button, LoadingOverlay, Group, Text, Alert } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { useEffect, useState } from "react";
 import { supabaseClient } from "../../../supabase/supabaseClient";
@@ -16,41 +16,10 @@ interface Order {
     paid: number;
 }
 
-// const pivoVGajba = (ordered: number, paid: number) => {
-//     const gajbaPrice = 30;
-//     const pivoPrice = 1.5;
-//     let owed = 0;
-//     let numGajb = Math.floor(ordered / 24);
-//     owed += numGajb * gajbaPrice;
-//     ordered -= numGajb * 24;
-//     owed += ordered * pivoPrice;
-
-//     return owed - paid;
-// };
-
-// const getTableData = () => {
-//     const offset = 10;
-
-//     supabaseClient.from("everything_sum")
-//         .select()
-//         .then((res) => {
-//             if (!res.error) {
-//                 res.data.forEach((vals) => {
-//                     vals.total_paid! /= offset;
-//                     vals.owed! = pivoVGajba(vals.total_ordered, vals.total_paid);
-//                 });
-
-//                 console.log(res.data);
-//             }
-//             else {
-//                 console.log(res.error);
-//             }
-//         });
-// };
 
 const addOrder = ({ fullname, order, paid }: Order) => {
     const ordered = order;
-    const offset = 100;
+    const offset = 10;
     paid = paid * offset; // max ena decimalka, zato množimo z 10
     return new Promise<void>((resolve, reject) => {
         supabaseClient.from("transactions").insert({ customer_id: fullname?.id || -1, ordered, paid }).then((res) => {
@@ -83,7 +52,7 @@ export const BeerAdded = () => {
         },
 
         validate: {
-            order: (value) => value != 0 ? null : 'Število naročenih piv ne sme biti 0',
+            // fullname: (value) =>  > 0 ? null : 'Število naročenih piv ne sme biti 0',
             paid: (value) => value >= 0 ? null : 'Število plačanih piv ne sme biti negativno število',
         },
     });

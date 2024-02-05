@@ -1,9 +1,7 @@
 import { Box, Button, Group, Kbd, Paper, Text } from "@mantine/core";
 import { supabaseClient } from "../../../supabase/supabaseClient";
-import { IconDoorExit, IconLogout, IconLogout2 } from "@tabler/icons-react";
 import { spotlight } from '@mantine/spotlight';
 import { useMediaQuery } from '@mantine/hooks';
-
 
 
 export const Navbar = () => {
@@ -32,10 +30,7 @@ export const Navbar = () => {
                     supabaseClient.auth.signOut();
                 }}
             >
-                <Group>
-                    <Text size="sm">Odjava</Text> 
-                    <IconLogout/>
-                </Group>
+                <Text size="sm">Odjava</Text> 
             </Button>
         </Group>
     </Paper>)
