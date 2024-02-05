@@ -7,35 +7,34 @@ import { BeerAdded } from "./views/Adder/Adder";
 import { Tab } from "./views/Tabela/Tabela";
 
 export const router = createBrowserRouter([
-  
   {
     path: "/auth",
     element: (
-      <ProtectedPath
-      redirectUrl="/"
-      shouldRedirect={(user) => {
-        return user != null;
-      }}
-      >
-        <Authentication />
-      </ProtectedPath>
+      // <ProtectedPath
+      // redirectUrl="/"
+      // shouldRedirect={(user) => {
+      //   return user != null;
+      // }}
+      // >
+      <Authentication />
+      //</ProtectedPath>
     ),
   },
   {
     path: "/",
-    element: (<App />),
+    element: <App />,
     children: [
       {
         path: "/transactions",
-        element: <Transactions/>,
+        element: <Transactions />,
       },
       {
         path: "/",
-        element: <BeerAdded /> ,
+        element: <BeerAdded />,
       },
       {
         path: "/puff",
-        element: <Tab /> ,
+        element: <Tab />,
       },
     ],
   },
