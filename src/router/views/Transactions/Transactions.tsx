@@ -42,7 +42,8 @@ export const Transactions = () => {
             color="red"
             size="xs"
             onClick={() => {
-              removeTransaction(element.id || 0);
+              confirm("Are you sure you want to delete this transaction?") &&
+                removeTransaction(element.id || 0);
             }}
           >
             <IconTrash />

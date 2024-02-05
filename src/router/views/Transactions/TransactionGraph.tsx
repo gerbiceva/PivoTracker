@@ -54,7 +54,7 @@ export const Transactiongraph = ({ transactions }: ITransactionGraphProps) => {
       }}
       withDots={false}
       type="split"
-      splitColors={["teal", "red"]}
+      splitColors={["red", "teal"]}
       series={[{ color: "gray", name: "Dolg" }]}
     />
   );
