@@ -45,8 +45,10 @@ export const Transactiongraph = ({ transactions }: ITransactionGraphProps) => {
   return (
     <AreaChart
       h={250}
+      referenceLines={[{ y: 0, label: "Zero line", color: "red.6" }]}
       data={totalOwedAccumulator}
       dataKey="id"
+      title="Debt / transactions"
       tooltipProps={{
         content: ({ label, payload }) => (
           <ChartTooltip label={label} payload={payload} />
@@ -54,6 +56,7 @@ export const Transactiongraph = ({ transactions }: ITransactionGraphProps) => {
       }}
       withDots={false}
       type="split"
+      fillOpacity={0.15}
       splitColors={["red", "teal"]}
       series={[{ color: "gray", name: "Dolg" }]}
     />

@@ -2,7 +2,7 @@ import { Alert, LoadingOverlay, Paper, Stack, Table } from "@mantine/core";
 import { useMemo } from "react";
 import { numberToEur } from "../../../utils/Converter";
 import { UserModal } from "./UserModal";
-import { useGetSummedDebt } from "./useGetElements";
+import { useGetSummedDebt } from "./GetEverythingSum";
 import { DebtBadge } from "../../../components/pricing/DebtBadge";
 
 export interface IUserElements {

@@ -17,7 +17,6 @@ import { IconPencil } from "@tabler/icons-react";
 import { useMemo } from "react";
 import { supabaseClient } from "../../../supabase/supabaseClient";
 import {
-  computeDebt,
   getDateFromString,
   numberToEur,
   pivoVGajba,

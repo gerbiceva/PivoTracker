@@ -5,6 +5,7 @@ import App from "./views/App";
 import { Transactions } from "./views/Transactions/Transactions";
 import { BeerAdded } from "./views/Adder/Adder";
 import { PuffTable } from "./views/Tabela/Tabela";
+import { UserView } from "./views/User/UserOverview";
 
 export const router = createBrowserRouter([
   {
@@ -35,6 +36,14 @@ export const router = createBrowserRouter([
       {
         path: "/puff",
         element: <PuffTable />,
+      },
+      {
+        path: "/user/:id",
+        element: <UserView />,
+      },
+      {
+        path: "/*",
+        element: "404",
       },
     ],
   },
