@@ -14,6 +14,10 @@ export const pivoCena = (ordered: number) => {
   return owed;
 };
 
+// export const computeDebt = (ordered: number, paid: number) => {
+//   return ordered * 1.5 - paid / 100.0;
+// };
+
 export const pivoVGajba = (ordered: number, paid: number) => {
   const gajbaPrice = 30;
   const pivoPrice = 1.5;

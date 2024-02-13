@@ -17,6 +17,7 @@ import { IconPencil } from "@tabler/icons-react";
 import { useMemo } from "react";
 import { supabaseClient } from "../../../supabase/supabaseClient";
 import {
+  computeDebt,
   getDateFromString,
   numberToEur,
   pivoVGajba,
@@ -82,6 +83,7 @@ export const UserModal = ({ id, displayName }: UserModalProps) => {
 
     const rows = data.map((element) => {
       const owed = pivoVGajba(element.ordered!, element.paid! / 10);
+      // const owed = computeDebt(element.ordered || 0, element.paid || 0);
       return (
         <Table.Tr key={element.ordered_at}>
           <Table.Td align="right">
@@ -91,7 +93,9 @@ export const UserModal = ({ id, displayName }: UserModalProps) => {
             {getDateFromString(element.ordered_at || "")[1]}
           </Table.Td>
           <Table.Td align="right">{element.ordered}</Table.Td>
-          <Table.Td align="right">{numberToEur(element.paid || 0)} €</Table.Td>
+          <Table.Td align="right">
+            {numberToEur((element.paid || 0) / 10)} €
+          </Table.Td>
           <Table.Td align="right">
             <DebtBadge debt={owed} />
           </Table.Td>
@@ -121,9 +125,13 @@ export const UserModal = ({ id, displayName }: UserModalProps) => {
       >
         <LoadingOverlay visible={isLoading} />
         <Stack>
-          <Group justify="space-between">
-            <Text>{displayName}</Text>
-            <DebtBadge debt={userTotalOrdered - userTotalPaid} />
+          <Group justify="space-between" px="xl">
+            <Text size="xl" fw="bold">
+              {displayName}
+            </Text>
+            <DebtBadge
+              debt={pivoVGajba(userTotalOrdered, userTotalPaid / 10)}
+            />
             <Group justify="right">
               <Group>
                 <NumberInput maw={70} defaultValue={1} placeholder="2" />
