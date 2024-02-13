@@ -1,5 +1,5 @@
 import { rem } from "@mantine/core";
-import { IconBeer, IconList, IconLogout, IconTransactionEuro } from "@tabler/icons-react";
+import { IconBeer, IconList, IconLogout, IconShoppingBag, IconTransactionEuro } from "@tabler/icons-react";
 
 const Spotlightactions: SpotlightActionData[] = [
   {
@@ -30,10 +30,19 @@ const Spotlightactions: SpotlightActionData[] = [
     ),
   },
   {
+    id: "nabava",
+    label: "Nabava",
+    description: "Nabava piva iz trgovine",
+    onClick: () => window.location.replace("/nabava"),
+    leftSection: (
+      <IconShoppingBag style={{ width: rem(24), height: rem(24) }} stroke={1.5} />
+    ),
+  },
+  {
     id: "logout",
     label: "Odjava",
     description: "Odjavi se iz sistema",
-    onClick: () => {supabaseClient.auth.signOut(); window.location.replace("/auth"); },
+    onClick: () => { supabaseClient.auth.signOut(); window.location.replace("/auth"); },
     leftSection: (
       <IconLogout style={{ width: rem(24), height: rem(24) }} stroke={1.5} />
     ),

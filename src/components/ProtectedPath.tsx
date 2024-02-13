@@ -3,6 +3,7 @@ import { User } from "@supabase/supabase-js";
 import { PropsWithChildren } from "react";
 import { Navigate } from "react-router-dom";
 import { $currUser } from "../global-state/user";
+import { useUser } from "../supabase/loader";
 
 interface ProtectedPathProps extends PropsWithChildren {
   redirectUrl: string;
@@ -12,16 +13,15 @@ interface ProtectedPathProps extends PropsWithChildren {
 export const ProtectedPath = ({
   children,
   redirectUrl,
-  shouldRedirect,
 }: ProtectedPathProps) => {
-  const user = useStore($currUser);
+  const { user, loading } = useUser();
 
-  if  (shouldRedirect && user){
-    if (shouldRedirect(user)){
-      return <Navigate to={redirectUrl}/>
-    }
-  }else if (!user){
-    return <Navigate to={redirectUrl}/>
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  if (!user) {
+    return <Navigate to={redirectUrl} />;
   }
 
   return children;

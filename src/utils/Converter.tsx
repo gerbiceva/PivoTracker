@@ -36,7 +36,7 @@ export const numberToEur = (num: number) => {
     currency: "EUR",
   });
   // format number to eur on two decimals
-  return euro.format(num);
+  return euro.format(num );
 };
 
 export const getDateFromString = (date: string) => {

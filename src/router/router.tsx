@@ -5,24 +5,21 @@ import { Authentication } from "./views/Auth";
 import { PuffTable } from "./views/Pufi/Tabela";
 import { Transactions } from "./views/Transactions/Transactions";
 import { UserView } from "./views/User/UserOverview";
+import { Nabava } from "./views/Nabava/Nabava";
+import { ProtectedPath } from "../components/ProtectedPath";
 
 export const router = createBrowserRouter([
   {
     path: "/auth",
-    element: (
-      // <ProtectedPath
-      // redirectUrl="/"
-      // shouldRedirect={(user) => {
-      //   return user != null;
-      // }}
-      // >
-      <Authentication />
-      //</ProtectedPath>
-    ),
+    element: <Authentication />,
   },
   {
     path: "/",
-    element: <App />,
+    element: (
+      <ProtectedPath redirectUrl="/auth">
+        <App />
+      </ProtectedPath>
+    ),
     children: [
       {
         path: "/transactions",
@@ -39,6 +36,10 @@ export const router = createBrowserRouter([
       {
         path: "/user/:id",
         element: <UserView />,
+      },
+      {
+        path: "/nabava",
+        element: <Nabava />,
       },
       {
         path: "/*",
