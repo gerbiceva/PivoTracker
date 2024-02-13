@@ -1,10 +1,9 @@
 import { createBrowserRouter } from "react-router-dom";
-import { Authentication } from "./views/Auth";
-import { ProtectedPath } from "../components/ProtectedPath";
-import App from "./views/App";
-import { Transactions } from "./views/Transactions/Transactions";
 import { BeerAdded } from "./views/Adder/Adder";
+import App from "./views/App";
+import { Authentication } from "./views/Auth";
 import { PuffTable } from "./views/Pufi/Tabela";
+import { Transactions } from "./views/Transactions/Transactions";
 import { UserView } from "./views/User/UserOverview";
 
 export const router = createBrowserRouter([

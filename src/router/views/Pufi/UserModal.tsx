@@ -9,18 +9,17 @@ import {
   NumberInput,
   Stack,
   Table,
-  Text,
   Title,
 } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { notifications } from "@mantine/notifications";
 import { IconPencil } from "@tabler/icons-react";
 import { useMemo } from "react";
+import { DebtBadge } from "../../../components/pricing/DebtBadge";
+import { numToColor } from "../../../components/users/stringToCol";
 import { supabaseClient } from "../../../supabase/supabaseClient";
 import { getDateFromString, numberToEur } from "../../../utils/Converter";
 import { useGetTransactions } from "../Transactions/useTransactions";
-import { DebtBadge } from "../../../components/pricing/DebtBadge";
-import { numToColor } from "../../../components/users/stringToCol";
 
 const addGajba = (id: number, successCallback: () => void) => () => {
   supabaseClient

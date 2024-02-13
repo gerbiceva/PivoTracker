@@ -34,7 +34,7 @@ export function Authentication() {
             <Text color="dimmed">
               <IconCircleKey></IconCircleKey>
             </Text>
-            <Title align="center">Login</Title>
+            <Title>Login</Title>
           </Group>
 
           <Paper withBorder shadow="md" p={30} mt={30} radius="md">
