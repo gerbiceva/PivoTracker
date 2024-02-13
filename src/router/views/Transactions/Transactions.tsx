@@ -6,12 +6,12 @@ import {
   LoadingOverlay,
   Stack,
   Table,
-  Text,
 } from "@mantine/core";
 import { IconTrash } from "@tabler/icons-react";
 import { useLiveTransactions } from "../../../components/hooks.ts/liveTransactionsHook";
 import { intToEur, numberToEur, pivoCena } from "../../../utils/Converter";
 import { Transactiongraph } from "./TransactionGraph";
+import { DebtBadge } from "../../../components/pricing/DebtBadge";
 
 export const Transactions = () => {
   // const { loading, transactions } = useGetTransactions();
@@ -30,7 +30,8 @@ export const Transactions = () => {
           {numberToEur(intToEur(element.paid || 0))} €
         </Table.Td>
         <Table.Td align="right">
-          <Text c={diff < 0 ? "red" : "green"}>{numberToEur(diff)} €</Text>
+          <DebtBadge debt={diff} variant="outline" />
+          {/* <Text c={diff < 0 ? "red" : "green"}>{numberToEur(diff)} €</Text> */}
         </Table.Td>
         <Table.Td align="right">
           {element.ordered_at &&
@@ -38,7 +39,8 @@ export const Transactions = () => {
         </Table.Td>
         <Table.Td align="right">
           <Button
-            variant="light"
+            opacity={0.7}
+            variant="transparent"
             color="red"
             size="xs"
             onClick={() => {

@@ -1,15 +1,9 @@
-import {
-  Alert,
-  Badge,
-  LoadingOverlay,
-  Paper,
-  Stack,
-  Table,
-} from "@mantine/core";
+import { Alert, LoadingOverlay, Paper, Stack, Table } from "@mantine/core";
 import { useMemo } from "react";
 import { numberToEur } from "../../../utils/Converter";
 import { UserModal } from "./UserModal";
 import { useGetSummedDebt } from "./useGetElements";
+import { DebtBadge } from "../../../components/pricing/DebtBadge";
 
 export interface IUserElements {
   fullname: string;
@@ -39,28 +33,14 @@ export function PuffTable() {
     }
 
     return data.map((element) => (
-      <Table.Tr
-        key={element.fullname}
-        // onClick={async () => {
-        //   setUserElements(await getUserElements(element.fullname));
-        //   setUserFullName(element.fullname);
-        //   open();
-        // }}
-      >
+      <Table.Tr key={element.fullname}>
         <Table.Td align="left">{element.fullname}</Table.Td>
         <Table.Td align="right">{element.total_ordered}</Table.Td>
         <Table.Td align="right">
           {numberToEur(element.total_paid || 0)} €
         </Table.Td>
         <Table.Td align="right">
-          <Badge
-            variant="light"
-            radius="sm"
-            size="lg"
-            color={element.owed <= 0 ? "green" : "red"}
-          >
-            {numberToEur(element.owed)} €
-          </Badge>
+          <DebtBadge debt={element.owed} />
         </Table.Td>
         <Table.Td align="right">
           <UserModal id={0} displayName={element.fullname || ""} />

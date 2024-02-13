@@ -1,7 +1,6 @@
 import {
   ActionIcon,
   Alert,
-  Badge,
   Button,
   Divider,
   Group,
@@ -23,6 +22,7 @@ import {
   pivoVGajba,
 } from "../../../utils/Converter";
 import { useGetTransactions } from "../Transactions/useTransactions";
+import { DebtBadge } from "../../../components/pricing/DebtBadge";
 
 const addGajba = (fullname: string, thn: () => void) => () => {
   supabaseClient
@@ -93,14 +93,7 @@ export const UserModal = ({ id, displayName }: UserModalProps) => {
           <Table.Td align="right">{element.ordered}</Table.Td>
           <Table.Td align="right">{numberToEur(element.paid || 0)} €</Table.Td>
           <Table.Td align="right">
-            <Badge
-              variant="light"
-              radius="sm"
-              size="lg"
-              color={owed <= 0 ? "green" : "red"}
-            >
-              {numberToEur(owed)} €
-            </Badge>
+            <DebtBadge debt={owed} />
           </Table.Td>
         </Table.Tr>
       );
@@ -130,14 +123,7 @@ export const UserModal = ({ id, displayName }: UserModalProps) => {
         <Stack>
           <Group justify="space-between">
             <Text>{displayName}</Text>
-            <Badge
-              variant="light"
-              radius="sm"
-              size="lg"
-              color={userTotalOrdered - userTotalPaid <= 0 ? "green" : "red"}
-            >
-              {numberToEur(userTotalOrdered - userTotalPaid)} €
-            </Badge>
+            <DebtBadge debt={userTotalOrdered - userTotalPaid} />
             <Group justify="right">
               <Group>
                 <NumberInput maw={70} defaultValue={1} placeholder="2" />
