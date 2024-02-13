@@ -1,22 +1,12 @@
-import {
-  Box,
-  Button,
-  NumberInput,
-  Paper,
-  Stack,
-  filterProps,
-} from "@mantine/core";
-import { useFocusTrap } from "@mantine/hooks";
-import { IconBeer, IconCurrencyEuro } from "@tabler/icons-react";
-import { nabava, useAddNabava, useGetNabava } from "./NabavaGetterHook";
-import { Tables } from "../../../supabase/supabase";
+import { Alert, Box, Button, NumberInput, Paper, Stack } from "@mantine/core";
 import { useForm } from "@mantine/form";
+import { useFocusTrap } from "@mantine/hooks";
 import { notifications } from "@mantine/notifications";
-import { json } from "react-router-dom";
+import { IconBeer, IconCurrencyEuro } from "@tabler/icons-react";
+import { nabava, useAddNabava, useGetNabava } from "./UseGetNabava";
 
 export const NabavaAdder = () => {
   const focusTrapRef = useFocusTrap();
-  const { data, error, isLoading: isLoadingNabava, mutate } = useGetNabava();
   const { add, isLoading } = useAddNabava();
 
   const form = useForm<nabava>({
@@ -65,7 +55,6 @@ export const NabavaAdder = () => {
               Dodaj
             </Button>
           </Box>
-          {JSON.stringify(data, null, 2)}
         </Stack>
       </Paper>
     </form>

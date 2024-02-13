@@ -5,25 +5,21 @@ import { useState } from "react";
 
 export const useGetNabava = () => {
   const fetcher = () =>
-    new Promise<Tables<"nabava">>((resolve, reject) => {
+    new Promise<Tables<"nabava">[]>((resolve, reject) => {
       supabaseClient
         .from("nabava")
         .select()
-        .order("id", { ascending: false })
+        .order("created_at", { ascending: false })
         .then((res) => {
           if (!res.error) {
-            if (res.data.length == 1) {
-              resolve(res.data[0]);
-            } else {
-              reject(Error("No customer foudnd"));
-            }
+            resolve(res.data);
           } else {
             reject(res.error);
           }
         });
     });
 
-  const out = useSWR<Tables<"nabava">>(`/view/nabava/`, fetcher);
+  const out = useSWR<Tables<"nabava">[]>(`/view/nabava/`, fetcher);
 
   return out;
 };
