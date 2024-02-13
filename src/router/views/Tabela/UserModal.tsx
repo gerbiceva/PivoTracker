@@ -24,24 +24,24 @@ import {
 import { useGetTransactions } from "../Transactions/useTransactions";
 import { DebtBadge } from "../../../components/pricing/DebtBadge";
 
-const addGajba = (fullname: string, thn: () => void) => () => {
+const addGajba = (id: number, successCallback: () => void) => () => {
   supabaseClient
     .from("customers")
     .select("id")
-    .eq("fullname", fullname)
+    .eq("id", id)
     .then((res) => {
       if (!res.error) {
         supabaseClient
           .from("transactions")
-          .insert({ customer_id: res.data[0].id, ordered: 24, paid: 300 })
+          .insert({ customer_id: id, ordered: 24, paid: 300 })
           .then((res) => {
             if (!res.error) {
               notifications.show({
                 title: "Uspeh",
                 color: "green",
-                message: `${fullname} je uspešno kupil in plačal gajbo piva!`,
+                message: `Uspešno kupil in plačal gajbo piva!`,
               });
-              thn();
+              successCallback();
             } else {
               notifications.show({
                 title: "Napaka",
@@ -129,7 +129,7 @@ export const UserModal = ({ id, displayName }: UserModalProps) => {
                 <NumberInput maw={70} defaultValue={1} placeholder="2" />
                 <Button variant="outline">Dodaj</Button>
               </Group>
-              <Button variant="outline" onClick={addGajba(displayName, mutate)}>
+              <Button variant="outline" onClick={addGajba(id, mutate)}>
                 Dodaj gajbo
               </Button>
             </Group>

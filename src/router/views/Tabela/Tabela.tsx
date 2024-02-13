@@ -43,7 +43,10 @@ export function PuffTable() {
           <DebtBadge debt={element.owed} />
         </Table.Td>
         <Table.Td align="right">
-          <UserModal id={0} displayName={element.fullname || ""} />
+          <UserModal
+            id={element.id || 0}
+            displayName={element.fullname || ""}
+          />
         </Table.Td>
       </Table.Tr>
     ));
