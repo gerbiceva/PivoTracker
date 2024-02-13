@@ -10,7 +10,7 @@ export const useGetTransactions = (id?: number) => {
 
       if (id != undefined) {
         query
-          .eq("id", id)
+          .filter("customer_id", "eq", id)
           .order("ordered_at", { ascending: false })
           .then((res) => {
             if (!res.error) {
@@ -31,7 +31,7 @@ export const useGetTransactions = (id?: number) => {
     });
 
   const out = useSWR<Tables<"named_transactions">[]>(
-    `/view/named_transactions`,
+    `/view/named_transactions/${id}`,
     fetcher
   );
 
