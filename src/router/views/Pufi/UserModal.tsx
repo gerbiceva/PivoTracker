@@ -119,7 +119,7 @@ export const UserModal = ({ id, displayName }: UserModalProps) => {
         centered
       >
         <LoadingOverlay visible={isLoading} />
-        <Stack align="center" gap="xl">
+        <Stack align="center" gap="xl" py="xl">
           <Title order={2} fw="bold" c={numToColor(id)}>
             {displayName}
           </Title>

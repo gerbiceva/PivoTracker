@@ -177,6 +177,15 @@ export type Database = {
           }
         ]
       }
+      total_summary: {
+        Row: {
+          total_cena: number | null
+          total_ordered: number | null
+          total_paid: number | null
+          total_stevilo_piv: number | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       [_ in never]: never

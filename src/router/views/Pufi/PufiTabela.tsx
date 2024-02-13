@@ -17,7 +17,7 @@ export interface IUserElements {
 
 export function PuffTable() {
   const { isLoading, data, error } = useGetSummedDebt();
-  // const theme = useMantineTheme();
+
   const rows = useMemo(() => {
     if (error) {
       return (
@@ -45,7 +45,7 @@ export function PuffTable() {
     }
 
     if (!data) {
-      return "nodata";
+      return undefined;
     }
 
     return data.map((element) => (

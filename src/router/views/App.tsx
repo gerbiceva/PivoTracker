@@ -5,10 +5,10 @@ import { Outlet } from "react-router-dom";
 
 function App() {
   return (
-    <Stack p="md">
+    <Stack p="md" h="100vh">
       <Navbar />
       <CustomSpotlight />
-      <Container w="100%">
+      <Container w="100%" h="100%">
         <Outlet />
       </Container>
     </Stack>

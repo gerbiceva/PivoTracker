@@ -1,12 +1,18 @@
 import { rem } from "@mantine/core";
-import { IconBeer, IconList, IconLogout, IconShoppingBag, IconTransactionEuro } from "@tabler/icons-react";
+import {
+  IconBeer,
+  IconList,
+  IconLogout,
+  IconShoppingBag,
+  IconTransactionEuro,
+} from "@tabler/icons-react";
 
 const Spotlightactions: SpotlightActionData[] = [
   {
     id: "add",
     label: "Dodajanje piva",
     description: "Prodaj pivo stranki",
-    onClick: () => window.location.replace("/"),
+    onClick: () => window.location.replace("/add"),
     leftSection: (
       <IconBeer style={{ width: rem(24), height: rem(24) }} stroke={1.5} />
     ),
@@ -26,7 +32,10 @@ const Spotlightactions: SpotlightActionData[] = [
     description: "Prikaži vse transakcije",
     onClick: () => window.location.replace("/transactions"),
     leftSection: (
-      <IconTransactionEuro style={{ width: rem(24), height: rem(24) }} stroke={1.5} />
+      <IconTransactionEuro
+        style={{ width: rem(24), height: rem(24) }}
+        stroke={1.5}
+      />
     ),
   },
   {
@@ -35,14 +44,20 @@ const Spotlightactions: SpotlightActionData[] = [
     description: "Nabava piva iz trgovine",
     onClick: () => window.location.replace("/nabava"),
     leftSection: (
-      <IconShoppingBag style={{ width: rem(24), height: rem(24) }} stroke={1.5} />
+      <IconShoppingBag
+        style={{ width: rem(24), height: rem(24) }}
+        stroke={1.5}
+      />
     ),
   },
   {
     id: "logout",
     label: "Odjava",
     description: "Odjavi se iz sistema",
-    onClick: () => { supabaseClient.auth.signOut(); window.location.replace("/auth"); },
+    onClick: () => {
+      supabaseClient.auth.signOut();
+      window.location.replace("/auth");
+    },
     leftSection: (
       <IconLogout style={{ width: rem(24), height: rem(24) }} stroke={1.5} />
     ),
