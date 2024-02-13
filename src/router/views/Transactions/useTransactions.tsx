@@ -1,41 +1,38 @@
-import { useEffect, useState } from "react";
 import { supabaseClient } from "../../../supabase/supabaseClient";
 import { Tables } from "../../../supabase/supabase";
+import useSWR from "swr";
 
 export const useGetTransactions = (id?: number) => {
-  const [loading, setLoading] = useState(true);
-  const [transactions, setTransactions] = useState<
-    Tables<"named_transactions">[]
-  >([]);
+  const fetcher = () =>
+    new Promise<Tables<"named_transactions">[]>((resolve, reject) => {
+      const query = supabaseClient.from("named_transactions").select();
 
-  useEffect(() => {
-    const query = supabaseClient.from("named_transactions").select();
-
-    if (id) {
-      query
-        .eq("id", id)
-        .order("ordered_at", { ascending: false })
-        .then((res) => {
+      if (id) {
+        query
+          .eq("id", id)
+          .order("ordered_at", { ascending: false })
+          .then((res) => {
+            if (!res.error) {
+              resolve(res.data);
+            } else {
+              reject(res.error);
+            }
+          });
+      } else {
+        query.order("ordered_at", { ascending: false }).then((res) => {
           if (!res.error) {
-            setTransactions(res.data);
+            resolve(res.data);
           } else {
-            console.log(res.error);
+            reject(res.error);
           }
-        })
-        .then(() => setLoading(false));
-    } else {
-      query
-        .order("ordered_at", { ascending: false })
-        .then((res) => {
-          if (!res.error) {
-            setTransactions(res.data);
-          } else {
-            console.log(res.error);
-          }
-        })
-        .then(() => setLoading(false));
-    }
-  }, [id]);
+        });
+      }
+    });
 
-  return { loading, transactions };
+  const out = useSWR<Tables<"named_transactions">[]>(
+    `/view/named_transactions`,
+    fetcher
+  );
+
+  return out;
 };

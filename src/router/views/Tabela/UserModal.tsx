@@ -1,5 +1,6 @@
 import {
   ActionIcon,
+  Alert,
   Badge,
   Button,
   Divider,
@@ -23,7 +24,7 @@ import {
 } from "../../../utils/Converter";
 import { useGetTransactions } from "../Transactions/useTransactions";
 
-const addGajba = (fullname: string) => () => {
+const addGajba = (fullname: string, thn: () => void) => () => {
   supabaseClient
     .from("customers")
     .select("id")
@@ -40,6 +41,7 @@ const addGajba = (fullname: string) => () => {
                 color: "green",
                 message: `${fullname} je uspešno kupil in plačal gajbo piva!`,
               });
+              thn();
             } else {
               notifications.show({
                 title: "Napaka",
@@ -65,20 +67,20 @@ interface UserModalProps {
 
 export const UserModal = ({ id, displayName }: UserModalProps) => {
   const [opened, { open, close }] = useDisclosure(false);
-  const { loading, transactions } = useGetTransactions(id);
+  const { data, error, isLoading, mutate } = useGetTransactions(id);
 
   const { userTotalOrdered, userTotalPaid, rows } = useMemo(() => {
+    if (!data) {
+      return { userTotalOrdered: 0, userTotalPaid: 0, rows: undefined };
+    }
     // calculate total ordered and paid
-    const userTotalOrdered = transactions.reduce(
+    const userTotalOrdered = data.reduce(
       (acc, val) => acc + (val.ordered || 0),
       0
     );
-    const userTotalPaid = transactions.reduce(
-      (acc, val) => acc + (val.paid || 0),
-      0
-    );
+    const userTotalPaid = data.reduce((acc, val) => acc + (val.paid || 0), 0);
 
-    const rows = transactions.map((element) => {
+    const rows = data.map((element) => {
       const owed = pivoVGajba(element.ordered!, element.paid! / 10);
       return (
         <Table.Tr key={element.ordered_at}>
@@ -104,7 +106,7 @@ export const UserModal = ({ id, displayName }: UserModalProps) => {
       );
     });
     return { userTotalOrdered, userTotalPaid, rows };
-  }, [transactions]);
+  }, [data]);
 
   return (
     <>
@@ -124,7 +126,7 @@ export const UserModal = ({ id, displayName }: UserModalProps) => {
         withCloseButton={true}
         centered
       >
-        <LoadingOverlay visible={loading} />
+        <LoadingOverlay visible={isLoading} />
         <Stack>
           <Group justify="space-between">
             <Text>{displayName}</Text>
@@ -141,39 +143,43 @@ export const UserModal = ({ id, displayName }: UserModalProps) => {
                 <NumberInput maw={70} defaultValue={1} placeholder="2" />
                 <Button variant="outline">Dodaj</Button>
               </Group>
-              <Button variant="outline" onClick={addGajba(displayName)}>
+              <Button variant="outline" onClick={addGajba(displayName, mutate)}>
                 Dodaj gajbo
               </Button>
             </Group>
           </Group>
           <Divider label="Transakcije" />
-          <Table.ScrollContainer minWidth={500}>
-            <Table striped highlightOnHover stickyHeader>
-              <Table.Thead>
-                <Table.Tr>
-                  <Table.Th style={{ textAlign: "right" }}>
-                    Kupljeno ob
-                  </Table.Th>
-                  <Table.Th style={{ textAlign: "right" }}>
-                    Kupljeno dne
-                  </Table.Th>
-                  <Table.Th style={{ textAlign: "right" }}>
-                    Število piv
-                  </Table.Th>
-                  <Table.Th style={{ textAlign: "right" }}>Plačano</Table.Th>
-                  <Table.Th style={{ textAlign: "right" }}>Razlika</Table.Th>
-                </Table.Tr>
-              </Table.Thead>
+          {error ? (
+            <Alert c="red">Error fetching {error}</Alert>
+          ) : (
+            <Table.ScrollContainer minWidth={500}>
+              <Table striped highlightOnHover stickyHeader>
+                <Table.Thead>
+                  <Table.Tr>
+                    <Table.Th style={{ textAlign: "right" }}>
+                      Kupljeno ob
+                    </Table.Th>
+                    <Table.Th style={{ textAlign: "right" }}>
+                      Kupljeno dne
+                    </Table.Th>
+                    <Table.Th style={{ textAlign: "right" }}>
+                      Število piv
+                    </Table.Th>
+                    <Table.Th style={{ textAlign: "right" }}>Plačano</Table.Th>
+                    <Table.Th style={{ textAlign: "right" }}>Razlika</Table.Th>
+                  </Table.Tr>
+                </Table.Thead>
 
-              <Table.Tbody
-                style={{
-                  cursor: "pointer",
-                }}
-              >
-                {rows}
-              </Table.Tbody>
-            </Table>
-          </Table.ScrollContainer>
+                <Table.Tbody
+                  style={{
+                    cursor: "pointer",
+                  }}
+                >
+                  {rows}
+                </Table.Tbody>
+              </Table>
+            </Table.ScrollContainer>
+          )}
         </Stack>
       </Modal>
     </>
