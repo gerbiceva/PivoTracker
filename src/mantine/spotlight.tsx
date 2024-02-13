@@ -1,6 +1,7 @@
 import { rem } from "@mantine/core";
 import {
   IconBeer,
+  IconHome,
   IconList,
   IconLogout,
   IconShoppingBag,
@@ -8,6 +9,15 @@ import {
 } from "@tabler/icons-react";
 
 const Spotlightactions: SpotlightActionData[] = [
+  {
+    id: "home",
+    label: "Home",
+    description: "Dashboard page",
+    onClick: () => window.location.replace("/"),
+    leftSection: (
+      <IconHome style={{ width: rem(24), height: rem(24) }} stroke={1.5} />
+    ),
+  },
   {
     id: "add",
     label: "Dodajanje piva",

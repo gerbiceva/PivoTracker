@@ -22,6 +22,7 @@ import { useGetDash } from "./UseGetDash";
 import { StatElement } from "./StatElement";
 import { intToEur, numberToEur, pivoVGajba } from "../../../utils/Converter";
 import { StatsRing } from "./StatsRing";
+import { useNavigate } from "react-router-dom";
 
 export const Dashboard = () => {
   const { data, error, isLoading } = useGetDash();
@@ -35,6 +36,8 @@ export const Dashboard = () => {
   //   stat 2
   const kupljenega = data?.total_stevilo_piv || 0;
   const prodanega = data?.total_ordered || 0;
+
+  const navigate = useNavigate();
   return (
     <Center h="100%">
       <Paper p="xl">
@@ -95,13 +98,24 @@ export const Dashboard = () => {
               size="md"
               leftSection={<IconPlus></IconPlus>}
               variant="outline"
+              onClick={() => navigate("/add")}
             >
               Dodaj piva
             </Button>
-            <Button size="md" leftSection={<IconPigMoney />} variant="outline">
+            <Button
+              size="md"
+              leftSection={<IconPigMoney />}
+              variant="outline"
+              onClick={() => navigate("/puff")}
+            >
               Preglej pufe
             </Button>
-            <Button size="md" leftSection={<IconHomeStats />} variant="outline">
+            <Button
+              size="md"
+              leftSection={<IconHomeStats />}
+              variant="outline"
+              onClick={() => navigate("/transactions")}
+            >
               Statistika
             </Button>
           </Group>
