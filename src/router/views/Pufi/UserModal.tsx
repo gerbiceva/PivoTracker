@@ -91,7 +91,7 @@ export const UserModal = ({ id, displayName }: UserModalProps) => {
             {numberToEur((element.paid || 0) / 10)}
           </Table.Td>
           <Table.Td align="right">
-            <DebtBadge ordered={element.ordered!} paid={element.paid! / 10} />
+            <DebtBadge ordered={element.ordered!} paid={element.paid!} />
           </Table.Td>
         </Table.Tr>
       );
