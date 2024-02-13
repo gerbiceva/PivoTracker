@@ -6,7 +6,7 @@ export type Json =
   | { [key: string]: Json | undefined }
   | Json[]
 
-export interface Database {
+export type Database = {
   public: {
     Tables: {
       customers: {
@@ -53,6 +53,13 @@ export interface Database {
             isOneToOne: false
             referencedRelation: "customers"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "transactions_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "everything_sum"
+            referencedColumns: ["id"]
           }
         ]
       }
@@ -70,6 +77,7 @@ export interface Database {
       everything_sum: {
         Row: {
           fullname: string | null
+          id: number | null
           total_ordered: number | null
           total_paid: number | null
         }
@@ -90,6 +98,13 @@ export interface Database {
             columns: ["customer_id"]
             isOneToOne: false
             referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "transactions_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "everything_sum"
             referencedColumns: ["id"]
           }
         ]
