@@ -4,7 +4,7 @@ import { ProtectedPath } from "../components/ProtectedPath";
 import App from "./views/App";
 import { Transactions } from "./views/Transactions/Transactions";
 import { BeerAdded } from "./views/Adder/Adder";
-import { Tab } from "./views/Tabela/Tabela";
+import { PuffTable } from "./views/Tabela/Tabela";
 
 export const router = createBrowserRouter([
   {
@@ -34,7 +34,7 @@ export const router = createBrowserRouter([
       },
       {
         path: "/puff",
-        element: <Tab />,
+        element: <PuffTable />,
       },
     ],
   },
