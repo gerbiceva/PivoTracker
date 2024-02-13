@@ -10,6 +10,7 @@ import {
   Stack,
   Table,
   Text,
+  Title,
 } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { notifications } from "@mantine/notifications";
@@ -19,6 +20,7 @@ import { supabaseClient } from "../../../supabase/supabaseClient";
 import { getDateFromString, numberToEur } from "../../../utils/Converter";
 import { useGetTransactions } from "../Transactions/useTransactions";
 import { DebtBadge } from "../../../components/pricing/DebtBadge";
+import { numToColor } from "../../../components/users/stringToCol";
 
 const addGajba = (id: number, successCallback: () => void) => () => {
   supabaseClient
@@ -118,11 +120,11 @@ export const UserModal = ({ id, displayName }: UserModalProps) => {
         centered
       >
         <LoadingOverlay visible={isLoading} />
-        <Stack>
+        <Stack align="center" gap="xl">
+          <Title order={2} fw="bold" c={numToColor(id)}>
+            {displayName}
+          </Title>
           <Group justify="space-between" px="xl">
-            <Text size="xl" fw="bold">
-              {displayName}
-            </Text>
             <DebtBadge ordered={userTotalOrdered} paid={userTotalPaid} />
             <Group justify="right">
               <Group>
