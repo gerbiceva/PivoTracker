@@ -16,11 +16,7 @@ import { notifications } from "@mantine/notifications";
 import { IconPencil } from "@tabler/icons-react";
 import { useMemo } from "react";
 import { supabaseClient } from "../../../supabase/supabaseClient";
-import {
-  getDateFromString,
-  numberToEur,
-  pivoVGajba,
-} from "../../../utils/Converter";
+import { getDateFromString, numberToEur } from "../../../utils/Converter";
 import { useGetTransactions } from "../Transactions/useTransactions";
 import { DebtBadge } from "../../../components/pricing/DebtBadge";
 
@@ -81,7 +77,6 @@ export const UserModal = ({ id, displayName }: UserModalProps) => {
     const userTotalPaid = data.reduce((acc, val) => acc + (val.paid || 0), 0);
 
     const rows = data.map((element) => {
-      const owed = pivoVGajba(element.ordered!, element.paid! / 10);
       // const owed = computeDebt(element.ordered || 0, element.paid || 0);
       return (
         <Table.Tr key={element.ordered_at}>
@@ -93,10 +88,10 @@ export const UserModal = ({ id, displayName }: UserModalProps) => {
           </Table.Td>
           <Table.Td align="right">{element.ordered}</Table.Td>
           <Table.Td align="right">
-            {numberToEur((element.paid || 0) / 10)} €
+            {numberToEur((element.paid || 0) / 10)}
           </Table.Td>
           <Table.Td align="right">
-            <DebtBadge debt={owed} />
+            <DebtBadge ordered={element.ordered!} paid={element.paid! / 10} />
           </Table.Td>
         </Table.Tr>
       );
@@ -128,9 +123,7 @@ export const UserModal = ({ id, displayName }: UserModalProps) => {
             <Text size="xl" fw="bold">
               {displayName}
             </Text>
-            <DebtBadge
-              debt={pivoVGajba(userTotalOrdered, userTotalPaid / 10)}
-            />
+            <DebtBadge ordered={userTotalOrdered} paid={userTotalPaid} />
             <Group justify="right">
               <Group>
                 <NumberInput maw={70} defaultValue={1} placeholder="2" />

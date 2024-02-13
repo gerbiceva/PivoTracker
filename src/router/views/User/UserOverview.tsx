@@ -1,20 +1,19 @@
 import {
   Alert,
   Avatar,
-  Badge,
   Divider,
   Group,
   LoadingOverlay,
-  Paper,
   Stack,
   Text,
   Title,
 } from "@mantine/core";
 import { useParams } from "react-router-dom";
-import { useGetUserInfo } from "./getUserInfo";
-import { useGetTransactions } from "../Transactions/useTransactions";
 import { Transactiongraph } from "../Transactions/TransactionGraph";
 import { TransactionsTable } from "../Transactions/TransactionsTable";
+import { useGetTransactions } from "../Transactions/useTransactions";
+import { useGetUserInfo } from "./getUserInfo";
+import { numToColor } from "../../../components/users/stringToCol";
 
 export const UserView = () => {
   // read link params
@@ -59,10 +58,10 @@ export const UserView = () => {
       <LoadingOverlay visible={isLoadingUser || isLoadingTransactions} />
       <Group w="100%">
         <Group align="center" py="xl">
-          <Avatar variant="light" size="md">
+          <Avatar variant="light" size="md" color={numToColor(parsedId)}>
             {userInfo?.id}
           </Avatar>
-          <Title>{userInfo?.fullname}</Title>
+          <Title c={numToColor(parsedId)}>{userInfo?.fullname}</Title>
         </Group>
       </Group>
       <Transactiongraph transactions={transactions || []} />

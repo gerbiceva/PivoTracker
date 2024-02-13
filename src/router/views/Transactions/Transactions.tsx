@@ -1,4 +1,11 @@
-import { Alert, Center, Divider, LoadingOverlay, Stack } from "@mantine/core";
+import {
+  Alert,
+  Center,
+  Divider,
+  LoadingOverlay,
+  Stack,
+  Title,
+} from "@mantine/core";
 import { useLiveTransactions } from "../../../components/hooks.ts/liveTransactionsHook";
 import { Transactiongraph } from "./TransactionGraph";
 import { TransactionsTable } from "./TransactionsTable";
@@ -21,15 +28,19 @@ export const Transactions = () => {
 
   return (
     <>
-      <Stack>
+      <Stack py="xl">
         <LoadingOverlay visible={isLoading} />
+        <Title order={2} pb="xl">
+          Vse transakcije
+        </Title>
         {/* graph */}
         <Transactiongraph transactions={transactions} />
-        <Divider label="Zgodovina transakcij" />
+        <Divider label="Zgodovina transakcij" py="lg" />
+        {/* tabble */}
         <TransactionsTable
           transactions={transactions}
           removeTransaction={removeTransaction}
-        ></TransactionsTable>
+        />
       </Stack>
     </>
   );

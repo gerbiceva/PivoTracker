@@ -31,8 +31,12 @@ export const pivoVGajba = (ordered: number, paid: number) => {
 };
 
 export const numberToEur = (num: number) => {
+  const euro = Intl.NumberFormat("en-DE", {
+    style: "currency",
+    currency: "EUR",
+  });
   // format number to eur on two decimals
-  return (num * -1).toFixed(2);
+  return euro.format(num);
 };
 
 export const getDateFromString = (date: string) => {

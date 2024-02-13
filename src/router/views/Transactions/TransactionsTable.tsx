@@ -1,8 +1,9 @@
 import { Button, Table, TableProps } from "@mantine/core";
-import { Tables } from "../../../supabase/supabase";
 import { IconTrash } from "@tabler/icons-react";
 import { DebtBadge } from "../../../components/pricing/DebtBadge";
-import { intToEur, pivoCena, numberToEur } from "../../../utils/Converter";
+import { UserTag } from "../../../components/users/UserTag";
+import { Tables } from "../../../supabase/supabase";
+import { intToEur, numberToEur } from "../../../utils/Converter";
 
 interface ITransactionsTableProps extends TableProps {
   transactions: Tables<"named_transactions">[];
@@ -12,18 +13,30 @@ export const TransactionsTable = ({
   transactions,
   removeTransaction,
 }: ITransactionsTableProps) => {
+  // const theme = useMantineTheme();
   const rows = transactions.map((element) => {
-    const diff = intToEur(element.paid || 0) - pivoCena(element.ordered || 0);
     return (
-      <Table.Tr key={element.id}>
+      <Table.Tr
+        key={element.id}
+        // bg={alpha(getThemeColor(numToColor(element.customer_id!), theme), 0.1)}
+      >
         <Table.Td>{element.id}</Table.Td>
-        <Table.Td>{element.fullname}</Table.Td>
+        <Table.Td>
+          <UserTag
+            fullname={element.fullname || ""}
+            id={element.customer_id || -1}
+          />
+        </Table.Td>
         <Table.Td align="right">{element.ordered}</Table.Td>
         <Table.Td align="right">
           {numberToEur(intToEur(element.paid || 0))} €
         </Table.Td>
         <Table.Td align="right">
-          <DebtBadge debt={diff} variant="outline" />
+          <DebtBadge
+            variant="outline"
+            ordered={element.ordered!}
+            paid={element.paid!}
+          />
           {/* <Text c={diff < 0 ? "red" : "green"}>{numberToEur(diff)} €</Text> */}
         </Table.Td>
         <Table.Td align="right">

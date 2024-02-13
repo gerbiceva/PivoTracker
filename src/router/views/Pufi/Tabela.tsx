@@ -1,9 +1,11 @@
 import { Alert, LoadingOverlay, Paper, Stack, Table } from "@mantine/core";
 import { useMemo } from "react";
-import { numberToEur } from "../../../utils/Converter";
-import { UserModal } from "./UserModal";
-import { useGetSummedDebt } from "./GetEverythingSum";
+import { Link } from "react-router-dom";
 import { DebtBadge } from "../../../components/pricing/DebtBadge";
+import { UserTag } from "../../../components/users/UserTag";
+import { numberToEur } from "../../../utils/Converter";
+import { useGetSummedDebt } from "./GetEverythingSum";
+import { UserModal } from "./UserModal";
 
 export interface IUserElements {
   fullname: string;
@@ -14,14 +16,28 @@ export interface IUserElements {
 }
 
 export function PuffTable() {
-  const { isLoading, data } = useGetSummedDebt();
+  const { isLoading, data, error } = useGetSummedDebt();
+  // const theme = useMantineTheme();
   const rows = useMemo(() => {
+    if (error) {
+      return (
+        <Table.Tr>
+          <Table.Td colSpan={100}>
+            <Alert title="Error" color="red">
+              {error.message}
+            </Alert>
+          </Table.Td>
+        </Table.Tr>
+      );
+    }
+
     if (!data && !isLoading) {
       return (
         <Table.Tr>
-          <Table.Td rowSpan={100}>
+          <Table.Td colSpan={100}>
             <Alert title="No data">
-              No data yet. Go to the <b>ADD BEER</b> section and sell some beer.
+              No data yet. Go to the <Link to={"/"}>ADD BEER</Link> section and
+              sell some beer.
             </Alert>
           </Table.Td>
         </Table.Tr>
@@ -29,18 +45,27 @@ export function PuffTable() {
     }
 
     if (!data) {
-      return <Table.Tr></Table.Tr>;
+      return "nodata";
     }
 
     return data.map((element) => (
-      <Table.Tr key={element.fullname}>
-        <Table.Td align="left">{element.fullname}</Table.Td>
+      <Table.Tr
+        key={element.fullname}
+        p="xs"
+        // bg={alpha(getThemeColor(numToColor(element.id!), theme), 0.1)}
+      >
+        <Table.Td align="left">
+          <UserTag fullname={element.fullname || ""} id={element.id || -1} />
+        </Table.Td>
         <Table.Td align="right">{element.total_ordered}</Table.Td>
         <Table.Td align="right">
-          {numberToEur(element.total_paid || 0)} €
+          {numberToEur((element.total_paid || 0) / 10)} €
         </Table.Td>
         <Table.Td align="right">
-          <DebtBadge debt={element.owed} />
+          <DebtBadge
+            ordered={element.total_ordered || 0}
+            paid={element.total_paid || 0}
+          />
         </Table.Td>
         <Table.Td align="right">
           <UserModal
@@ -50,7 +75,7 @@ export function PuffTable() {
         </Table.Td>
       </Table.Tr>
     ));
-  }, [data, isLoading]);
+  }, [data, error]);
 
   return (
     <Paper withBorder p="sm" pos="relative">

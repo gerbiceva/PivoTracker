@@ -1,11 +1,13 @@
 import { Badge, BadgeProps } from "@mantine/core";
-import { numberToEur } from "../../utils/Converter";
+import { numberToEur, pivoVGajba } from "../../utils/Converter";
 
 interface IDebtBadgeProps extends BadgeProps {
-  debt: number;
+  ordered: number;
+  paid: number;
 }
 
-export const DebtBadge = ({ debt, ...other }: IDebtBadgeProps) => {
+export const DebtBadge = ({ ordered, paid, ...other }: IDebtBadgeProps) => {
+  const debt = pivoVGajba(ordered, paid / 10);
   return (
     <Badge
       variant="light"
@@ -14,7 +16,7 @@ export const DebtBadge = ({ debt, ...other }: IDebtBadgeProps) => {
       color={debt == 0.0 ? "gray" : debt < 0 ? "green" : "red"}
       {...other}
     >
-      {numberToEur(debt)} €
+      {numberToEur(debt)}
     </Badge>
   );
 };
