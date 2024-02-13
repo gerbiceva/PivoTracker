@@ -17,7 +17,6 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <MantineProvider theme={mantineTheme}>
       <Notifications />
-      <CustomSpotlight />
       <ModalsProvider modals={mantineModals}>
         <RouterProvider router={router} />
       </ModalsProvider>

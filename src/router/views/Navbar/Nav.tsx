@@ -3,19 +3,27 @@ import { supabaseClient } from "../../../supabase/supabaseClient";
 import { spotlight } from "@mantine/spotlight";
 import { useMediaQuery } from "@mantine/hooks";
 import { useUser } from "../../../supabase/loader";
+import { useNavigate } from "react-router-dom";
 
 export const Navbar = () => {
   const matches = useMediaQuery("(min-width: 56.25em)");
   const { loading, user } = useUser();
+  const navigate = useNavigate();
 
   return (
     <Paper w="100%" withBorder p="md" shadow="lg">
       <Group w="100%" justify="space-between">
         <Group>
-          <Text size="2rem">🍺</Text>
-          <Text fw="bold" size="xl">
+          <Button
+            onClick={() => {
+              navigate("/");
+            }}
+            variant="transparent"
+            size="xl"
+            leftSection={<Text size="2rem">🍺</Text>}
+          >
             Evidenca piva
-          </Text>
+          </Button>
         </Group>
         <Badge size="xs" pos="absolute" bottom={0} left={0} m="xs">
           {user?.id || "Neprijavljen"}

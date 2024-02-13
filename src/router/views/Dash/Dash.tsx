@@ -17,6 +17,7 @@ import {
   IconPlus,
   IconScale,
   IconShoppingBag,
+  IconStack,
 } from "@tabler/icons-react";
 import { useGetDash } from "./UseGetDash";
 import { StatElement } from "./StatElement";
@@ -89,7 +90,7 @@ export const Dashboard = () => {
                   value: (prodanega / kupljenega) * 100,
                 },
               ]}
-              Icon={IconScale}
+              Icon={IconStack}
             />
           </SimpleGrid>
           <Divider label="Links" py="xl"></Divider>
