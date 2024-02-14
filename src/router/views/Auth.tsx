@@ -15,14 +15,16 @@ import { IconCircleKey } from "@tabler/icons-react";
 import { supabaseClient } from "../../supabase/supabaseClient";
 import { useUser } from "../../supabase/loader";
 import { Navigate } from "react-router-dom";
+import { useState } from "react";
 
 export function Authentication() {
-  const { user, loading } = useUser();
+  const { user } = useUser();
+  const [loading, setLoading] = useState(false);
 
   const form = useForm({
     initialValues: {
-      email: "zan@zan.com",
-      password: "zanzan",
+      email: "",
+      password: "",
     },
 
     validate: {
@@ -48,10 +50,15 @@ export function Authentication() {
           <Paper withBorder shadow="md" p={30} mt={30} radius="md">
             <form
               onSubmit={form.onSubmit(async (values) => {
-                await supabaseClient.auth.signInWithPassword({
-                  email: values.email,
-                  password: values.password,
-                });
+                setLoading(true);
+                await supabaseClient.auth
+                  .signInWithPassword({
+                    email: values.email,
+                    password: values.password,
+                  })
+                  .then(() => {
+                    setLoading(false);
+                  });
               })}
             >
               <TextInput
@@ -68,7 +75,7 @@ export function Authentication() {
                 {...form.getInputProps("password")}
               />
 
-              <Button fullWidth mt="xl" type="submit">
+              <Button fullWidth mt="xl" type="submit" loading={loading}>
                 Sign in
               </Button>
             </form>

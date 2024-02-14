@@ -1,12 +1,4 @@
-import {
-  Alert,
-  Avatar,
-  Divider,
-  Group,
-  LoadingOverlay,
-  Stack,
-  Title,
-} from "@mantine/core";
+import { Alert, LoadingOverlay, Stack, Title } from "@mantine/core";
 import { NabavaAdder } from "./NabavaAdder";
 import { NabavaTable } from "./NabavaTable";
 import { useGetNabava } from "./UseGetNabava";

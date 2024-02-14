@@ -1,6 +1,5 @@
 import { Alert, LoadingOverlay, Paper, Stack, Table } from "@mantine/core";
 import { useMemo } from "react";
-import { Link } from "react-router-dom";
 import { Tables } from "../../../supabase/supabase";
 import { numberToEur } from "../../../utils/Converter";
 
@@ -24,21 +23,17 @@ export function NabavaTable({ data, error, isLoading }: NabavaTableProps) {
       );
     }
 
-    if (!data && !isLoading) {
+    if (data && !isLoading && data.length == 0) {
       return (
         <Table.Tr>
           <Table.Td colSpan={100}>
-            <Alert title="No data">
-              No data yet. Go to the <Link to={"/"}>ADD BEER</Link> section and
-              sell some beer.
+            <Alert title="No data" variant="light">
+              Ni podatkov o nabavi. Statistika o nabavi bo izpisana, ko dodate
+              prvi nakup.
             </Alert>
           </Table.Td>
         </Table.Tr>
       );
-    }
-
-    if (!data) {
-      return "nodata";
     }
 
     return data.map((element) => (
@@ -50,7 +45,7 @@ export function NabavaTable({ data, error, isLoading }: NabavaTableProps) {
         </Table.Td>
       </Table.Tr>
     ));
-  }, [data, error]);
+  }, [data, error, isLoading]);
 
   return (
     <Paper p="sm" pos="relative">
