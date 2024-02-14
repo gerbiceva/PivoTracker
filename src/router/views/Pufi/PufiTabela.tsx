@@ -75,7 +75,7 @@ export function PuffTable() {
         </Table.Td>
       </Table.Tr>
     ));
-  }, [data, error]);
+  }, [data, error, isLoading]);
 
   return (
     <Paper withBorder p="sm" pos="relative">

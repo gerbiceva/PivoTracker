@@ -1,4 +1,6 @@
 import {
+  Alert,
+  Avatar,
   Box,
   Button,
   Center,
@@ -6,6 +8,7 @@ import {
   Group,
   Paper,
   PasswordInput,
+  Stack,
   Text,
   TextInput,
   Title,
@@ -39,47 +42,61 @@ export function Authentication() {
   return (
     <Box h="100vh" w="100vw">
       <Center h="100vh" w="100%">
-        <Container size={620} miw={440}>
-          <Group align="baseline">
-            <Text color="dimmed">
-              <IconCircleKey></IconCircleKey>
-            </Text>
-            <Title>Login</Title>
-          </Group>
+        <Container size={820} miw={540}>
+          <Stack align="center" w="100%">
+            <Group align="center">
+              <Text c="dimmed">
+                {/* <IconCircleKey></IconCircleKey> */}
+                <Avatar variant="outline" size="md">
+                  G59
+                </Avatar>
+              </Text>
+              <Title>Tekoče ministrstvo</Title>
+            </Group>
 
-          <Paper withBorder shadow="md" p={30} mt={30} radius="md">
-            <form
-              onSubmit={form.onSubmit(async (values) => {
-                setLoading(true);
-                await supabaseClient.auth
-                  .signInWithPassword({
-                    email: values.email,
-                    password: values.password,
-                  })
-                  .then(() => {
-                    setLoading(false);
-                  });
-              })}
+            <Paper withBorder shadow="md" p={30} mt={30} radius="md" miw={350}>
+              <form
+                onSubmit={form.onSubmit(async (values) => {
+                  setLoading(true);
+                  await supabaseClient.auth
+                    .signInWithPassword({
+                      email: values.email,
+                      password: values.password,
+                    })
+                    .then(() => {
+                      setLoading(false);
+                    });
+                })}
+              >
+                <TextInput
+                  label="Email"
+                  placeholder="you@mantine.dev"
+                  required
+                  {...form.getInputProps("email")}
+                />
+                <PasswordInput
+                  label="Password"
+                  placeholder="Your password"
+                  required
+                  mt="md"
+                  {...form.getInputProps("password")}
+                />
+
+                <Button fullWidth mt="xl" type="submit" loading={loading}>
+                  Sign in
+                </Button>
+              </form>
+            </Paper>
+            <Alert
+              mt="xl"
+              variant="outline"
+              icon={<IconCircleKey> </IconCircleKey>}
+              maw="350px"
             >
-              <TextInput
-                label="Email"
-                placeholder="you@mantine.dev"
-                required
-                {...form.getInputProps("email")}
-              />
-              <PasswordInput
-                label="Password"
-                placeholder="Your password"
-                required
-                mt="md"
-                {...form.getInputProps("password")}
-              />
-
-              <Button fullWidth mt="xl" type="submit" loading={loading}>
-                Sign in
-              </Button>
-            </form>
-          </Paper>
+              Uporabniške račune ustvarite v 3. (najboljšem) štuku, pri
+              pristojnemu ministru.
+            </Alert>
+          </Stack>
         </Container>
       </Center>
     </Box>
