@@ -1,13 +1,13 @@
 import { createBrowserRouter } from "react-router-dom";
-import { BeerAdded } from "./views/Adder/Adder";
-import App from "./views/App";
-import { Authentication } from "./views/Auth";
-import { PuffTable } from "./views/Pufi/PufiTabela";
-import { Transactions } from "./views/Transactions/Transactions";
-import { UserView } from "./views/User/UserOverview";
-import { Nabava } from "./views/Nabava/Nabava";
 import { ProtectedPath } from "../components/ProtectedPath";
-import { Dashboard } from "./views/Dash/Dash";
+import { BeerAdded } from "../components/views/Adder/Adder";
+import App from "../components/views/App";
+import { Authentication } from "../components/views/Auth";
+import { Dashboard } from "../components/views/Dash/Dash";
+import { Nabava } from "../components/views/Nabava/Nabava";
+import { PuffTable } from "../components/views/Pufi/PufiTabela";
+import { Transactions } from "../components/views/Transactions/Transactions";
+import { UserView } from "../components/views/User/UserOverview";
 
 export const router = createBrowserRouter([
   {

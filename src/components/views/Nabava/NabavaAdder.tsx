@@ -1,9 +1,9 @@
-import { Alert, Box, Button, NumberInput, Paper, Stack } from "@mantine/core";
+import { Box, Button, NumberInput, Paper, Stack } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import { useFocusTrap } from "@mantine/hooks";
 import { notifications } from "@mantine/notifications";
 import { IconBeer, IconCurrencyEuro } from "@tabler/icons-react";
-import { nabava, useAddNabava, useGetNabava } from "./UseGetNabava";
+import { nabava, useAddNabava } from "./UseGetNabava";
 
 export const NabavaAdder = () => {
   const focusTrapRef = useFocusTrap();

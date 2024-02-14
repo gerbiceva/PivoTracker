@@ -11,7 +11,6 @@ import { router } from "./router/router.tsx";
 import "@mantine/core/styles.css";
 import "@mantine/notifications/styles.css";
 import "@mantine/spotlight/styles.css";
-import { CustomSpotlight } from "./mantine/spotlight.tsx";
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>

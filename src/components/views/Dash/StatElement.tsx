@@ -1,6 +1,5 @@
 import { Paper, Group, Text } from "@mantine/core";
 import classes from "./StatsGrid.module.css";
-import { IconArrowsDiff } from "@tabler/icons-react";
 import type { Icon } from "@tabler/icons-react";
 
 interface Stat {
