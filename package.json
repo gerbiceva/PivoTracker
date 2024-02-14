@@ -8,18 +8,18 @@
     "build": "tsc && vite build",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
-    "typegen":"npx supabase gen types typescript --linked > src/supabase/supabase.ts"
+    "typegen": "npx supabase gen types typescript --linked > src/supabase/supabase.ts"
   },
   "dependencies": {
     "@emotion/react": "^11.11.3",
-    "@mantine/charts": "^7.5.1",
-    "@mantine/core": "^7.5.1",
-    "@mantine/dates": "^7.5.0",
-    "@mantine/form": "^7.5.0",
-    "@mantine/hooks": "^7.5.1",
-    "@mantine/modals": "^7.0.0",
-    "@mantine/notifications": "^7.5.0",
-    "@mantine/spotlight": "^7.5.0",
+    "@mantine/charts": "^7.5.2",
+    "@mantine/core": "^7.5.2",
+    "@mantine/dates": "^7.5.2",
+    "@mantine/form": "^7.5.2",
+    "@mantine/hooks": "^7.5.2",
+    "@mantine/modals": "^7.5.2",
+    "@mantine/notifications": "^7.5.2",
+    "@mantine/spotlight": "^7.5.2",
     "@nanostores/react": "^0.7.1",
     "@supabase/supabase-js": "^2.33.2",
     "@tabler/icons-react": "^2.46.0",
@@ -49,5 +49,11 @@
     "postcss-simple-vars": "^7.0.1",
     "typescript": "^5.0.2",
     "vite": "^4.4.5"
+  },
+  "prettier": {
+    "trailingComma": "all",
+    "tabWidth": 2,
+    "semi": true,
+    "singleQuote": true
   }
 }
