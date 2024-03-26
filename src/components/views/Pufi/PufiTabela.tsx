@@ -24,7 +24,7 @@ export interface IUserElements {
 }
 
 export function PuffTable() {
-  const [ord, stOrd] = useState<sumOrders>('total_paid');
+  const [ord, stOrd] = useState<sumOrders>('total_owed');
   const { isLoading, data, error } = useGetSummedDebt(ord);
 
   const rows = useMemo(() => {
@@ -67,10 +67,7 @@ export function PuffTable() {
           {numberToEur((element.total_paid || 0) / 10)}
         </Table.Td>
         <Table.Td align="right">
-          <DebtBadge
-            ordered={element.total_ordered || 0}
-            paid={element.total_paid || 0}
-          />
+          <DebtBadge debt={element.total_owed || 0} />
         </Table.Td>
         <Table.Td align="right">
           <UserModal
@@ -91,6 +88,10 @@ export function PuffTable() {
     >
       <SegmentedControl
         data={[
+          {
+            label: 'Zadložitev',
+            value: 'total_owed',
+          },
           {
             label: 'Plačano',
             value: 'total_paid',
@@ -114,7 +115,6 @@ export function PuffTable() {
       <ScrollArea type="always" h="100%">
         <Paper withBorder p="sm" pos="relative">
           <LoadingOverlay visible={isLoading} />
-
           <Stack>
             <Table.ScrollContainer minWidth={200}>
               <Table striped highlightOnHover withColumnBorders stickyHeader>

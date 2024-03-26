@@ -29,11 +29,7 @@ export const TransactionsTable = ({
           {numberToEur(intToEur(element.paid || 0))}
         </Table.Td>
         <Table.Td align="right">
-          <DebtBadge
-            variant="outline"
-            ordered={element.ordered!}
-            paid={element.paid!}
-          />
+          <DebtBadge variant="outline" debt={element.owed || 0} />
           {/* <Text c={diff < 0 ? "red" : "green"}>{numberToEur(diff)} €</Text> */}
         </Table.Td>
         <Table.Td align="right">

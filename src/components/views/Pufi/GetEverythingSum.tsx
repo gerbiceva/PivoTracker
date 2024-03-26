@@ -1,41 +1,29 @@
 import { Tables } from '../../../supabase/supabase';
 import { supabaseClient } from '../../../supabase/supabaseClient';
 import useSWR from 'swr';
-import { pivoVGajba } from '../../../utils/Converter';
 
-interface EverythingSumWithOwe extends Tables<'everything_sum'> {
-  owed: number;
-}
-
-const getElementsParsed = (
-  elements: Tables<'everything_sum'>[],
-): EverythingSumWithOwe[] => {
-  const out: EverythingSumWithOwe[] = elements.map((val) => ({
-    ...val, // destructure the thing before
-    owed: pivoVGajba(val.total_ordered || 0, val.total_paid || 0 / 10),
-  }));
-
-  return out;
-};
-
-export type sumOrders = 'total_ordered' | 'fullname' | 'total_paid';
+export type sumOrders =
+  | 'total_ordered'
+  | 'fullname'
+  | 'total_paid'
+  | 'total_owed';
 export const useGetSummedDebt = (order: sumOrders = 'total_ordered') => {
   const fetcher = () =>
-    new Promise<EverythingSumWithOwe[]>((resolve, reject) => {
+    new Promise<Tables<'everything_sum'>[]>((resolve, reject) => {
       supabaseClient
         .from('everything_sum')
         .select()
-        .order(order, { ascending: true })
+        .order('total_owed', { ascending: true })
         .then((res) => {
           if (!res.error) {
-            resolve(getElementsParsed(res.data));
+            resolve(res.data);
           } else {
             reject(res.error);
           }
         });
     });
 
-  const out = useSWR<EverythingSumWithOwe[]>(
+  const out = useSWR<Tables<'everything_sum'>[]>(
     `/view/everything_sum/${order}`,
     fetcher,
   );
