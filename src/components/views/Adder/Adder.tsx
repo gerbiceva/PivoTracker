@@ -97,77 +97,77 @@ export const BeerAdded = () => {
   const focusTrapRef = useFocusTrap();
 
   return (
-    // <form onSubmit={form.onSubmit(order)}>
-    <Paper withBorder w="100%" pos="relative" shadow="sm">
-      <SimpleGrid w="100%" p="md" cols={{ md: 2, xs: 1 }}>
-        <Stack style={{ flex: 1 }} ref={focusTrapRef}>
-          <Title order={2}>Dodajanje bjre</Title>
-          <NameCombobox
-            value={form.getInputProps('user').value}
-            onChange={form.getInputProps('user').onChange}
-          />
-          <SimpleGrid cols={{ md: 2, sm: 1 }}>
-            <NumberInput
-              label="Število piv"
-              placeholder="3"
-              {...form.getInputProps('order')}
+    <form onSubmit={form.onSubmit(order)}>
+      <Paper withBorder w="100%" pos="relative" shadow="sm">
+        <SimpleGrid w="100%" p="md" cols={{ md: 2, xs: 1 }}>
+          <Stack style={{ flex: 1 }} ref={focusTrapRef}>
+            <Title order={2}>Dodajanje bjre</Title>
+            <NameCombobox
+              value={form.getInputProps('user').value}
+              onChange={form.getInputProps('user').onChange}
             />
-            <NumberInput
-              label="Plačano"
-              placeholder="vsa"
-              min={0}
-              rightSection="€"
-              {...form.getInputProps('paid')}
-            />
-          </SimpleGrid>
-          <Button
-            my="xl"
-            size="lg"
-            fullWidth
-            type="submit"
-            variant="gradient"
-            disabled={form.values.user == null}
-          >
-            Dodaj
-          </Button>
-        </Stack>
-        <Alert
-          variant="light"
-          px="xl"
-          h="100%"
-          style={{
-            justifyContent: 'center',
-            alignItems: 'center',
-          }}
-          display="flex"
-          color={diff > 0 ? 'red' : 'green'}
-        >
-          <Stack gap="xs" h="100%">
-            <Text size="xl">
-              Dobi <b> {form.values.order} </b> 🍺.
-            </Text>
-            <Text size="xl">
-              Plača <b> {form.values.paid} </b> 💰.
-            </Text>
-            {diff > 0 ? (
-              <Text c="red" size="xl">
-                Puf: <b> {Math.abs(diff)} </b> €.{' '}
-              </Text>
-            ) : (
-              <Text c="green" size="xl">
-                {' '}
-                Bonus: <b> {Math.abs(diff)} </b> €.
-              </Text>
-            )}
+            <SimpleGrid cols={{ md: 2, sm: 1 }}>
+              <NumberInput
+                label="Število piv"
+                placeholder="3"
+                {...form.getInputProps('order')}
+              />
+              <NumberInput
+                label="Plačano"
+                placeholder="vsa"
+                min={0}
+                rightSection="€"
+                {...form.getInputProps('paid')}
+              />
+            </SimpleGrid>
+            <Button
+              my="xl"
+              size="lg"
+              fullWidth
+              type="submit"
+              variant="gradient"
+              disabled={form.values.user == null}
+            >
+              Dodaj
+            </Button>
           </Stack>
-        </Alert>
-      </SimpleGrid>
+          <Alert
+            variant="light"
+            px="xl"
+            h="100%"
+            style={{
+              justifyContent: 'center',
+              alignItems: 'center',
+            }}
+            display="flex"
+            color={diff > 0 ? 'red' : 'green'}
+          >
+            <Stack gap="xs" h="100%">
+              <Text size="xl">
+                Dobi <b> {form.values.order} </b> 🍺.
+              </Text>
+              <Text size="xl">
+                Plača <b> {form.values.paid} </b> 💰.
+              </Text>
+              {diff > 0 ? (
+                <Text c="red" size="xl">
+                  Puf: <b> {Math.abs(diff)} </b> €.{' '}
+                </Text>
+              ) : (
+                <Text c="green" size="xl">
+                  {' '}
+                  Bonus: <b> {Math.abs(diff)} </b> €.
+                </Text>
+              )}
+            </Stack>
+          </Alert>
+        </SimpleGrid>
 
-      <LoadingOverlay
-        visible={isLoading}
-        overlayProps={{ radius: 'sm', blur: 2 }}
-      ></LoadingOverlay>
-    </Paper>
-    // </form>
+        <LoadingOverlay
+          visible={isLoading}
+          overlayProps={{ radius: 'sm', blur: 2 }}
+        ></LoadingOverlay>
+      </Paper>
+    </form>
   );
 };
