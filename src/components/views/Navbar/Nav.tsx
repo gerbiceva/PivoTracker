@@ -1,7 +1,7 @@
 import {
-  ActionIcon,
   Badge,
   Box,
+  Burger,
   Button,
   Group,
   Kbd,
@@ -10,12 +10,10 @@ import {
   Text,
   Tooltip,
 } from '@mantine/core';
-import { supabaseClient } from '../../../supabase/supabaseClient';
-import { spotlight } from '@mantine/spotlight';
 import { useMediaQuery } from '@mantine/hooks';
-import { useUser } from '../../../supabase/loader';
+import { spotlight } from '@mantine/spotlight';
 import { useNavigate } from 'react-router-dom';
-import { IconLogout } from '@tabler/icons-react';
+import { useUser } from '../../../supabase/loader';
 
 export const Navbar = () => {
   const matches = useMediaQuery('(min-width: 56.25em)');
@@ -63,6 +61,11 @@ export const Navbar = () => {
             </Button>
           </Group>
 
+          <Burger
+            onClick={spotlight.open}
+            display={!matches ? undefined : 'none'}
+          />
+
           <Group
             onClick={spotlight.open}
             display={!matches ? 'none' : undefined}
@@ -72,17 +75,6 @@ export const Navbar = () => {
             </Box>
             <Text fw="bold">meni</Text>
           </Group>
-          <Tooltip label={'Odjava'}>
-            <ActionIcon
-              p="md"
-              variant="subtle"
-              onClick={() => {
-                supabaseClient.auth.signOut();
-              }}
-            >
-              <IconLogout />
-            </ActionIcon>
-          </Tooltip>
         </Group>
       </Paper>
     </>
