@@ -1,11 +1,11 @@
-import { Alert, LoadingOverlay, Paper, Stack, Table } from "@mantine/core";
-import { useMemo } from "react";
-import { Link } from "react-router-dom";
-import { DebtBadge } from "../../../components/pricing/DebtBadge";
-import { UserTag } from "../../../components/users/UserTag";
-import { numberToEur } from "../../../utils/Converter";
-import { useGetSummedDebt } from "./GetEverythingSum";
-import { UserModal } from "./UserModal";
+import { Alert, LoadingOverlay, Paper, Stack, Table } from '@mantine/core';
+import { useMemo } from 'react';
+import { Link } from 'react-router-dom';
+import { DebtBadge } from '../../../components/pricing/DebtBadge';
+import { UserTag } from '../../../components/users/UserTag';
+import { numberToEur } from '../../../utils/Converter';
+import { useGetSummedDebt } from './GetEverythingSum';
+import { UserModal } from './UserModal';
 
 export interface IUserElements {
   fullname: string;
@@ -36,7 +36,7 @@ export function PuffTable() {
         <Table.Tr>
           <Table.Td colSpan={100}>
             <Alert title="No data">
-              No data yet. Go to the <Link to={"/"}>ADD BEER</Link> section and
+              No data yet. Go to the <Link to={'/'}>ADD BEER</Link> section and
               sell some beer.
             </Alert>
           </Table.Td>
@@ -55,11 +55,11 @@ export function PuffTable() {
         // bg={alpha(getThemeColor(numToColor(element.id!), theme), 0.1)}
       >
         <Table.Td align="left">
-          <UserTag fullname={element.fullname || ""} id={element.id || -1} />
+          <UserTag fullname={element.fullname || ''} id={element.id || -1} />
         </Table.Td>
         <Table.Td align="right">{element.total_ordered}</Table.Td>
         <Table.Td align="right">
-          {numberToEur((element.total_paid || 0) / 10)} €
+          {numberToEur((element.total_paid || 0) / 10)}
         </Table.Td>
         <Table.Td align="right">
           <DebtBadge
@@ -70,7 +70,7 @@ export function PuffTable() {
         <Table.Td align="right">
           <UserModal
             id={element.id || 0}
-            displayName={element.fullname || ""}
+            displayName={element.fullname || ''}
           />
         </Table.Td>
       </Table.Tr>
@@ -86,13 +86,13 @@ export function PuffTable() {
           <Table striped highlightOnHover withColumnBorders stickyHeader>
             <Table.Thead>
               <Table.Tr>
-                <Table.Th style={{ textAlign: "left" }}>Polno ime</Table.Th>
-                <Table.Th style={{ textAlign: "right" }}>Vseh piv</Table.Th>
-                <Table.Th style={{ textAlign: "right" }}>
+                <Table.Th style={{ textAlign: 'left' }}>Polno ime</Table.Th>
+                <Table.Th style={{ textAlign: 'right' }}>Vseh piv</Table.Th>
+                <Table.Th style={{ textAlign: 'right' }}>
                   Skupaj plačano
                 </Table.Th>
-                <Table.Th style={{ textAlign: "right" }}>Razlika</Table.Th>
-                <Table.Th style={{ textAlign: "right" }}>Edit</Table.Th>
+                <Table.Th style={{ textAlign: 'right' }}>Razlika</Table.Th>
+                <Table.Th style={{ textAlign: 'right' }}>Edit</Table.Th>
               </Table.Tr>
             </Table.Thead>
             <Table.Tbody>{rows}</Table.Tbody>
