@@ -51,10 +51,10 @@ export const Dashboard = () => {
           </Alert>
         )}
         {!error && (
-          <Stack justify="space-between">
+          <Stack justify="space-between" gap="sm">
             <Transactiongraph transactions={transactions} />
 
-            <SimpleGrid cols={{ md: 4, sm: 2 }} spacing={40}>
+            <SimpleGrid cols={{ md: 4, sm: 2 }} spacing="sm" p="0px">
               <StatElement
                 title={'Prodanega piva'}
                 value={data?.total_ordered || 0}
@@ -81,7 +81,7 @@ export const Dashboard = () => {
                 Icon={IconBeer}
               />
             </SimpleGrid>
-            <SimpleGrid cols={{ md: 2, sm: 1 }} spacing={40}>
+            <SimpleGrid cols={{ md: 2, sm: 1 }} spacing="sm" p="0px">
               {owed > 0 && (
                 <StatsRing
                   label={'Delež pokritega dolga'}

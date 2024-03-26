@@ -1,5 +1,6 @@
 import {
   Alert,
+  Box,
   Center,
   Divider,
   LoadingOverlay,
@@ -28,21 +29,20 @@ export const Transactions = () => {
   }
 
   return (
-    <ScrollArea type="always" h="100%">
-      <Stack py="xl">
-        <LoadingOverlay visible={isLoading} />
-        <Title order={2} pb="xl">
-          Vse transakcije
-        </Title>
-        {/* graph */}
+    <Stack py="xl" w="100%">
+      <Title order={2} pb="xl">
+        Vse transakcije
+      </Title>
+      <Box p="lg">
         <Transactiongraph transactions={transactions} />
-        <Divider label="Zgodovina transakcij" py="lg" />
-        {/* tabble */}
-        <TransactionsTable
-          transactions={transactions}
-          removeTransaction={removeTransaction}
-        />
-      </Stack>
-    </ScrollArea>
+      </Box>
+      <LoadingOverlay visible={isLoading} />
+      <Divider label="Zgodovina transakcij" py="lg" />
+      {/* tabble */}
+      <TransactionsTable
+        transactions={transactions}
+        removeTransaction={removeTransaction}
+      />
+    </Stack>
   );
 };
