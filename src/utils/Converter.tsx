@@ -14,6 +14,12 @@ export const pivoCena = (ordered: number) => {
   return owed;
 };
 
+/**
+ * @deprecated
+ * @param ordered
+ * @param paid
+ * @returns
+ */
 export const pivoVGajba = (ordered: number, paid: number) => {
   const gajbaPrice = 30;
   const pivoPrice = 1.5;

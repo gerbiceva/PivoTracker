@@ -70,16 +70,10 @@ export const ModalWindow = ({
 }) => {
   const { data, error, isLoading, mutate } = useGetTransactions(id);
 
-  const { userTotalOrdered, userTotalPaid, rows } = useMemo(() => {
+  const rows = useMemo(() => {
     if (!data) {
-      return { userTotalOrdered: 0, userTotalPaid: 0, rows: undefined };
+      return undefined;
     }
-    // calculate total ordered and paid
-    const userTotalOrdered = data.reduce(
-      (acc, val) => acc + (val.ordered || 0),
-      0,
-    );
-    const userTotalPaid = data.reduce((acc, val) => acc + (val.paid || 0), 0);
 
     const rows = data.map((element) => {
       // const owed = computeDebt(element.ordered || 0, element.paid || 0);
@@ -96,12 +90,12 @@ export const ModalWindow = ({
             {numberToEur((element.paid || 0) / 10)}
           </Table.Td>
           <Table.Td align="right">
-            <DebtBadge ordered={element.ordered!} paid={element.paid!} />
+            <DebtBadge debt={element.owed || 0} />
           </Table.Td>
         </Table.Tr>
       );
     });
-    return { userTotalOrdered, userTotalPaid, rows };
+    return rows;
   }, [data]);
 
   return (
@@ -119,7 +113,6 @@ export const ModalWindow = ({
           {displayName}
         </Title>
         <Group justify="space-between" px="xl">
-          <DebtBadge ordered={userTotalOrdered} paid={userTotalPaid} />
           <Group justify="right">
             <Group>
               <NumberInput maw={70} defaultValue={1} placeholder="2" />
