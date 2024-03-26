@@ -13,7 +13,7 @@ export const useGetSummedDebt = (order: sumOrders = 'total_ordered') => {
       supabaseClient
         .from('everything_sum')
         .select()
-        .order('total_owed', { ascending: true })
+        .order(order, { ascending: true })
         .then((res) => {
           if (!res.error) {
             resolve(res.data);
