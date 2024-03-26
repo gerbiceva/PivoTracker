@@ -2,7 +2,6 @@ import {
   Badge,
   Box,
   Burger,
-  Button,
   Group,
   Kbd,
   Paper,
@@ -12,13 +11,12 @@ import {
 } from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks';
 import { spotlight } from '@mantine/spotlight';
-import { useNavigate } from 'react-router-dom';
 import { useUser } from '../../../supabase/loader';
+import { ColorchemeToggle } from '../../colorshemeToggle/ColorschemeToggle';
 
 export const Navbar = () => {
   const matches = useMediaQuery('(min-width: 56.25em)');
   const { user } = useUser();
-  const navigate = useNavigate();
 
   return (
     <>
@@ -45,21 +43,8 @@ export const Navbar = () => {
         </Badge>
       </Tooltip>
       {/* navbar */}
-      <Paper w="100%" withBorder px="xl" shadow="lg">
+      <Paper w="100%" withBorder px="xl" shadow="lg" py="sm">
         <Group w="100%" justify="space-between">
-          <Group>
-            <Button
-              onClick={() => {
-                navigate('/');
-              }}
-              variant="transparent"
-              size="xl"
-              leftSection={<Text size="2rem">🍺</Text>}
-            >
-              Evidenca piva
-            </Button>
-          </Group>
-
           <Burger
             onClick={spotlight.open}
             display={!matches ? undefined : 'none'}
@@ -74,6 +59,7 @@ export const Navbar = () => {
             </Box>
             <Text fw="bold">meni</Text>
           </Group>
+          <ColorchemeToggle />
         </Group>
       </Paper>
     </>
