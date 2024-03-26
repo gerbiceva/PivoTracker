@@ -14,10 +14,6 @@ export const pivoCena = (ordered: number) => {
   return owed;
 };
 
-// export const computeDebt = (ordered: number, paid: number) => {
-//   return ordered * 1.5 - paid / 100.0;
-// };
-
 export const pivoVGajba = (ordered: number, paid: number) => {
   const gajbaPrice = 30;
   const pivoPrice = 1.5;
@@ -31,12 +27,12 @@ export const pivoVGajba = (ordered: number, paid: number) => {
 };
 
 export const numberToEur = (num: number) => {
-  const euro = Intl.NumberFormat("en-DE", {
-    style: "currency",
-    currency: "EUR",
+  const euro = Intl.NumberFormat('en-DE', {
+    style: 'currency',
+    currency: 'EUR',
   });
   // format number to eur on two decimals
-  return euro.format(num );
+  return euro.format(num);
 };
 
 export const getDateFromString = (date: string) => {
