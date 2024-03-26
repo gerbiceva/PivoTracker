@@ -89,7 +89,7 @@ export function PuffTable() {
       <SegmentedControl
         data={[
           {
-            label: 'Zadložitev',
+            label: 'Zadolžitev',
             value: 'total_owed',
           },
           {
