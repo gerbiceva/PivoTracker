@@ -1,10 +1,18 @@
-import { Alert, LoadingOverlay, Paper, Stack, Table } from '@mantine/core';
-import { useMemo } from 'react';
+import {
+  Alert,
+  LoadingOverlay,
+  Paper,
+  ScrollArea,
+  SegmentedControl,
+  Stack,
+  Table,
+} from '@mantine/core';
+import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { DebtBadge } from '../../../components/pricing/DebtBadge';
 import { UserTag } from '../../../components/users/UserTag';
 import { numberToEur } from '../../../utils/Converter';
-import { useGetSummedDebt } from './GetEverythingSum';
+import { sumOrders, useGetSummedDebt } from './GetEverythingSum';
 import { UserModal } from './UserModal';
 
 export interface IUserElements {
@@ -16,7 +24,8 @@ export interface IUserElements {
 }
 
 export function PuffTable() {
-  const { isLoading, data, error } = useGetSummedDebt();
+  const [ord, stOrd] = useState<sumOrders>('total_ordered');
+  const { isLoading, data, error } = useGetSummedDebt(ord);
 
   const rows = useMemo(() => {
     if (error) {
@@ -49,11 +58,7 @@ export function PuffTable() {
     }
 
     return data.map((element) => (
-      <Table.Tr
-        key={element.fullname}
-        p="xs"
-        // bg={alpha(getThemeColor(numToColor(element.id!), theme), 0.1)}
-      >
+      <Table.Tr key={element.fullname} p="xs">
         <Table.Td align="left">
           <UserTag fullname={element.fullname || ''} id={element.id || -1} />
         </Table.Td>
@@ -78,27 +83,58 @@ export function PuffTable() {
   }, [data, error, isLoading]);
 
   return (
-    <Paper withBorder p="sm" pos="relative">
-      <LoadingOverlay visible={isLoading} />
+    <Stack
+      h="100%"
+      style={{
+        overflow: 'hidden',
+      }}
+    >
+      <SegmentedControl
+        data={[
+          {
+            label: 'Plačano',
+            value: 'total_paid',
+          },
+          {
+            label: 'Ime',
+            value: 'fullname',
+          },
+          {
+            label: 'Naročeno',
+            value: 'total_ordered',
+          },
+        ]}
+        value={ord}
+        onChange={(val) => {
+          // @ts-expect-error segment controll cant take generics
+          stOrd(val);
+        }}
+        w="100%"
+      />
+      <ScrollArea type="always" h="100%">
+        <Paper withBorder p="sm" pos="relative">
+          <LoadingOverlay visible={isLoading} />
 
-      <Stack>
-        <Table.ScrollContainer minWidth={200}>
-          <Table striped highlightOnHover withColumnBorders stickyHeader>
-            <Table.Thead>
-              <Table.Tr>
-                <Table.Th style={{ textAlign: 'left' }}>Polno ime</Table.Th>
-                <Table.Th style={{ textAlign: 'right' }}>Vseh piv</Table.Th>
-                <Table.Th style={{ textAlign: 'right' }}>
-                  Skupaj plačano
-                </Table.Th>
-                <Table.Th style={{ textAlign: 'right' }}>Razlika</Table.Th>
-                <Table.Th style={{ textAlign: 'right' }}>Edit</Table.Th>
-              </Table.Tr>
-            </Table.Thead>
-            <Table.Tbody>{rows}</Table.Tbody>
-          </Table>
-        </Table.ScrollContainer>
-      </Stack>
-    </Paper>
+          <Stack>
+            <Table.ScrollContainer minWidth={200}>
+              <Table striped highlightOnHover withColumnBorders stickyHeader>
+                <Table.Thead>
+                  <Table.Tr>
+                    <Table.Th style={{ textAlign: 'left' }}>Polno ime</Table.Th>
+                    <Table.Th style={{ textAlign: 'right' }}>Vseh piv</Table.Th>
+                    <Table.Th style={{ textAlign: 'right' }}>
+                      Skupaj plačano
+                    </Table.Th>
+                    <Table.Th style={{ textAlign: 'right' }}>Razlika</Table.Th>
+                    <Table.Th style={{ textAlign: 'right' }}>Edit</Table.Th>
+                  </Table.Tr>
+                </Table.Thead>
+                <Table.Tbody>{rows}</Table.Tbody>
+              </Table>
+            </Table.ScrollContainer>
+          </Stack>
+        </Paper>
+      </ScrollArea>
+    </Stack>
   );
 }

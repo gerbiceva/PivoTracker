@@ -16,10 +16,7 @@ export const TransactionsTable = ({
   // const theme = useMantineTheme();
   const rows = transactions.map((element) => {
     return (
-      <Table.Tr
-        key={element.id}
-        // bg={alpha(getThemeColor(numToColor(element.customer_id!), theme), 0.1)}
-      >
+      <Table.Tr key={element.id}>
         <Table.Td>{element.id}</Table.Td>
         <Table.Td>
           <UserTag

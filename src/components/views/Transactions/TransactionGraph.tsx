@@ -1,8 +1,8 @@
-import { AreaChart } from "@mantine/charts";
-import { Paper, Text } from "@mantine/core";
-import { useMemo } from "react";
-import { Tables } from "../../../supabase/supabase";
-import { numberToEur, pivoVGajba } from "../../../utils/Converter";
+import { AreaChart } from '@mantine/charts';
+import { Paper, Text } from '@mantine/core';
+import { useMemo } from 'react';
+import { Tables } from '../../../supabase/supabase';
+import { numberToEur, pivoVGajba } from '../../../utils/Converter';
 interface ChartTooltipProps {
   label: string;
   payload: Record<string, any>[] | undefined;
@@ -26,7 +26,7 @@ function ChartTooltip({ label, payload }: ChartTooltipProps) {
 }
 
 interface ITransactionGraphProps {
-  transactions: Tables<"named_transactions">[];
+  transactions: Tables<'named_transactions'>[];
 }
 
 export const Transactiongraph = ({ transactions }: ITransactionGraphProps) => {
@@ -45,7 +45,7 @@ export const Transactiongraph = ({ transactions }: ITransactionGraphProps) => {
   return (
     <AreaChart
       h={250}
-      referenceLines={[{ y: 0, label: "Zero line", color: "red.6" }]}
+      referenceLines={[{ y: 0, label: 'Zero line', color: 'red.6' }]}
       data={totalOwedAccumulator}
       dataKey="id"
       title="Debt / transactions"
@@ -57,8 +57,8 @@ export const Transactiongraph = ({ transactions }: ITransactionGraphProps) => {
       withDots={false}
       type="split"
       fillOpacity={0.15}
-      splitColors={["red", "teal"]}
-      series={[{ color: "gray", name: "Dolg" }]}
+      splitColors={['red', 'teal']}
+      series={[{ color: 'gray', name: 'Dolg' }]}
     />
   );
 };
