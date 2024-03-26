@@ -9,16 +9,16 @@ import {
   Stack,
   Text,
   Tooltip,
-} from "@mantine/core";
-import { supabaseClient } from "../../../supabase/supabaseClient";
-import { spotlight } from "@mantine/spotlight";
-import { useMediaQuery } from "@mantine/hooks";
-import { useUser } from "../../../supabase/loader";
-import { useNavigate } from "react-router-dom";
-import { IconLogout } from "@tabler/icons-react";
+} from '@mantine/core';
+import { supabaseClient } from '../../../supabase/supabaseClient';
+import { spotlight } from '@mantine/spotlight';
+import { useMediaQuery } from '@mantine/hooks';
+import { useUser } from '../../../supabase/loader';
+import { useNavigate } from 'react-router-dom';
+import { IconLogout } from '@tabler/icons-react';
 
 export const Navbar = () => {
-  const matches = useMediaQuery("(min-width: 56.25em)");
+  const matches = useMediaQuery('(min-width: 56.25em)');
   const { user } = useUser();
   const navigate = useNavigate();
 
@@ -33,8 +33,18 @@ export const Navbar = () => {
           </Stack>
         }
       >
-        <Badge size="sm" pos="fixed" bottom={0} left={0} m="xs" variant="dot">
-          {user?.email || "Neprijavljen"}
+        <Badge
+          size="sm"
+          pos="fixed"
+          bottom={0}
+          left={0}
+          m="xs"
+          variant="dot"
+          style={{
+            zIndex: 1,
+          }}
+        >
+          {user?.email || 'Neprijavljen'}
         </Badge>
       </Tooltip>
       {/* navbar */}
@@ -43,7 +53,7 @@ export const Navbar = () => {
           <Group>
             <Button
               onClick={() => {
-                navigate("/");
+                navigate('/');
               }}
               variant="transparent"
               size="xl"
@@ -55,14 +65,14 @@ export const Navbar = () => {
 
           <Group
             onClick={spotlight.open}
-            display={!matches ? "none" : undefined}
+            display={!matches ? 'none' : undefined}
           >
             <Box>
               <Kbd>ctrl</Kbd> + <Kbd>K</Kbd>
             </Box>
             <Text fw="bold">meni</Text>
           </Group>
-          <Tooltip label={"Odjava"}>
+          <Tooltip label={'Odjava'}>
             <ActionIcon
               p="md"
               variant="subtle"
