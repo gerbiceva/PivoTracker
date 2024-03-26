@@ -36,7 +36,6 @@ export const Navbar = () => {
           pos="fixed"
           bottom={0}
           left={0}
-          m="xs"
           variant="dot"
           style={{
             zIndex: 1,
@@ -46,7 +45,7 @@ export const Navbar = () => {
         </Badge>
       </Tooltip>
       {/* navbar */}
-      <Paper w="100%" withBorder p="md" shadow="lg">
+      <Paper w="100%" withBorder px="xl" shadow="lg">
         <Group w="100%" justify="space-between">
           <Group>
             <Button

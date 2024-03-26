@@ -10,12 +10,10 @@ interface EverythingSumWithOwe extends Tables<'everything_sum'> {
 const getElementsParsed = (
   elements: Tables<'everything_sum'>[],
 ): EverythingSumWithOwe[] => {
-  const out: EverythingSumWithOwe[] = elements
-    .map((val) => ({
-      ...val, // destructure the thing before
-      owed: pivoVGajba(val.total_ordered || 0, val.total_paid || 0 / 10),
-    }))
-    .sort((a, b) => b.owed - a.owed);
+  const out: EverythingSumWithOwe[] = elements.map((val) => ({
+    ...val, // destructure the thing before
+    owed: pivoVGajba(val.total_ordered || 0, val.total_paid || 0 / 10),
+  }));
 
   return out;
 };
@@ -27,7 +25,7 @@ export const useGetSummedDebt = (order: sumOrders = 'total_ordered') => {
       supabaseClient
         .from('everything_sum')
         .select()
-        .order(order, { ascending: false })
+        .order(order, { ascending: true })
         .then((res) => {
           if (!res.error) {
             resolve(getElementsParsed(res.data));
@@ -38,7 +36,7 @@ export const useGetSummedDebt = (order: sumOrders = 'total_ordered') => {
     });
 
   const out = useSWR<EverythingSumWithOwe[]>(
-    `/view/everything_sum/#${order}`,
+    `/view/everything_sum/${order}`,
     fetcher,
   );
 

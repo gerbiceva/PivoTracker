@@ -24,7 +24,7 @@ export interface IUserElements {
 }
 
 export function PuffTable() {
-  const [ord, stOrd] = useState<sumOrders>('total_ordered');
+  const [ord, stOrd] = useState<sumOrders>('total_paid');
   const { isLoading, data, error } = useGetSummedDebt(ord);
 
   const rows = useMemo(() => {
