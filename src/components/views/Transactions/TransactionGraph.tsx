@@ -59,6 +59,8 @@ export const Transactiongraph = ({ transactions }: ITransactionGraphProps) => {
       fillOpacity={0.15}
       splitColors={['red', 'teal']}
       series={[{ color: 'gray', name: 'Dolg' }]}
+      xAxisLabel="trasakcije"
+      yAxisLabel="zadolžitev v €"
     />
   );
 };
