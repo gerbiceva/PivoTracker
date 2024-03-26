@@ -3,12 +3,13 @@ import {
   Center,
   Divider,
   LoadingOverlay,
+  ScrollArea,
   Stack,
   Title,
-} from "@mantine/core";
-import { useLiveTransactions } from "../../../components/hooks.ts/liveTransactionsHook";
-import { Transactiongraph } from "./TransactionGraph";
-import { TransactionsTable } from "./TransactionsTable";
+} from '@mantine/core';
+import { useLiveTransactions } from '../../../components/hooks.ts/liveTransactionsHook';
+import { Transactiongraph } from './TransactionGraph';
+import { TransactionsTable } from './TransactionsTable';
 
 export const Transactions = () => {
   // const { loading, transactions } = useGetTransactions();
@@ -27,7 +28,7 @@ export const Transactions = () => {
   }
 
   return (
-    <>
+    <ScrollArea type="always" h="100%">
       <Stack py="xl">
         <LoadingOverlay visible={isLoading} />
         <Title order={2} pb="xl">
@@ -42,6 +43,6 @@ export const Transactions = () => {
           removeTransaction={removeTransaction}
         />
       </Stack>
-    </>
+    </ScrollArea>
   );
 };
