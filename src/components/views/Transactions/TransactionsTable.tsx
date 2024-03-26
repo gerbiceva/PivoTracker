@@ -1,12 +1,12 @@
-import { Button, Table, TableProps } from "@mantine/core";
-import { IconTrash } from "@tabler/icons-react";
-import { DebtBadge } from "../../../components/pricing/DebtBadge";
-import { UserTag } from "../../../components/users/UserTag";
-import { Tables } from "../../../supabase/supabase";
-import { intToEur, numberToEur } from "../../../utils/Converter";
+import { Button, Table, TableProps } from '@mantine/core';
+import { IconTrash } from '@tabler/icons-react';
+import { DebtBadge } from '../../../components/pricing/DebtBadge';
+import { UserTag } from '../../../components/users/UserTag';
+import { Tables } from '../../../supabase/supabase';
+import { intToEur, numberToEur } from '../../../utils/Converter';
 
 interface ITransactionsTableProps extends TableProps {
-  transactions: Tables<"named_transactions">[];
+  transactions: Tables<'named_transactions'>[];
   removeTransaction?: (id: number) => void;
 }
 export const TransactionsTable = ({
@@ -23,13 +23,13 @@ export const TransactionsTable = ({
         <Table.Td>{element.id}</Table.Td>
         <Table.Td>
           <UserTag
-            fullname={element.fullname || ""}
+            fullname={element.fullname || ''}
             id={element.customer_id || -1}
           />
         </Table.Td>
         <Table.Td align="right">{element.ordered}</Table.Td>
         <Table.Td align="right">
-          {numberToEur(intToEur(element.paid || 0))} €
+          {numberToEur(intToEur(element.paid || 0))}
         </Table.Td>
         <Table.Td align="right">
           <DebtBadge
@@ -51,7 +51,7 @@ export const TransactionsTable = ({
               color="red"
               size="xs"
               onClick={() => {
-                confirm("Are you sure you want to delete this transaction?") &&
+                confirm('Are you sure you want to delete this transaction?') &&
                   removeTransaction(element.id || 0);
               }}
             >
@@ -70,12 +70,12 @@ export const TransactionsTable = ({
           <Table.Tr>
             <Table.Th>Id</Table.Th>
             <Table.Th>Polno ime</Table.Th>
-            <Table.Th style={{ textAlign: "right" }}>Naročeno</Table.Th>
-            <Table.Th style={{ textAlign: "right" }}>Plačano</Table.Th>
-            <Table.Th style={{ textAlign: "right" }}>Razlika</Table.Th>
-            <Table.Th style={{ textAlign: "right" }}>Datum naročila</Table.Th>
+            <Table.Th style={{ textAlign: 'right' }}>Naročeno</Table.Th>
+            <Table.Th style={{ textAlign: 'right' }}>Plačano</Table.Th>
+            <Table.Th style={{ textAlign: 'right' }}>Razlika</Table.Th>
+            <Table.Th style={{ textAlign: 'right' }}>Datum naročila</Table.Th>
             {removeTransaction && (
-              <Table.Th style={{ textAlign: "right" }}>Odstrani</Table.Th>
+              <Table.Th style={{ textAlign: 'right' }}>Odstrani</Table.Th>
             )}
           </Table.Tr>
         </Table.Thead>
