@@ -9,6 +9,7 @@ function App() {
       <Navbar />
       <CustomSpotlight />
       <Container
+        p={0}
         w="100%"
         h="100%"
         style={{
