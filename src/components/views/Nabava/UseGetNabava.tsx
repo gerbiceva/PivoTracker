@@ -1,15 +1,15 @@
-import useSWR from "swr";
-import { Tables } from "../../../supabase/supabase";
-import { supabaseClient } from "../../../supabase/supabaseClient";
-import { useState } from "react";
+import useSWR from 'swr';
+import { Tables } from '../../../supabase/supabase';
+import { supabaseClient } from '../../../supabase/supabaseClient';
+import { useState } from 'react';
 
 export const useGetNabava = () => {
   const fetcher = () =>
-    new Promise<Tables<"nabava">[]>((resolve, reject) => {
+    new Promise<Tables<'nabava'>[]>((resolve, reject) => {
       supabaseClient
-        .from("nabava")
+        .from('nabava')
         .select()
-        .order("created_at", { ascending: false })
+        .order('created_at', { ascending: false })
         .then((res) => {
           if (!res.error) {
             resolve(res.data);
@@ -19,12 +19,12 @@ export const useGetNabava = () => {
         });
     });
 
-  const out = useSWR<Tables<"nabava">[]>(`/view/nabava/`, fetcher);
+  const out = useSWR<Tables<'nabava'>[]>(`/view/nabava/`, fetcher);
 
   return out;
 };
 
-export type nabava = Omit<Tables<"nabava">, "minister" | "id" | "created_at">;
+export type nabava = Omit<Tables<'nabava'>, 'minister' | 'id' | 'created_at'>;
 
 export const useAddNabava = () => {
   const [isError, setIsError] = useState(false);
@@ -35,9 +35,9 @@ export const useAddNabava = () => {
     setIsError(false);
     return new Promise<void>((resolve, reject) => {
       supabaseClient
-        .from("nabava")
+        .from('nabava')
         .insert({
-          cena: nabava.cena,
+          cena: nabava.cena * 100,
           stevilo_piv: nabava.stevilo_piv,
         })
         .select()

@@ -1,10 +1,10 @@
-import { Alert, LoadingOverlay, Paper, Stack, Table } from "@mantine/core";
-import { useMemo } from "react";
-import { Tables } from "../../../supabase/supabase";
-import { numberToEur } from "../../../utils/Converter";
+import { Alert, LoadingOverlay, Paper, Stack, Table } from '@mantine/core';
+import { useMemo } from 'react';
+import { Tables } from '../../../supabase/supabase';
+import { numberToEur } from '../../../utils/Converter';
 
 interface NabavaTableProps {
-  data: Tables<"nabava">[];
+  data: Tables<'nabava'>[];
   error: Error | null;
   isLoading: boolean;
 }
@@ -41,7 +41,7 @@ export function NabavaTable({ data, error, isLoading }: NabavaTableProps) {
         <Table.Td>{new Date(element.created_at).toLocaleDateString()}</Table.Td>
         <Table.Td align="right">{element.stevilo_piv}</Table.Td>
         <Table.Td align="right">
-          {element.cena ? numberToEur(element.cena) : "N/A"}
+          {element.cena ? numberToEur(element.cena / 10) : 'N/A'}
         </Table.Td>
       </Table.Tr>
     ));

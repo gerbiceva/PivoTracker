@@ -73,6 +73,7 @@ export const Dashboard = () => {
                 diff={0}
                 Icon={IconGraph}
               />
+              {/* {JSON.stringify(data, null, 2)} */}
               <StatElement
                 title={'Kupljenega piva'}
                 value={data?.total_stevilo_piv || 0}

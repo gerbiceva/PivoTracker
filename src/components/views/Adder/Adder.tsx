@@ -16,6 +16,7 @@ import { useEffect, useState } from 'react';
 import { Tables } from '../../../supabase/supabase';
 import { supabaseClient } from '../../../supabase/supabaseClient';
 import { NameCombobox } from './NameCombobox';
+import { useNavigate } from 'react-router-dom';
 
 // SELECT c.fullname, t.ordered_at, t.ordered, t.paid FROM customers AS c LEFT JOIN transactions AS t ON c.id = t.customer_id;
 // SELECT c.fullname, SUM(t.paid) FROM customers AS c LEFT JOIN transactions AS t ON c.id = t.customer_id GROUP BY c.fullname;
@@ -26,7 +27,10 @@ interface Order {
   paid: number;
 }
 
-const addOrder = ({ user, order, paid }: Order) => {
+const addOrder = (
+  { user, order, paid }: Order,
+  navigate: (url: string) => void,
+) => {
   const ordered = order;
   const offset = 10;
   paid = paid * offset; // max ena decimalka, zato množimo z 10
@@ -40,7 +44,8 @@ const addOrder = ({ user, order, paid }: Order) => {
           notifications.show({
             title: 'Error',
             color: 'red',
-            message: 'Ni uspelo dodati piva' + res.error.message,
+            autoClose: 1000,
+            message: <Text>Ni uspelo dodati piva + {res.error.message}</Text>,
           });
           return reject();
         }
@@ -48,7 +53,20 @@ const addOrder = ({ user, order, paid }: Order) => {
         notifications.show({
           title: 'Success',
           color: 'green',
-          message: 'Pivo uspešno dodano',
+          autoClose: 3000,
+
+          message: (
+            <Stack>
+              <Text>Uspešno dodano pivo</Text>
+              <Button
+                onClick={() => {
+                  navigate(`/user/${user?.id}`);
+                }}
+              >
+                Preglej uporabnika
+              </Button>
+            </Stack>
+          ),
         });
         resolve();
       });
@@ -56,6 +74,7 @@ const addOrder = ({ user, order, paid }: Order) => {
 };
 
 export const BeerAdded = () => {
+  const navigate = useNavigate();
   const form = useForm<Order>({
     initialValues: {
       user: null,
@@ -83,7 +102,7 @@ export const BeerAdded = () => {
 
   function order(order: Order) {
     setIsLoading(true);
-    addOrder(order).finally(() => {
+    addOrder(order, navigate).finally(() => {
       setIsLoading(false);
       form.reset();
       form.setValues({
