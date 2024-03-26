@@ -44,7 +44,7 @@ export const Dashboard = () => {
     <ScrollArea h="100%">
       <Center h="100%">
         <LoadingOverlay visible={isLoading} />
-        <Paper p="xl">
+        <Paper p="md">
           {error && (
             <Alert icon={<IconExclamationCircle />} title="Napaka">
               Statistike ni mogoče naložiti
@@ -118,7 +118,7 @@ export const Dashboard = () => {
                 />
               </SimpleGrid>
               <Divider label="Links" py="xl"></Divider>
-              <Group justify="space-between">
+              <SimpleGrid cols={{ md: 3, sm: 2 }}>
                 <Button
                   size="md"
                   leftSection={<IconPlus></IconPlus>}
@@ -143,7 +143,7 @@ export const Dashboard = () => {
                 >
                   Statistika
                 </Button>
-              </Group>
+              </SimpleGrid>
             </Stack>
           )}
         </Paper>
