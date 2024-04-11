@@ -1,4 +1,4 @@
-import { rem } from "@mantine/core";
+import { rem } from '@mantine/core';
 import {
   IconBeer,
   IconHome,
@@ -6,48 +6,48 @@ import {
   IconLogout,
   IconShoppingBag,
   IconTransactionEuro,
-} from "@tabler/icons-react";
+} from '@tabler/icons-react';
 
 // core styles are required for all packages
-import { IconSearch } from "@tabler/icons-react";
-import { Spotlight, SpotlightActionData } from "@mantine/spotlight";
-import { supabaseClient } from "../supabase/supabaseClient";
-import { useNavigate } from "react-router-dom";
+import { IconSearch } from '@tabler/icons-react';
+import { Spotlight, SpotlightActionData } from '@mantine/spotlight';
+import { supabaseClient } from '../supabase/supabaseClient';
+import { useNavigate } from 'react-router-dom';
 export const CustomSpotlight = () => {
   const navigate = useNavigate();
   const Spotlightactions: SpotlightActionData[] = [
     {
-      id: "home",
-      label: "Home",
-      description: "Dashboard page",
-      onClick: () => navigate("/"),
+      id: 'home',
+      label: 'Domov',
+      description: 'Prva stran',
+      onClick: () => navigate('/'),
       leftSection: (
         <IconHome style={{ width: rem(24), height: rem(24) }} stroke={1.5} />
       ),
     },
     {
-      id: "add",
-      label: "Dodajanje piva",
-      description: "Prodaj pivo stranki",
-      onClick: () => navigate("/add"),
+      id: 'add',
+      label: 'Dodajanje piva',
+      description: 'Prodaj pivo stranki',
+      onClick: () => navigate('/add'),
       leftSection: (
         <IconBeer style={{ width: rem(24), height: rem(24) }} stroke={1.5} />
       ),
     },
     {
-      id: "list",
-      label: "Seznam pufov",
-      description: "Prikaži seznam pufov",
-      onClick: () => navigate("/puff"),
+      id: 'list',
+      label: 'Seznam pufov',
+      description: 'Prikaži seznam pufov',
+      onClick: () => navigate('/puff'),
       leftSection: (
         <IconList style={{ width: rem(24), height: rem(24) }} stroke={1.5} />
       ),
     },
     {
-      id: "transactions",
-      label: "Transakcije",
-      description: "Prikaži vse transakcije",
-      onClick: () => navigate("/transactions"),
+      id: 'transactions',
+      label: 'Transakcije',
+      description: 'Prikaži vse transakcije',
+      onClick: () => navigate('/transactions'),
       leftSection: (
         <IconTransactionEuro
           style={{ width: rem(24), height: rem(24) }}
@@ -56,10 +56,10 @@ export const CustomSpotlight = () => {
       ),
     },
     {
-      id: "nabava",
-      label: "Nabava",
-      description: "Nabava piva iz trgovine",
-      onClick: () => window.location.replace("/nabava"),
+      id: 'nabava',
+      label: 'Nabava',
+      description: 'Nabava piva iz trgovine',
+      onClick: () => window.location.replace('/nabava'),
       leftSection: (
         <IconShoppingBag
           style={{ width: rem(24), height: rem(24) }}
@@ -68,9 +68,9 @@ export const CustomSpotlight = () => {
       ),
     },
     {
-      id: "logout",
-      label: "Odjava",
-      description: "Odjavi se iz sistema",
+      id: 'logout',
+      label: 'Odjava',
+      description: 'Odjavi se iz sistema',
       onClick: () => {
         supabaseClient.auth.signOut();
       },
@@ -92,7 +92,7 @@ export const CustomSpotlight = () => {
             stroke={1.5}
           />
         ),
-        placeholder: "Search...",
+        placeholder: 'Search...',
       }}
     />
   );
