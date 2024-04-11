@@ -26,9 +26,12 @@ import { StatsRing } from './StatsRing';
 import { useGetDash } from './UseGetDash';
 import { useLiveTransactions } from '../../hooks.ts/liveTransactionsHook';
 import { Transactiongraph } from '../Transactions/TransactionGraph';
+import { HistoryBarChart } from './HistoryBarChart';
+import { useGetWeeklyBars } from './useGetWeeklyBars';
 
 export const Dashboard = () => {
   const { transactions } = useLiveTransactions();
+  const bars = useGetWeeklyBars();
   const { data, error, isLoading } = useGetDash();
   const owed = pivoVGajba(
     data?.total_ordered || 0,
@@ -51,75 +54,80 @@ export const Dashboard = () => {
           </Alert>
         )}
         {!error && (
-          <Stack justify="space-between" gap="sm">
+          <Stack justify="space-between" gap="3rem">
             <Transactiongraph transactions={transactions} />
 
-            <SimpleGrid cols={{ md: 4, sm: 2 }} spacing="sm" p="0px">
-              <StatElement
-                title={'Prodanega piva'}
-                value={data?.total_ordered || 0}
-                diff={0}
-                Icon={IconShoppingBag}
-              />
-              <StatElement
-                title={'Plačano'}
-                value={numberToEur((data?.total_paid || 0) / 10)}
-                diff={0}
-                Icon={IconPigMoney}
-              />
-              <StatElement
-                title={'Vloženega denarja'}
-                value={numberToEur((data?.total_cena || 0) / 10)}
-                diff={0}
-                Icon={IconGraph}
-              />
-              {/* {JSON.stringify(data, null, 2)} */}
-              <StatElement
-                title={'Kupljenega piva'}
-                value={data?.total_stevilo_piv || 0}
-                diff={0}
-                Icon={IconBeer}
-              />
-            </SimpleGrid>
-            <SimpleGrid cols={{ md: 2, sm: 1 }} spacing="sm" p="0px">
-              {owed > 0 && (
+            <Stack gap="sm">
+              <SimpleGrid cols={{ md: 4, sm: 2 }} spacing="sm" p="0px">
+                <StatElement
+                  title={'Prodanega piva'}
+                  value={data?.total_ordered || 0}
+                  diff={0}
+                  Icon={IconShoppingBag}
+                />
+                <StatElement
+                  title={'Plačano'}
+                  value={numberToEur((data?.total_paid || 0) / 10)}
+                  diff={0}
+                  Icon={IconPigMoney}
+                />
+                <StatElement
+                  title={'Vloženega denarja'}
+                  value={numberToEur((data?.total_cena || 0) / 10)}
+                  diff={0}
+                  Icon={IconGraph}
+                />
+                {/* {JSON.stringify(data, null, 2)} */}
+                <StatElement
+                  title={'Kupljenega piva'}
+                  value={data?.total_stevilo_piv || 0}
+                  diff={0}
+                  Icon={IconBeer}
+                />
+              </SimpleGrid>
+              <SimpleGrid cols={{ md: 2, sm: 1 }} spacing="sm" p="0px">
+                {owed > 0 && (
+                  <StatsRing
+                    label={'Delež pokritega dolga'}
+                    stats={`Še ${numberToEur(Math.abs(owed))} dolga`}
+                    sections={[
+                      {
+                        color: 'red',
+                        value: (paid / owed) * 100,
+                      },
+                    ]}
+                    Icon={IconScale}
+                  />
+                )}
+                {owed < 0 && (
+                  <StatsRing
+                    label={'Profit'}
+                    stats={`${numberToEur(Math.abs(owed))} profita`}
+                    sections={[
+                      {
+                        color: 'green',
+                        value: 100,
+                      },
+                    ]}
+                    Icon={IconScale}
+                  />
+                )}
                 <StatsRing
-                  label={'Delež pokritega dolga'}
-                  stats={`Še ${numberToEur(Math.abs(owed))} dolga`}
+                  label={'Delež na zalogi'}
+                  stats={`Še ${kupljenega - prodanega} piv.`}
                   sections={[
                     {
-                      color: 'red',
-                      value: (paid / owed) * 100,
+                      color: 'grape',
+                      value: Math.max(0, (prodanega / kupljenega) * 100),
                     },
                   ]}
-                  Icon={IconScale}
+                  Icon={IconStack}
                 />
-              )}
-              {owed < 0 && (
-                <StatsRing
-                  label={'Profit'}
-                  stats={`${numberToEur(Math.abs(owed))} profita`}
-                  sections={[
-                    {
-                      color: 'green',
-                      value: 100,
-                    },
-                  ]}
-                  Icon={IconScale}
-                />
-              )}
-              <StatsRing
-                label={'Delež na zalogi'}
-                stats={`Še ${kupljenega - prodanega} piv.`}
-                sections={[
-                  {
-                    color: 'grape',
-                    value: Math.max(0, (prodanega / kupljenega) * 100),
-                  },
-                ]}
-                Icon={IconStack}
-              />
-            </SimpleGrid>
+              </SimpleGrid>
+            </Stack>
+
+            <HistoryBarChart {...bars} />
+
             <Divider label="Links" py="xl"></Divider>
             <SimpleGrid cols={{ md: 3, sm: 2 }}>
               <Button
