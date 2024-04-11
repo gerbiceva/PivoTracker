@@ -1,22 +1,27 @@
 import {
+  ActionIcon,
   Alert,
   Button,
+  Group,
   LoadingOverlay,
   NumberInput,
   Paper,
   SimpleGrid,
   Stack,
+  Tooltip,
   Text,
   Title,
+  Fieldset,
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { useFocusTrap } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Tables } from '../../../supabase/supabase';
 import { supabaseClient } from '../../../supabase/supabaseClient';
 import { NameCombobox } from './NameCombobox';
 import { useNavigate } from 'react-router-dom';
+import { IconCalculator } from '@tabler/icons-react';
 
 // SELECT c.fullname, t.ordered_at, t.ordered, t.paid FROM customers AS c LEFT JOIN transactions AS t ON c.id = t.customer_id;
 // SELECT c.fullname, SUM(t.paid) FROM customers AS c LEFT JOIN transactions AS t ON c.id = t.customer_id GROUP BY c.fullname;
@@ -79,7 +84,7 @@ export const BeerAdded = () => {
     initialValues: {
       user: null,
       order: 1,
-      paid: 1,
+      paid: 0,
     },
 
     validate: {
@@ -91,9 +96,9 @@ export const BeerAdded = () => {
     },
   });
 
-  useEffect(() => {
-    form.setFieldValue('paid', form.values.order * 1.5);
-  }, [form.values.order]);
+  // useEffect(() => {
+  //   form.setFieldValue('paid', form.values.order * 1.5);
+  // }, [form.values.order]);
 
   const [isLoading, setIsLoading] = useState(false);
 
@@ -125,19 +130,38 @@ export const BeerAdded = () => {
               value={form.getInputProps('user').value}
               onChange={form.getInputProps('user').onChange}
             />
-            <SimpleGrid cols={{ md: 2, sm: 1 }}>
-              <NumberInput
-                label="Število piv"
-                placeholder="3"
-                {...form.getInputProps('order')}
-              />
-              <NumberInput
-                label="Plačano"
-                placeholder="vsa"
-                min={0}
-                rightSection="€"
-                {...form.getInputProps('paid')}
-              />
+            <SimpleGrid cols={{ md: 2, sm: 1 }} spacing="xl">
+              <Fieldset legend="Naročeno" variant="unstyled">
+                <NumberInput
+                  // label="Število piv"
+                  placeholder="3"
+                  {...form.getInputProps('order')}
+                />
+              </Fieldset>
+
+              <Fieldset legend="Plčano" variant="unstyled">
+                <Group wrap="nowrap" align="center">
+                  <NumberInput
+                    placeholder="vsa"
+                    min={0}
+                    rightSection="€"
+                    {...form.getInputProps('paid')}
+                  />
+                  <Tooltip label="Izračunaj ceno">
+                    <ActionIcon
+                      variant="light"
+                      size="lg"
+                      onClick={() => {
+                        form.setValues({
+                          paid: 1.5 * form.values.order,
+                        });
+                      }}
+                    >
+                      <IconCalculator />
+                    </ActionIcon>
+                  </Tooltip>
+                </Group>
+              </Fieldset>
             </SimpleGrid>
             <Button
               my="xl"
