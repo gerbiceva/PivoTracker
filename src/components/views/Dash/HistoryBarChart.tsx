@@ -10,12 +10,14 @@ interface ChartTooltipProps {
 
 function ChartTooltip({ label, payload }: ChartTooltipProps) {
   if (!payload) return null;
+  console.log(payload);
 
   return (
     <Paper px="md" py="sm" withBorder shadow="md" radius="md">
       <Text fw={500} mb={5}>
         Datum: {label}
       </Text>
+
       {payload.map((item: any) => (
         <Text fw="500" key={item.name} c={item.color} fz="sm">
           {item.name}: {numberToEur(item.value)} €
@@ -45,15 +47,16 @@ export const HistoryBarChart = ({
           data={data.map((val) => {
             return {
               ...val,
+              total_paid: (val.total_paid || 0) / 10,
               week_start: new Date(val.week_start || '').toLocaleDateString(),
             };
           })}
           dataKey="week_start"
           title="Tedenska naliza prodaje"
           series={[
-            { name: 'pivo_v_gajba', color: 'orange.6', label: ' pivo v gajba' },
-            { name: 'total_ordered', color: 'yellow.6', label: 'naročeno' },
-            { name: 'total_paid', color: 'grape.6', label: 'plačano' },
+            { name: 'pivo_v_gajba', color: 'green.6', label: ' pivo v gajba' },
+            { name: 'total_ordered', color: 'gray.6', label: 'naročeno' },
+            { name: 'total_paid', color: 'teal.7', label: 'plačano' },
           ]}
           tooltipProps={{
             content: ({ label, payload }) => (
