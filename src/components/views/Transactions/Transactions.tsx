@@ -4,7 +4,6 @@ import {
   Center,
   Divider,
   LoadingOverlay,
-  ScrollArea,
   Stack,
   Title,
 } from '@mantine/core';

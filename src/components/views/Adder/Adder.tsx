@@ -147,7 +147,7 @@ export const BeerAdded = () => {
                     rightSection="€"
                     {...form.getInputProps('paid')}
                   />
-                  <Tooltip label="Izračunaj ceno">
+                  <Tooltip label="Izračunaj ceno  ">
                     <ActionIcon
                       variant="light"
                       size="lg"
