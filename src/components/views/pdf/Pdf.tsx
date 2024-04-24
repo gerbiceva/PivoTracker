@@ -12,7 +12,6 @@ import { IconFile } from '@tabler/icons-react';
 import { Link } from 'react-router-dom';
 import { Tables } from '../../../supabase/supabase';
 import { numberToEur } from '../../../utils/Converter';
-import { useUser } from '../../../supabase/loader';
 
 Font.register({ family: 'Roboto', src: '/roboto.ttf' });
 
@@ -23,7 +22,7 @@ interface PDFProps {
 }
 
 export const PDFUrl = ({ transactions, userinfo }: PDFProps) => {
-  const user = useUser();
+  // const user = useUser();
 
   const vsehPiv = transactions
     .map((trans) => trans.ordered)
