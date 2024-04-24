@@ -1,21 +1,21 @@
-import { createBrowserRouter } from "react-router-dom";
-import { ProtectedPath } from "../components/ProtectedPath";
-import { BeerAdded } from "../components/views/Adder/Adder";
-import App from "../components/views/App";
-import { Authentication } from "../components/views/Auth";
-import { Dashboard } from "../components/views/Dash/Dash";
-import { Nabava } from "../components/views/Nabava/Nabava";
-import { PuffTable } from "../components/views/Pufi/PufiTabela";
-import { Transactions } from "../components/views/Transactions/Transactions";
-import { UserView } from "../components/views/User/UserOverview";
+import { createBrowserRouter } from 'react-router-dom';
+import { ProtectedPath } from '../components/ProtectedPath';
+import { BeerAdded } from '../components/views/Adder/Adder';
+import App from '../components/views/App';
+import { Authentication } from '../components/views/Auth';
+import { Dashboard } from '../components/views/Dash/Dash';
+import { Nabava } from '../components/views/Nabava/Nabava';
+import { PuffTable } from '../components/views/Pufi/PufiTabela';
+import { Transactions } from '../components/views/Transactions/Transactions';
+import { UserView } from '../components/views/User/UserOverview';
 
 export const router = createBrowserRouter([
   {
-    path: "/auth",
+    path: '/auth',
     element: <Authentication />,
   },
   {
-    path: "/",
+    path: '/',
     element: (
       <ProtectedPath redirectUrl="/auth">
         <App />
@@ -23,32 +23,38 @@ export const router = createBrowserRouter([
     ),
     children: [
       {
-        path: "/transactions",
+        path: '/transactions',
         element: <Transactions />,
       },
       {
-        path: "/",
+        path: '/',
         element: <Dashboard />,
       },
       {
-        path: "/add",
+        path: '/add',
         element: <BeerAdded />,
       },
       {
-        path: "/puff",
+        path: '/puff',
         element: <PuffTable />,
       },
       {
-        path: "/user/:id",
+        path: '/user/:id',
         element: <UserView />,
       },
       {
-        path: "/nabava",
+        path: '/nabava',
         element: <Nabava />,
       },
+      // {
+      //   path: '/pdf',
+      //   element: (
+
+      //   ),
+      // },
       {
-        path: "/*",
-        element: "404",
+        path: '/*',
+        element: '404',
       },
     ],
   },

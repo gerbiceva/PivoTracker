@@ -21,6 +21,7 @@
     "@mantine/notifications": "^7.5.2",
     "@mantine/spotlight": "^7.5.2",
     "@nanostores/react": "^0.7.1",
+    "@react-pdf/renderer": "^3.4.3",
     "@supabase/supabase-js": "^2.33.2",
     "@tabler/icons-react": "^2.46.0",
     "dayjs": "^1.11.10",
