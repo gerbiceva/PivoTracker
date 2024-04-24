@@ -32,7 +32,7 @@ export const PDFUrl = ({ transactions, userinfo }: PDFProps) => {
     .map((trans) => trans.owed)
     .reduce((prev, curr) => (prev || 0) + (curr || 0), 0);
 
-  const item = (key: string, value: string) => (
+  const item = (key: string, value: string, bg?: string) => (
     <View
       style={{
         display: 'flex',
@@ -53,6 +53,8 @@ export const PDFUrl = ({ transactions, userinfo }: PDFProps) => {
       <Text
         style={{
           fontSize: '20px',
+          padding: '1px 5px',
+          backgroundColor: bg ? bg : undefined,
         }}
       >
         {value}
@@ -98,7 +100,7 @@ export const PDFUrl = ({ transactions, userinfo }: PDFProps) => {
               <Text
                 style={{
                   fontWeight: 'black',
-                  fontSize: '30px',
+                  fontSize: '25px',
                 }}
               >
                 Gerbiceva 59
@@ -136,7 +138,13 @@ export const PDFUrl = ({ transactions, userinfo }: PDFProps) => {
             >
               {userinfo.id}
             </Text>
-            <Text>{userinfo.fullname}</Text>
+            <Text
+              style={{
+                padding: '5px 0',
+              }}
+            >
+              {userinfo.fullname}
+            </Text>
           </View>
         </View>
 
@@ -171,7 +179,7 @@ export const PDFUrl = ({ transactions, userinfo }: PDFProps) => {
         >
           <Text
             style={{
-              fontSize: '25px',
+              fontSize: '20px',
               padding: '5px 0',
               margin: '15px 0',
               opacity: 0.8,
@@ -212,7 +220,7 @@ export const PDFUrl = ({ transactions, userinfo }: PDFProps) => {
                   fontWeight: 'bold',
                 }}
               >
-                {numberToEur(transaction.paid || 0 / 10)}
+                {numberToEur((transaction.paid || 0) / 10)}
               </Text>
 
               <Text
@@ -220,10 +228,10 @@ export const PDFUrl = ({ transactions, userinfo }: PDFProps) => {
                   fontSize: '14px',
                   padding: '1px 5px',
                   margin: '2px 5px',
-                  border: '1px solid black',
+                  backgroundColor: '#dfdfdf',
                 }}
               >
-                {numberToEur(transaction.owed || 0 / 10)}
+                {numberToEur(transaction.owed || 0)}
               </Text>
             </View>
           ))}
@@ -239,7 +247,8 @@ export const PDFUrl = ({ transactions, userinfo }: PDFProps) => {
             Izračun
           </Text>
           {item('Skupaj dobljeno: ', `${vsehPiv} piv`)}
-          {item('Skupaj Placano: ', numberToEur(vsegaPlacano || 0))}
+          {item('Skupaj placano: ', numberToEur((vsegaPlacano || 0) / 10))}
+          {item('Skupaj strosek: ', numberToEur((vsehPiv || 0) * 1.5))}
           <View
             style={{
               width: '100%',
@@ -248,7 +257,7 @@ export const PDFUrl = ({ transactions, userinfo }: PDFProps) => {
               marginBottom: '20px',
             }}
           />
-          {item('Skupaj za placilo: ', numberToEur(vsegaDolg || 0))}
+          {item('Skupaj za placilo: ', numberToEur(vsegaDolg || 0), '#dfdfdf')}
         </View>
       </Page>
     </Document>
