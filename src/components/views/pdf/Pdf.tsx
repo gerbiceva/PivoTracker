@@ -12,6 +12,7 @@ import { IconFile } from '@tabler/icons-react';
 import { Link } from 'react-router-dom';
 import { Tables } from '../../../supabase/supabase';
 import { numberToEur } from '../../../utils/Converter';
+import { useUser } from '../../../supabase/loader';
 
 Font.register({ family: 'Roboto', src: '/roboto.ttf' });
 
@@ -22,6 +23,8 @@ interface PDFProps {
 }
 
 export const PDFUrl = ({ transactions, userinfo }: PDFProps) => {
+  const user = useUser();
+
   const vsehPiv = transactions
     .map((trans) => trans.ordered)
     .reduce((prev, curr) => (prev || 0) + (curr || 0), 0);
@@ -61,6 +64,8 @@ export const PDFUrl = ({ transactions, userinfo }: PDFProps) => {
       </Text>
     </View>
   );
+
+  const today = new Date();
 
   const PdfDoc = () => (
     <Document>
@@ -103,7 +108,7 @@ export const PDFUrl = ({ transactions, userinfo }: PDFProps) => {
                   fontSize: '25px',
                 }}
               >
-                Gerbiceva 59
+                Gerbičeva 59
               </Text>
               <Text
                 style={{
@@ -111,7 +116,7 @@ export const PDFUrl = ({ transactions, userinfo }: PDFProps) => {
                   opacity: 0.7,
                 }}
               >
-                Tekoce ministerstvo
+                Tekoče ministrstvo
               </Text>
               <Text
                 style={{
@@ -119,8 +124,14 @@ export const PDFUrl = ({ transactions, userinfo }: PDFProps) => {
                   opacity: 0.5,
                 }}
               >
-                {new Date().toLocaleString()}
+                {today.toLocaleString()}
               </Text>
+              {item(
+                'Rok plačila:',
+                new Date(
+                  today.setMonth(today.getMonth() + 1),
+                ).toLocaleDateString(),
+              )}
             </View>
           </View>
 
@@ -163,7 +174,7 @@ export const PDFUrl = ({ transactions, userinfo }: PDFProps) => {
               fontSize: '20px',
             }}
           >
-            Opomin o trenutnih dolgovih
+            Opomin
           </Text>
         </View>
 
@@ -246,9 +257,9 @@ export const PDFUrl = ({ transactions, userinfo }: PDFProps) => {
           >
             Izračun
           </Text>
-          {item('Skupaj dobljeno: ', `${vsehPiv} piv`)}
-          {item('Skupaj placano: ', numberToEur((vsegaPlacano || 0) / 10))}
-          {item('Skupaj strosek: ', numberToEur((vsehPiv || 0) * 1.5))}
+          {item('skupaj dobljeno: ', `${vsehPiv} piv`)}
+          {item('strošek: ', numberToEur((vsehPiv || 0) * 1.5))}
+          {item('skupaj plačano: ', numberToEur((vsegaPlacano || 0) / 10))}
           <View
             style={{
               width: '100%',
@@ -257,7 +268,55 @@ export const PDFUrl = ({ transactions, userinfo }: PDFProps) => {
               marginBottom: '20px',
             }}
           />
-          {item('Skupaj za placilo: ', numberToEur(vsegaDolg || 0), '#dfdfdf')}
+          {item('Skupaj za plačilo: ', numberToEur(vsegaDolg || 0), '#dfdfdf')}
+        </View>
+        <View
+          style={{
+            padding: '08px 50px',
+            width: '100%',
+            borderBottom: '1px solid gray',
+            opacity: 0.7,
+            marginBottom: '20px',
+          }}
+        />
+        <Text
+          style={{
+            padding: '10px 50px',
+            fontSize: '12px',
+            maxWidth: '400px',
+          }}
+        >
+          Znesek je potrebno poravnati pri pristojnem tekočem ministru v vašem
+          štuku.
+        </Text>
+        <Text
+          style={{
+            padding: '20px 50px',
+            fontSize: '12px',
+          }}
+        >
+          Po 1. odstavku 32. člena Zakona o gozdovh (ZG) (Uradni list RS, št.
+          30/93, 56/99 – ZON, 67/02, 110/02, 115/06 – ORZG40, 110/07, 106/10,
+          63/13, 101/13 – ZDavNepr, 17/14, 22/14 – odl. US, 24/15, 9/16, 77/16
+          in 78/23 – ZUNPEOVE), bomo v primeru neplačila izdali predlog za
+          izvržbo. Zoper ta opomin pritožba ni mogoča.
+        </Text>
+        <View
+          style={{
+            padding: '20px 50px',
+            fontSize: '12px',
+            marginTop: 'auto',
+            marginLeft: 'auto',
+          }}
+        >
+          <Text>
+            {/* {user.user?.email}: ___________________ */}
+            Žan Oberstar 310
+          </Text>
+          <Text>
+            {/* {user.user?.email}: ___________________ */}
+            minister za tekoče zadeve
+          </Text>
         </View>
       </Page>
     </Document>
