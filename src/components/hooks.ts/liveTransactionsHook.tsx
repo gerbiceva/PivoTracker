@@ -1,13 +1,13 @@
-import { useEffect, useState } from "react";
-import { Tables } from "../../supabase/supabase";
-import { PostgrestError } from "@supabase/supabase-js";
-import { supabaseClient } from "../../supabase/supabaseClient";
-import { notifications } from "@mantine/notifications";
+import { useEffect, useState } from 'react';
+import { Tables } from '../../supabase/supabase';
+import { PostgrestError } from '@supabase/supabase-js';
+import { supabaseClient } from '../../supabase/supabaseClient';
+import { notifications } from '@mantine/notifications';
 
-let transactionsBuffer: Tables<"named_transactions">[] = [];
+let transactionsBuffer: Tables<'named_transactions'>[] = [];
 export const useLiveTransactions = () => {
   const [transactions, setTransactions] = useState<
-    Tables<"named_transactions">[]
+    Tables<'named_transactions'>[]
   >([]);
   const [err, setErr] = useState<Error | PostgrestError>();
   const [isLoading, setLoading] = useState(true);
@@ -15,22 +15,22 @@ export const useLiveTransactions = () => {
   const removeTransaction = (id: number) => {
     setTransactions(transactions.filter((val) => val.id !== id));
     supabaseClient
-      .from("transactions")
+      .from('transactions')
       .delete()
-      .eq("id", id)
+      .eq('id', id)
       .then((res) => {
         if (res.error) {
           setErr(res.error);
           notifications.show({
-            title: "Napaka",
-            color: "red",
+            title: 'Napaka',
+            color: 'red',
             message: `Napaka pri brisanju transakcije: ${res.error.message}!`,
           });
         } else {
           notifications.show({
-            title: "Uspeh",
-            color: "green",
-            message: "Transakcija uspešno izbrisana!",
+            title: 'Uspeh',
+            color: 'green',
+            message: 'Transakcija uspešno izbrisana!',
           });
         }
       });
@@ -38,7 +38,7 @@ export const useLiveTransactions = () => {
 
   useEffect(() => {
     supabaseClient
-      .channel("schema-db-changes")
+      .channel('schema-db-changes')
       //   .on<Tables<"named_transactions">>(
       //     "postgres_changes",
       //     {
@@ -60,15 +60,13 @@ export const useLiveTransactions = () => {
       //       setZelje([...zeljeBuffer]);
       //     }
       //   )
-      .on<Tables<"named_transactions">>(
-        "postgres_changes",
+      .on<Tables<'named_transactions'>>(
+        'postgres_changes',
         {
-          event: "INSERT",
-          schema: "public",
+          event: 'INSERT',
+          schema: 'public',
         },
         (payload) => {
-          console.log({ payload });
-
           if (payload.errors) {
             setErr(new Error(payload.errors[0]));
             // zeljeBuffer = [];
@@ -78,13 +76,13 @@ export const useLiveTransactions = () => {
           if (payload.new) {
             setTransactions([payload.new, ...transactionsBuffer]);
           }
-        }
+        },
       )
-      .on<Tables<"named_transactions">>(
-        "postgres_changes",
+      .on<Tables<'named_transactions'>>(
+        'postgres_changes',
         {
-          event: "DELETE",
-          schema: "public",
+          event: 'DELETE',
+          schema: 'public',
         },
         (payload) => {
           if (payload.errors) {
@@ -94,10 +92,10 @@ export const useLiveTransactions = () => {
           }
           setTransactions(
             transactionsBuffer.filter(
-              (transaction) => transaction.id != payload.old.id
-            )
+              (transaction) => transaction.id != payload.old.id,
+            ),
           );
-        }
+        },
       )
       .subscribe((state) => {
         console.log(state);
@@ -107,9 +105,9 @@ export const useLiveTransactions = () => {
   useEffect(() => {
     setLoading(true);
     supabaseClient
-      .from("named_transactions")
+      .from('named_transactions')
       .select()
-      .order("ordered_at", { ascending: false })
+      .order('ordered_at', { ascending: false })
       .then((resp) => {
         if (resp.error) {
           setErr(resp.error);

@@ -5,12 +5,11 @@ import { numberToEur } from '../../../utils/Converter';
 
 interface ChartTooltipProps {
   label: string;
-  payload: Record<string, any>[] | undefined;
+  payload: Record<string, unknown>[] | undefined;
 }
 
 function ChartTooltip({ label, payload }: ChartTooltipProps) {
   if (!payload) return null;
-  console.log(payload);
 
   return (
     <Paper px="md" py="sm" withBorder shadow="md" radius="md">

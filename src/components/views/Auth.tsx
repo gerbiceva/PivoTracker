@@ -9,16 +9,15 @@ import {
   Paper,
   PasswordInput,
   Stack,
-  Text,
   TextInput,
   Title,
-} from "@mantine/core";
-import { useForm } from "@mantine/form";
-import { IconCircleKey } from "@tabler/icons-react";
-import { supabaseClient } from "../../supabase/supabaseClient";
-import { useUser } from "../../supabase/loader";
-import { Navigate } from "react-router-dom";
-import { useState } from "react";
+} from '@mantine/core';
+import { useForm } from '@mantine/form';
+import { IconCircleKey } from '@tabler/icons-react';
+import { supabaseClient } from '../../supabase/supabaseClient';
+import { useUser } from '../../supabase/loader';
+import { Navigate } from 'react-router-dom';
+import { useState } from 'react';
 
 export function Authentication() {
   const { user } = useUser();
@@ -26,12 +25,12 @@ export function Authentication() {
 
   const form = useForm({
     initialValues: {
-      email: "",
-      password: "",
+      email: '',
+      password: '',
     },
 
     validate: {
-      email: (value) => (/^\S+@\S+$/.test(value) ? null : "Invalid email"),
+      email: (value) => (/^\S+@\S+$/.test(value) ? null : 'Invalid email'),
     },
   });
 
@@ -45,12 +44,9 @@ export function Authentication() {
         <Container size={820} miw={540}>
           <Stack align="center" w="100%">
             <Group align="center">
-              <Text c="dimmed">
-                {/* <IconCircleKey></IconCircleKey> */}
-                <Avatar variant="outline" size="md">
-                  G59
-                </Avatar>
-              </Text>
+              <Avatar variant="outline" size="md">
+                G59
+              </Avatar>
               <Title>Tekoče ministrstvo</Title>
             </Group>
 
@@ -72,14 +68,14 @@ export function Authentication() {
                   label="Email"
                   placeholder="you@mantine.dev"
                   required
-                  {...form.getInputProps("email")}
+                  {...form.getInputProps('email')}
                 />
                 <PasswordInput
                   label="Password"
                   placeholder="Your password"
                   required
                   mt="md"
-                  {...form.getInputProps("password")}
+                  {...form.getInputProps('password')}
                 />
 
                 <Button fullWidth mt="xl" type="submit" loading={loading}>

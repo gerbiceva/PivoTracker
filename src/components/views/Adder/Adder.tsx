@@ -22,27 +22,40 @@ import { supabaseClient } from '../../../supabase/supabaseClient';
 import { NameCombobox } from './NameCombobox';
 import { useNavigate } from 'react-router-dom';
 import { IconCalculator } from '@tabler/icons-react';
+import { ItemSelect } from './ItemSelect';
 
 // SELECT c.fullname, t.ordered_at, t.ordered, t.paid FROM customers AS c LEFT JOIN transactions AS t ON c.id = t.customer_id;
 // SELECT c.fullname, SUM(t.paid) FROM customers AS c LEFT JOIN transactions AS t ON c.id = t.customer_id GROUP BY c.fullname;
 
 interface Order {
   user: Tables<'customers'> | null;
+  item: Tables<'items'> | undefined;
   order: number;
   paid: number;
 }
 
 const addOrder = (
-  { user, order, paid }: Order,
+  { user, order, paid, item }: Order,
   navigate: (url: string) => void,
 ) => {
   const ordered = order;
   const offset = 10;
   paid = paid * offset; // max ena decimalka, zato množimo z 10
   return new Promise<void>((resolve, reject) => {
+    console.log('add order', item?.id);
+    if (!user || !item) {
+      console.error('No user or item');
+      return;
+    }
+
     supabaseClient
       .from('transactions')
-      .insert({ customer_id: user?.id || -1, ordered, paid })
+      .insert({
+        customer_id: user.id,
+        ordered,
+        paid,
+        item: item.id,
+      })
       .then((res) => {
         if (res.error) {
           console.log(res.error);
@@ -65,7 +78,7 @@ const addOrder = (
               <Text>Uspešno dodano pivo</Text>
               <Button
                 onClick={() => {
-                  navigate(`/user/${user?.id}`);
+                  navigate(`/user/${user.id}`);
                 }}
               >
                 Preglej uporabnika
@@ -85,6 +98,7 @@ export const BeerAdded = () => {
       user: null,
       order: 1,
       paid: 0,
+      item: undefined,
     },
 
     validate: {
@@ -96,13 +110,12 @@ export const BeerAdded = () => {
     },
   });
 
-  // useEffect(() => {
-  //   form.setFieldValue('paid', form.values.order * 1.5);
-  // }, [form.values.order]);
+  // const [selectedItem, setSelectedItem] = useState<Tables<'items'>>();
+  const price = form.values.item?.price || 0;
 
   const [isLoading, setIsLoading] = useState(false);
 
-  const diffFloat = form.values.order * 1.5 - form.values.paid;
+  const diffFloat = form.values.order * price - form.values.paid;
   const diff = Math.round(diffFloat * 100) / 100.0;
 
   function order(order: Order) {
@@ -125,10 +138,17 @@ export const BeerAdded = () => {
       <Paper withBorder w="100%" pos="relative" shadow="sm">
         <SimpleGrid w="100%" p="md" cols={{ md: 2, xs: 1 }}>
           <Stack style={{ flex: 1 }} ref={focusTrapRef}>
-            <Title order={2}>Dodajanje bjre</Title>
+            <Title order={2}>Prodaja piva</Title>
             <NameCombobox
               value={form.getInputProps('user').value}
               onChange={form.getInputProps('user').onChange}
+            />
+            <ItemSelect
+              label="Artikel"
+              value={form.values.item}
+              onChange={(item) => {
+                form.setFieldValue('item', item);
+              }}
             />
             <SimpleGrid cols={{ md: 2, sm: 1 }} spacing="xl">
               <Fieldset legend="Naročeno" variant="unstyled">
@@ -139,7 +159,7 @@ export const BeerAdded = () => {
                 />
               </Fieldset>
 
-              <Fieldset legend="Plčano" variant="unstyled">
+              <Fieldset legend="Plačano" variant="unstyled">
                 <Group wrap="nowrap" align="center">
                   <NumberInput
                     placeholder="vsa"
@@ -153,7 +173,7 @@ export const BeerAdded = () => {
                       size="lg"
                       onClick={() => {
                         form.setValues({
-                          paid: 1.5 * form.values.order,
+                          paid: price * form.values.order,
                         });
                       }}
                     >
@@ -169,7 +189,9 @@ export const BeerAdded = () => {
               fullWidth
               type="submit"
               variant="gradient"
-              disabled={form.values.user == null}
+              disabled={
+                form.values.user == null || form.values.item == undefined
+              }
             >
               Dodaj
             </Button>

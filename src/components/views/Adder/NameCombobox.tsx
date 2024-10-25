@@ -1,23 +1,23 @@
-import { useEffect, useState } from "react";
-import { Combobox, InputBase, Skeleton, useCombobox } from "@mantine/core";
-import { useDebouncedState } from "@mantine/hooks";
-import { supabaseClient } from "../../../supabase/supabaseClient";
-import { notifications, showNotification } from "@mantine/notifications";
-import { Tables } from "../../../supabase/supabase";
+import { useEffect, useState } from 'react';
+import { Combobox, InputBase, Skeleton, useCombobox } from '@mantine/core';
+import { useDebouncedState } from '@mantine/hooks';
+import { supabaseClient } from '../../../supabase/supabaseClient';
+import { notifications, showNotification } from '@mantine/notifications';
+import { Tables } from '../../../supabase/supabase';
 
-function getAsyncData(search: string): Promise<Tables<"customers">[]> {
-  return new Promise<Tables<"customers">[]>((resolve) => {
+function getAsyncData(search: string): Promise<Tables<'customers'>[]> {
+  return new Promise<Tables<'customers'>[]>((resolve) => {
     supabaseClient
-      .from("customers")
+      .from('customers')
       .select()
-      .ilike("fullname", `%${search.toLowerCase()}%`)
+      .ilike('fullname', `%${search.toLowerCase()}%`)
       .then((res) => {
         if (!res.error) {
           resolve(res.data.map((val) => val));
         } else {
           notifications.show({
-            title: "Error",
-            color: "red",
+            title: 'Error',
+            color: 'red',
             message: res.error.message,
           });
           resolve([]);
@@ -28,14 +28,14 @@ function getAsyncData(search: string): Promise<Tables<"customers">[]> {
 
 function customerFromId(
   id: string,
-  customers: Tables<"customers">[]
-): Tables<"customers"> | null {
+  customers: Tables<'customers'>[],
+): Tables<'customers'> | null {
   return customers.filter((val) => val.id.toString() == id)[0];
 }
 
 interface Props {
-  value: Tables<"customers"> | null;
-  onChange: (value: Tables<"customers"> | null) => void;
+  value: Tables<'customers'> | null;
+  onChange: (value: Tables<'customers'> | null) => void;
 }
 
 export const NameCombobox = ({ onChange, value }: Props) => {
@@ -44,16 +44,16 @@ export const NameCombobox = ({ onChange, value }: Props) => {
   });
 
   // const [value, setValue] = useState<Tables<"customers"> | null>(null);
-  const [search, setSearch] = useState("");
+  const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(false);
-  const [debouncedSearch, setDebouncedSearch] = useDebouncedState("", 300);
-  const [filteredOptions, setFilteredOptions] = useState<Tables<"customers">[]>(
-    []
+  const [debouncedSearch, setDebouncedSearch] = useDebouncedState('', 300);
+  const [filteredOptions, setFilteredOptions] = useState<Tables<'customers'>[]>(
+    [],
   );
 
   useEffect(() => {
     // if value gets cleared, clear search
-    if (!value) return setSearch("");
+    if (!value) return setSearch('');
   }, [value]);
 
   useEffect(() => {
@@ -79,26 +79,27 @@ export const NameCombobox = ({ onChange, value }: Props) => {
       store={combobox}
       withinPortal={false}
       onOptionSubmit={(val) => {
-        if (val == "$create") {
+        if (val == '$create') {
           //   console.log("create: " + search);
           supabaseClient
-            .from("customers")
+            .from('customers')
             .insert({ fullname: search })
             .select()
             .then((res) => {
               if (!res.error) {
                 onChange({
+                  user_link: res.data[0].user_link,
                   fullname: res.data[0].fullname,
                   id: res.data[0].id,
                 });
-                setSearch(res.data[0].fullname || "");
+                setSearch(res.data[0].fullname || '');
               } else {
                 showNotification({
-                  color: "red",
-                  title: "Error",
+                  color: 'red',
+                  title: 'Error',
                   message: `Error: ${res.error.message}`,
                 });
-                setSearch("");
+                setSearch('');
                 onChange(null);
               }
             });
@@ -107,7 +108,7 @@ export const NameCombobox = ({ onChange, value }: Props) => {
           // setValue(customerFromId(val, filteredOptions) || null);
           const newValue = customerFromId(val, filteredOptions);
           onChange(newValue);
-          setSearch(newValue?.fullname || "");
+          setSearch(newValue?.fullname || '');
         }
         combobox.closeDropdown();
       }}
@@ -128,7 +129,7 @@ export const NameCombobox = ({ onChange, value }: Props) => {
           onFocus={() => combobox.openDropdown()}
           onBlur={() => {
             combobox.closeDropdown();
-            setSearch(value?.fullname || "");
+            setSearch(value?.fullname || '');
           }}
           placeholder="Bilen Tetner"
           rightSectionPointerEvents="none"
@@ -143,13 +144,16 @@ export const NameCombobox = ({ onChange, value }: Props) => {
           </Combobox.Options>
         ) : (
           <Combobox.Options>
-            {/* {options.length > 0 ? options : <Combobox.Empty>Nothing found</Combobox.Empty>} */}
-            {options}
-            {filteredOptions.length == 0 && search.length > 0 && !loading && (
+            {options.length > 0 ? (
+              options
+            ) : filteredOptions.length == 0 && search.length > 0 && !loading ? (
               <Combobox.Option value="$create">
                 + Dodaj {search}
               </Combobox.Option>
+            ) : (
+              <Combobox.Empty>Začnite tipkati</Combobox.Empty>
             )}
+            {options}
           </Combobox.Options>
         )}
       </Combobox.Dropdown>
