@@ -7,12 +7,13 @@ function App() {
   return (
     <Stack p="md" h="100vh">
       <img
-        src="/GerbaLogo.png"
+        src="/GerbaLogo.svg"
         alt=""
         style={{
           position: 'absolute',
           zIndex: -100,
           opacity: 0.04,
+          maxHeight: '90vh',
         }}
       />
       <Navbar />

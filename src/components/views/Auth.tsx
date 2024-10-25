@@ -40,6 +40,16 @@ export function Authentication() {
 
   return (
     <Box h="100vh" w="100vw">
+      <img
+        src="/GerbaLogo.svg"
+        alt=""
+        style={{
+          position: 'absolute',
+          zIndex: -100,
+          opacity: 0.04,
+          maxHeight: '100vh',
+        }}
+      />
       <Center h="100vh" w="100%">
         <Container size={820} miw={540}>
           <Stack align="center" w="100%">
