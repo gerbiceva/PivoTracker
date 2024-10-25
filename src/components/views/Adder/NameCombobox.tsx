@@ -1,5 +1,12 @@
 import { useEffect, useState } from 'react';
-import { Combobox, InputBase, Skeleton, useCombobox } from '@mantine/core';
+import {
+  Combobox,
+  InputBase,
+  Skeleton,
+  useCombobox,
+  Text,
+  Group,
+} from '@mantine/core';
 import { useDebouncedState } from '@mantine/hooks';
 import { supabaseClient } from '../../../supabase/supabaseClient';
 import { notifications, showNotification } from '@mantine/notifications';
@@ -132,7 +139,7 @@ export const NameCombobox = ({ onChange, value }: Props) => {
             combobox.closeDropdown();
             setSearch(value?.fullname || '');
           }}
-          placeholder="Bilen Tetner"
+          placeholder="Ime priimek"
           rightSectionPointerEvents="none"
         />
       </Combobox.Target>
@@ -149,12 +156,15 @@ export const NameCombobox = ({ onChange, value }: Props) => {
               options
             ) : filteredOptions.length == 0 && search.length > 0 && !loading ? (
               <Combobox.Option value="$create">
-                + Dodaj {search}
+                <Group>
+                  <Text style={{ opacity: 0.4 }}>+ Dodaj</Text>
+                  <Text fw="bold">{search}</Text>
+                </Group>
               </Combobox.Option>
             ) : (
               <Combobox.Empty>Začnite tipkati</Combobox.Empty>
             )}
-            {options}
+            {/* {options} */}
           </Combobox.Options>
         )}
       </Combobox.Dropdown>
