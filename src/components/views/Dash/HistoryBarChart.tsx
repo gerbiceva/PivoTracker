@@ -5,7 +5,7 @@ import { formatCurrency } from '../../../utils/Converter';
 
 interface ChartTooltipProps {
   label: string;
-  payload: Record<string, unknown>[] | undefined;
+  payload: Record<string, any>[] | undefined;
 }
 
 function ChartTooltip({ label, payload }: ChartTooltipProps) {
