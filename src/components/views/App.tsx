@@ -6,6 +6,15 @@ import { Outlet } from 'react-router-dom';
 function App() {
   return (
     <Stack p="md" h="100vh">
+      <img
+        src="/GerbaLogo.png"
+        alt=""
+        style={{
+          position: 'absolute',
+          zIndex: -100,
+          opacity: 0.04,
+        }}
+      />
       <Navbar />
       <CustomSpotlight />
       <Container
