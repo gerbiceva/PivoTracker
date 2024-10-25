@@ -18,7 +18,7 @@ import { useMemo } from 'react';
 import { DebtBadge } from '../../../components/pricing/DebtBadge';
 import { numToColor } from '../../../components/users/stringToCol';
 import { supabaseClient } from '../../../supabase/supabaseClient';
-import { getDateFromString, numberToEur } from '../../../utils/Converter';
+import { getDateFromString, formatCurrency } from '../../../utils/Converter';
 import { useGetTransactions } from '../Transactions/useTransactions';
 
 const addGajba = (id: number, successCallback: () => void) => () => {
@@ -87,7 +87,7 @@ export const ModalWindow = ({
           </Table.Td>
           <Table.Td align="right">{element.ordered}</Table.Td>
           <Table.Td align="right">
-            {numberToEur((element.paid || 0) / 10)}
+            {formatCurrency((element.paid || 0) / 10)}
           </Table.Td>
           <Table.Td align="right">
             <DebtBadge debt={element.owed || 0} />

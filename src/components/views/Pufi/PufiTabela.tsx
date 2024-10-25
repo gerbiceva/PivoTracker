@@ -11,7 +11,7 @@ import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { DebtBadge } from '../../../components/pricing/DebtBadge';
 import { UserTag } from '../../../components/users/UserTag';
-import { numberToEur } from '../../../utils/Converter';
+import { formatCurrency } from '../../../utils/Converter';
 import { sumOrders, useGetSummedDebt } from './GetEverythingSum';
 import { UserModal } from './UserModal';
 
@@ -64,7 +64,7 @@ export function PuffTable() {
         </Table.Td>
         <Table.Td align="right">{element.total_ordered}</Table.Td>
         <Table.Td align="right">
-          {numberToEur((element.total_paid || 0) / 10)}
+          {formatCurrency((element.total_paid || 0) / 10)}
         </Table.Td>
         <Table.Td align="right">
           <DebtBadge debt={element.total_owed || 0} />

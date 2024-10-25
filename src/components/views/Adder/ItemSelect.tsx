@@ -2,7 +2,7 @@ import { Alert, Text, SimpleGrid, Stack, Skeleton } from '@mantine/core';
 import { Tables } from '../../../supabase/supabase';
 import { useGetItems } from './useItems';
 import { useEffect } from 'react';
-import { formatMoney } from '../../../common/priceUtils';
+import { formatCurrency } from '../../../utils/Converter';
 
 interface Props {
   value: Tables<'items'> | undefined;
@@ -48,7 +48,7 @@ export const ItemSelect = ({ onChange, value, label }: Props) => {
             title={item.name}
             variant={value?.id == item.id ? 'filled' : 'light'}
           >
-            {formatMoney(item.price)}
+            {formatCurrency(item.price)}
           </Alert>
           // </Card>
         ))}

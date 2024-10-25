@@ -3,7 +3,7 @@ import { IconTrash } from '@tabler/icons-react';
 import { DebtBadge } from '../../../components/pricing/DebtBadge';
 import { UserTag } from '../../../components/users/UserTag';
 import { Tables } from '../../../supabase/supabase';
-import { intToEur, numberToEur } from '../../../utils/Converter';
+import { intToEur, formatCurrency } from '../../../utils/Converter';
 
 interface ITransactionsTableProps extends TableProps {
   transactions: Tables<'named_transactions'>[];
@@ -26,7 +26,7 @@ export const TransactionsTable = ({
         </Table.Td>
         <Table.Td align="right">{element.ordered}</Table.Td>
         <Table.Td align="right">
-          {numberToEur(intToEur(element.paid || 0))}
+          {formatCurrency(intToEur(element.paid || 0))}
         </Table.Td>
         <Table.Td align="right">
           <DebtBadge variant="outline" debt={element.owed || 0} />

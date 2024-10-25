@@ -2,7 +2,7 @@ import { AreaChart } from '@mantine/charts';
 import { Paper, Text } from '@mantine/core';
 import { useMemo } from 'react';
 import { Tables } from '../../../supabase/supabase';
-import { numberToEur, pivoVGajba } from '../../../utils/Converter';
+import { formatCurrency, pivoVGajba } from '../../../utils/Converter';
 interface ChartTooltipProps {
   label: string;
   payload: Record<string, any>[] | undefined;
@@ -18,7 +18,7 @@ function ChartTooltip({ label, payload }: ChartTooltipProps) {
       </Text>
       {payload.map((item: any) => (
         <Text fw="500" key={item.name} c={item.color} fz="sm">
-          {item.name}: {numberToEur(item.value)} €
+          {item.name}: {formatCurrency(item.value)} €
         </Text>
       ))}
     </Paper>

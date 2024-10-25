@@ -1,9 +1,16 @@
-import { Box, Button, NumberInput, Paper, Stack } from "@mantine/core";
-import { useForm } from "@mantine/form";
-import { useFocusTrap } from "@mantine/hooks";
-import { notifications } from "@mantine/notifications";
-import { IconBeer, IconCurrencyEuro } from "@tabler/icons-react";
-import { nabava, useAddNabava } from "./UseGetNabava";
+import {
+  Button,
+  Group,
+  NumberInput,
+  Paper,
+  Stack,
+  Textarea,
+} from '@mantine/core';
+import { useForm } from '@mantine/form';
+import { useFocusTrap } from '@mantine/hooks';
+import { notifications } from '@mantine/notifications';
+import { IconBeer, IconCurrencyEuro } from '@tabler/icons-react';
+import { nabava, useAddNabava } from './UseGetNabava';
 
 export const NabavaAdder = () => {
   const focusTrapRef = useFocusTrap();
@@ -11,14 +18,15 @@ export const NabavaAdder = () => {
 
   const form = useForm<nabava>({
     initialValues: {
-      cena: 0,
-      stevilo_piv: 0,
+      price: 0,
+      beer_count: 0,
+      notes: '',
     },
 
     validate: {
-      cena: (value) => (value >= 0 ? null : "Cena mora biti pozitivno"),
-      stevilo_piv: (value) =>
-        value >= 0 ? null : "Število piv mora biti pozitivno",
+      price: (value) => (value >= 0 ? null : 'Cena mora biti pozitivno'),
+      beer_count: (value) =>
+        value >= 0 ? null : 'Število piv mora biti pozitivno',
     },
   });
 
@@ -27,8 +35,8 @@ export const NabavaAdder = () => {
       onSubmit={form.onSubmit((data) => {
         add(data).then(() => {
           notifications.show({
-            title: "Nabava dodana",
-            message: "Nabava je bila uspešno dodana",
+            title: 'Nabava dodana',
+            message: 'Nabava je bila uspešno dodana',
           });
         });
         form.reset();
@@ -41,20 +49,25 @@ export const NabavaAdder = () => {
             withAsterisk
             placeholder="20"
             leftSection={<IconBeer />}
-            {...form.getInputProps("stevilo_piv")}
+            {...form.getInputProps('stevilo_piv')}
           />
           <NumberInput
             label="Cena nakupa"
             withAsterisk
             placeholder="30"
             leftSection={<IconCurrencyEuro />}
-            {...form.getInputProps("cena")}
+            {...form.getInputProps('cena')}
           />
-          <Box>
-            <Button type="submit" loading={isLoading}>
-              Dodaj
+          <Textarea
+            label="opombe"
+            placeholder="Kraj nabave, imena sodelujočih, ..."
+            {...form.getInputProps('notes')}
+          />
+          <Group justify="end">
+            <Button type="submit" loading={isLoading} size="lg">
+              Dodaj zalogo
             </Button>
-          </Box>
+          </Group>
         </Stack>
       </Paper>
     </form>

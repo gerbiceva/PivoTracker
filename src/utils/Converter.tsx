@@ -1,7 +1,17 @@
+/**
+ * @deprecated
+ * @param cents
+ * @returns
+ */
 export const intToEur = (cents: number) => {
   return cents / 10;
 };
 
+/**
+ * @deprecated
+ * @param ordered
+ * @returns
+ */
 export const pivoCena = (ordered: number) => {
   const gajbaPrice = 30;
   const pivoPrice = 1.5;
@@ -32,7 +42,7 @@ export const pivoVGajba = (ordered: number, paid: number) => {
   return owed - paid;
 };
 
-export const numberToEur = (num: number) => {
+export const formatCurrency = (num: number) => {
   const euro = Intl.NumberFormat('en-DE', {
     style: 'currency',
     currency: 'EUR',

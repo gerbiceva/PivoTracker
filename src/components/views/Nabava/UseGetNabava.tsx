@@ -5,9 +5,9 @@ import { useState } from 'react';
 
 export const useGetNabava = () => {
   const fetcher = () =>
-    new Promise<Tables<'nabava'>[]>((resolve, reject) => {
+    new Promise<Tables<'gerba_storage'>[]>((resolve, reject) => {
       supabaseClient
-        .from('nabava')
+        .from('gerba_storage')
         .select()
         .order('created_at', { ascending: false })
         .then((res) => {
@@ -19,12 +19,18 @@ export const useGetNabava = () => {
         });
     });
 
-  const out = useSWR<Tables<'nabava'>[]>(`/view/nabava/`, fetcher);
+  const out = useSWR<Tables<'gerba_storage'>[]>(
+    `/view/global_storage/`,
+    fetcher,
+  );
 
   return out;
 };
 
-export type nabava = Omit<Tables<'nabava'>, 'minister' | 'id' | 'created_at'>;
+export type nabava = Omit<
+  Tables<'gerba_storage'>,
+  'minister' | 'id' | 'created_at'
+>;
 
 export const useAddNabava = () => {
   const [isError, setIsError] = useState(false);
@@ -35,10 +41,10 @@ export const useAddNabava = () => {
     setIsError(false);
     return new Promise<void>((resolve, reject) => {
       supabaseClient
-        .from('nabava')
+        .from('gerba_storage')
         .insert({
-          cena: nabava.cena * 100,
-          stevilo_piv: nabava.stevilo_piv,
+          price: nabava.price,
+          beer_count: nabava.beer_count,
         })
         .select()
         .then((res) => {

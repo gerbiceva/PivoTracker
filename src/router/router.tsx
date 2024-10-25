@@ -4,7 +4,7 @@ import { BeerAdded } from '../components/views/Adder/Adder';
 import App from '../components/views/App';
 import { Authentication } from '../components/views/Auth';
 import { Dashboard } from '../components/views/Dash/Dash';
-import { Nabava } from '../components/views/Nabava/Nabava';
+import { Zaloge } from '../components/views/Nabava/Zaloge';
 import { PuffTable } from '../components/views/Pufi/PufiTabela';
 import { Transactions } from '../components/views/Transactions/Transactions';
 import { UserView } from '../components/views/User/UserOverview';
@@ -44,7 +44,7 @@ export const router = createBrowserRouter([
       },
       {
         path: '/nabava',
-        element: <Nabava />,
+        element: <Zaloge />,
       },
       // {
       //   path: '/pdf',

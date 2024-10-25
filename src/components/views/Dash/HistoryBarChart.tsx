@@ -1,7 +1,7 @@
 import { BarChart } from '@mantine/charts';
 import { Alert, Box, LoadingOverlay, Paper, Text } from '@mantine/core';
 import { Tables } from '../../../supabase/supabase';
-import { numberToEur } from '../../../utils/Converter';
+import { formatCurrency } from '../../../utils/Converter';
 
 interface ChartTooltipProps {
   label: string;
@@ -19,7 +19,7 @@ function ChartTooltip({ label, payload }: ChartTooltipProps) {
 
       {payload.map((item: any) => (
         <Text fw="500" key={item.name} c={item.color} fz="sm">
-          {item.name}: {numberToEur(item.value)} €
+          {item.name}: {formatCurrency(item.value)} €
         </Text>
       ))}
     </Paper>

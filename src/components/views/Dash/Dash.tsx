@@ -20,7 +20,7 @@ import {
   IconStack,
 } from '@tabler/icons-react';
 import { useNavigate } from 'react-router-dom';
-import { intToEur, numberToEur, pivoVGajba } from '../../../utils/Converter';
+import { intToEur, formatCurrency, pivoVGajba } from '../../../utils/Converter';
 import { StatElement } from './StatElement';
 import { StatsRing } from './StatsRing';
 import { useGetDash } from './UseGetDash';
@@ -67,13 +67,13 @@ export const Dashboard = () => {
                 />
                 <StatElement
                   title={'Plačano'}
-                  value={numberToEur((data?.total_paid || 0) / 10)}
+                  value={formatCurrency((data?.total_paid || 0) / 10)}
                   diff={0}
                   Icon={IconPigMoney}
                 />
                 <StatElement
                   title={'Vloženega denarja'}
-                  value={numberToEur((data?.total_cena || 0) / 10)}
+                  value={formatCurrency((data?.total_cena || 0) / 10)}
                   diff={0}
                   Icon={IconGraph}
                 />
@@ -89,7 +89,7 @@ export const Dashboard = () => {
                 {owed > 0 && (
                   <StatsRing
                     label={'Delež pokritega dolga'}
-                    stats={`Še ${numberToEur(Math.abs(owed))} dolga`}
+                    stats={`Še ${formatCurrency(Math.abs(owed))} dolga`}
                     sections={[
                       {
                         color: 'red',
@@ -102,7 +102,7 @@ export const Dashboard = () => {
                 {owed < 0 && (
                   <StatsRing
                     label={'Profit'}
-                    stats={`${numberToEur(Math.abs(owed))} profita`}
+                    stats={`${formatCurrency(Math.abs(owed))} profita`}
                     sections={[
                       {
                         color: 'green',

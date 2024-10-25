@@ -1,10 +1,10 @@
 import { Alert, LoadingOverlay, Paper, Stack, Table } from '@mantine/core';
 import { useMemo } from 'react';
 import { Tables } from '../../../supabase/supabase';
-import { numberToEur } from '../../../utils/Converter';
+import { formatCurrency } from '../../../utils/Converter';
 
 interface NabavaTableProps {
-  data: Tables<'nabava'>[];
+  data: Tables<'gerba_storage'>[];
   error: Error | null;
   isLoading: boolean;
 }
@@ -39,10 +39,12 @@ export function NabavaTable({ data, error, isLoading }: NabavaTableProps) {
     return data.map((element) => (
       <Table.Tr key={element.id} p="xs">
         <Table.Td>{new Date(element.created_at).toLocaleDateString()}</Table.Td>
-        <Table.Td align="right">{element.stevilo_piv}</Table.Td>
+        <Table.Td>{element.notes}</Table.Td>
+        <Table.Td align="right">{element.beer_count}</Table.Td>
         <Table.Td align="right">
-          {element.cena ? numberToEur(element.cena / 10) : 'N/A'}
+          {element.price ? formatCurrency(element.price) : 'N/A'}
         </Table.Td>
+        {/* <Table.Td>{element.minister}</Table.Td> */}
       </Table.Tr>
     ));
   }, [data, error, isLoading]);
@@ -57,8 +59,10 @@ export function NabavaTable({ data, error, isLoading }: NabavaTableProps) {
             <Table.Thead>
               <Table.Tr>
                 <Table.Th align="right">Datum</Table.Th>
+                <Table.Th align="right">Opombe</Table.Th>
                 <Table.Th align="right">Število piv</Table.Th>
                 <Table.Th align="right">Cena</Table.Th>
+                {/* <Table.Th align="right">Potrdil</Table.Th> */}
               </Table.Tr>
             </Table.Thead>
             <Table.Tbody>{rows}</Table.Tbody>

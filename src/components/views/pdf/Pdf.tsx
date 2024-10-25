@@ -11,7 +11,7 @@ import {
 import { IconFile } from '@tabler/icons-react';
 import { Link } from 'react-router-dom';
 import { Tables } from '../../../supabase/supabase';
-import { numberToEur } from '../../../utils/Converter';
+import { formatCurrency } from '../../../utils/Converter';
 
 Font.register({ family: 'Roboto', src: '/roboto.ttf' });
 
@@ -230,7 +230,7 @@ export const PDFUrl = ({ transactions, userinfo }: PDFProps) => {
                   fontWeight: 'bold',
                 }}
               >
-                {numberToEur((transaction.paid || 0) / 10)}
+                {formatCurrency((transaction.paid || 0) / 10)}
               </Text>
 
               <Text
@@ -241,7 +241,7 @@ export const PDFUrl = ({ transactions, userinfo }: PDFProps) => {
                   backgroundColor: '#dfdfdf',
                 }}
               >
-                {numberToEur(transaction.owed || 0)}
+                {formatCurrency(transaction.owed || 0)}
               </Text>
             </View>
           ))}
@@ -257,8 +257,8 @@ export const PDFUrl = ({ transactions, userinfo }: PDFProps) => {
             Izračun
           </Text>
           {item('skupaj dobljeno: ', `${vsehPiv} piv`)}
-          {item('strošek: ', numberToEur((vsehPiv || 0) * 1.5))}
-          {item('skupaj plačano: ', numberToEur((vsegaPlacano || 0) / 10))}
+          {item('strošek: ', formatCurrency((vsehPiv || 0) * 1.5))}
+          {item('skupaj plačano: ', formatCurrency((vsegaPlacano || 0) / 10))}
           <View
             style={{
               width: '100%',
@@ -267,7 +267,11 @@ export const PDFUrl = ({ transactions, userinfo }: PDFProps) => {
               marginBottom: '20px',
             }}
           />
-          {item('Skupaj za plačilo: ', numberToEur(vsegaDolg || 0), '#dfdfdf')}
+          {item(
+            'Skupaj za plačilo: ',
+            formatCurrency(vsegaDolg || 0),
+            '#dfdfdf',
+          )}
         </View>
         <View
           style={{

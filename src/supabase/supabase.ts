@@ -59,6 +59,7 @@ export type Database = {
           created_at: string
           id: string
           minister: string
+          notes: string | null
           price: number
         }
         Insert: {
@@ -66,6 +67,7 @@ export type Database = {
           created_at?: string
           id?: string
           minister?: string
+          notes?: string | null
           price: number
         }
         Update: {
@@ -73,6 +75,7 @@ export type Database = {
           created_at?: string
           id?: string
           minister?: string
+          notes?: string | null
           price?: number
         }
         Relationships: []

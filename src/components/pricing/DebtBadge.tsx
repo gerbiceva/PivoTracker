@@ -1,5 +1,5 @@
 import { Badge, BadgeProps } from '@mantine/core';
-import { numberToEur } from '../../utils/Converter';
+import { formatCurrency } from '../../utils/Converter';
 
 interface IDebtBadgeProps extends BadgeProps {
   debt: number;
@@ -14,7 +14,7 @@ export const DebtBadge = ({ debt, ...other }: IDebtBadgeProps) => {
       color={debt == 0.0 ? 'gray' : debt < 0 ? 'green' : 'red'}
       {...other}
     >
-      {numberToEur(debt)}
+      {formatCurrency(debt)}
     </Badge>
   );
 };
