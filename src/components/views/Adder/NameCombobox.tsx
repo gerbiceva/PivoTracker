@@ -88,6 +88,7 @@ export const NameCombobox = ({ onChange, value }: Props) => {
             .then((res) => {
               if (!res.error) {
                 onChange({
+                  created_at: null,
                   user_link: res.data[0].user_link,
                   fullname: res.data[0].fullname,
                   id: res.data[0].id,

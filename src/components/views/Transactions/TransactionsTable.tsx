@@ -3,7 +3,7 @@ import { IconTrash } from '@tabler/icons-react';
 import { DebtBadge } from '../../../components/pricing/DebtBadge';
 import { UserTag } from '../../../components/users/UserTag';
 import { Tables } from '../../../supabase/supabase';
-import { intToEur, formatCurrency } from '../../../utils/Converter';
+import { formatCurrency } from '../../../utils/Converter';
 
 interface ITransactionsTableProps extends TableProps {
   transactions: Tables<'named_transactions'>[];
@@ -25,9 +25,8 @@ export const TransactionsTable = ({
           />
         </Table.Td>
         <Table.Td align="right">{element.ordered}</Table.Td>
-        <Table.Td align="right">
-          {formatCurrency(intToEur(element.paid || 0))}
-        </Table.Td>
+        <Table.Td>{element.item_name}</Table.Td>
+        <Table.Td align="right">{formatCurrency(element.paid || 0)}</Table.Td>
         <Table.Td align="right">
           <DebtBadge variant="outline" debt={element.owed || 0} />
           {/* <Text c={diff < 0 ? "red" : "green"}>{numberToEur(diff)} €</Text> */}
@@ -64,9 +63,11 @@ export const TransactionsTable = ({
             <Table.Th>Id</Table.Th>
             <Table.Th>Polno ime</Table.Th>
             <Table.Th style={{ textAlign: 'right' }}>Naročeno</Table.Th>
+            <Table.Th style={{ textAlign: 'right' }}>Artikel</Table.Th>
             <Table.Th style={{ textAlign: 'right' }}>Plačano</Table.Th>
             <Table.Th style={{ textAlign: 'right' }}>Razlika</Table.Th>
             <Table.Th style={{ textAlign: 'right' }}>Datum naročila</Table.Th>
+
             {removeTransaction && (
               <Table.Th style={{ textAlign: 'right' }}>Odstrani</Table.Th>
             )}

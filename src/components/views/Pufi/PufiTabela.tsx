@@ -12,7 +12,7 @@ import { Link } from 'react-router-dom';
 import { DebtBadge } from '../../../components/pricing/DebtBadge';
 import { UserTag } from '../../../components/users/UserTag';
 import { formatCurrency } from '../../../utils/Converter';
-import { sumOrders, useGetSummedDebt } from './GetEverythingSum';
+import { sumOrdersOptions, useGetSummedDebt } from './GetEverythingSum';
 import { UserModal } from './UserModal';
 
 export interface IUserElements {
@@ -24,7 +24,7 @@ export interface IUserElements {
 }
 
 export function PuffTable() {
-  const [ord, stOrd] = useState<sumOrders>('total_owed');
+  const [ord, stOrd] = useState<sumOrdersOptions>('total_owed');
   const { isLoading, data, error } = useGetSummedDebt(ord);
 
   const rows = useMemo(() => {
@@ -67,7 +67,7 @@ export function PuffTable() {
           {formatCurrency((element.total_paid || 0) / 10)}
         </Table.Td>
         <Table.Td align="right">
-          <DebtBadge debt={element.total_owed || 0} />
+          <DebtBadge debt={element.total_difference || 0} />
         </Table.Td>
         <Table.Td align="right">
           <UserModal

@@ -3,11 +3,11 @@ import { Tables } from '../../../supabase/supabase';
 import { supabaseClient } from '../../../supabase/supabaseClient';
 import { useState } from 'react';
 
-export const useGetNabava = () => {
+export const useGetZaloge = () => {
   const fetcher = () =>
-    new Promise<Tables<'gerba_storage'>[]>((resolve, reject) => {
+    new Promise<Tables<'named_minister_transactions'>[]>((resolve, reject) => {
       supabaseClient
-        .from('gerba_storage')
+        .from('named_minister_transactions')
         .select()
         .order('created_at', { ascending: false })
         .then((res) => {
@@ -19,8 +19,8 @@ export const useGetNabava = () => {
         });
     });
 
-  const out = useSWR<Tables<'gerba_storage'>[]>(
-    `/view/global_storage/`,
+  const out = useSWR<Tables<'named_minister_transactions'>[]>(
+    `/view/minister_storage_transactions/`,
     fetcher,
   );
 
@@ -28,14 +28,14 @@ export const useGetNabava = () => {
 };
 
 export type nabava = Omit<
-  Tables<'gerba_storage'>,
-  'minister' | 'id' | 'created_at'
+  Tables<'minister_storage_transactions'>,
+  'id' | 'created_at'
 >;
 
-export const useAddNabava = () => {
+export const useRestockMinister = () => {
   const [isError, setIsError] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const mutate = useGetNabava().mutate;
+  const mutate = useGetZaloge().mutate;
   const add = (nabava: nabava) => {
     setIsLoading(true);
     setIsError(false);
@@ -43,9 +43,9 @@ export const useAddNabava = () => {
       supabaseClient
         .from('gerba_storage')
         .insert({
-          notes: nabava.notes,
-          price: nabava.price,
+          price: nabava.beer_count,
           beer_count: nabava.beer_count,
+          minister: nabava.to_minister,
         })
         .select()
         .then((res) => {

@@ -1,6 +1,7 @@
 import { rem } from '@mantine/core';
 import {
   IconBeer,
+  IconDatabase,
   IconHome,
   IconList,
   IconLogout,
@@ -62,6 +63,18 @@ export const CustomSpotlight = () => {
       onClick: () => window.location.replace('/nabava'),
       leftSection: (
         <IconShoppingBag
+          style={{ width: rem(24), height: rem(24) }}
+          stroke={1.5}
+        />
+      ),
+    },
+    {
+      id: 'zaloge',
+      label: 'Zaloge',
+      description: 'Zaloge in transakcije ministrov',
+      onClick: () => window.location.replace('/zaloge'),
+      leftSection: (
+        <IconDatabase
           style={{ width: rem(24), height: rem(24) }}
           stroke={1.5}
         />

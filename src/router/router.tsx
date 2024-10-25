@@ -8,6 +8,7 @@ import { Nabava } from '../components/views/Nabava/Nabava';
 import { PuffTable } from '../components/views/Pufi/PufiTabela';
 import { Transactions } from '../components/views/Transactions/Transactions';
 import { UserView } from '../components/views/User/UserOverview';
+import { Zaloge } from '../components/views/Zaloge/Zaloge';
 
 export const router = createBrowserRouter([
   {
@@ -45,6 +46,10 @@ export const router = createBrowserRouter([
       {
         path: '/nabava',
         element: <Nabava />,
+      },
+      {
+        path: '/zaloge',
+        element: <Zaloge />,
       },
       // {
       //   path: '/pdf',

@@ -20,7 +20,7 @@ import {
   IconStack,
 } from '@tabler/icons-react';
 import { useNavigate } from 'react-router-dom';
-import { intToEur, formatCurrency, pivoVGajba } from '../../../utils/Converter';
+import { formatCurrency } from '../../../utils/Converter';
 import { StatElement } from './StatElement';
 import { StatsRing } from './StatsRing';
 import { useGetDash } from './UseGetDash';
@@ -28,20 +28,22 @@ import { useLiveTransactions } from '../../hooks.ts/liveTransactionsHook';
 import { Transactiongraph } from '../Transactions/TransactionGraph';
 import { HistoryBarChart } from './HistoryBarChart';
 import { useGetWeeklyBars } from './useGetWeeklyBars';
+import { useGetNabava } from '../Nabava/UseGetNabava';
 
 export const Dashboard = () => {
   const { transactions } = useLiveTransactions();
   const bars = useGetWeeklyBars();
   const { data, error, isLoading } = useGetDash();
-  const owed = pivoVGajba(
-    data?.total_ordered || 0,
-    (data?.total_paid || 0) / 10,
-  );
-  const paid = intToEur(data?.total_paid || 0);
+  const { data: nabava } = useGetNabava();
+
+  const owed = data?.total_debt || 0;
+  const paid = data?.total_paid || 0;
 
   //   stat 2
-  const kupljenega = data?.total_stevilo_piv || 0;
-  const prodanega = data?.total_ordered || 0;
+  const beersBought =
+    nabava?.reduce((prev, curr) => (prev += curr.beer_count), 0) || 0;
+
+  const beersSold = data?.total_ordered || 0;
 
   const navigate = useNavigate();
   return (
@@ -72,15 +74,14 @@ export const Dashboard = () => {
                   Icon={IconPigMoney}
                 />
                 <StatElement
-                  title={'Vloženega denarja'}
-                  value={formatCurrency((data?.total_cena || 0) / 10)}
+                  title={'Vrednost skupaj'}
+                  value={formatCurrency((data?.total_value || 0) / 10)}
                   diff={0}
                   Icon={IconGraph}
                 />
-                {/* {JSON.stringify(data, null, 2)} */}
                 <StatElement
                   title={'Kupljenega piva'}
-                  value={data?.total_stevilo_piv || 0}
+                  value={data?.total_beer_count || 0}
                   diff={0}
                   Icon={IconBeer}
                 />
@@ -114,11 +115,11 @@ export const Dashboard = () => {
                 )}
                 <StatsRing
                   label={'Delež na zalogi'}
-                  stats={`Še ${kupljenega - prodanega} piv.`}
+                  stats={`Še ${beersBought - beersSold} piv.`}
                   sections={[
                     {
                       color: 'grape',
-                      value: Math.max(0, (prodanega / kupljenega) * 100),
+                      value: Math.max(0, (beersSold / beersBought) * 100),
                     },
                   ]}
                   Icon={IconStack}

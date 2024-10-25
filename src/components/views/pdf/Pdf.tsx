@@ -25,7 +25,7 @@ export const PDFUrl = ({ transactions, userinfo }: PDFProps) => {
   // const user = useUser();
 
   const vsehPiv = transactions
-    .map((trans) => trans.ordered)
+    .map((trans) => trans.item_beer_count)
     .reduce((prev, curr) => (prev || 0) + (curr || 0), 0);
   const vsegaPlacano = transactions
     .map((trans) => trans.paid)
@@ -36,6 +36,7 @@ export const PDFUrl = ({ transactions, userinfo }: PDFProps) => {
 
   const item = (key: string, value: string, bg?: string) => (
     <View
+      key={key}
       style={{
         display: 'flex',
         justifyContent: 'space-between',
@@ -206,11 +207,17 @@ export const PDFUrl = ({ transactions, userinfo }: PDFProps) => {
                 flexDirection: 'row',
                 flexWrap: 'nowrap',
               }}
+              key={transaction.id}
             >
               <Text
                 style={{ fontSize: '14px', padding: '3px 10px', opacity: 0.3 }}
               >
                 {transaction.id}
+              </Text>
+              <Text
+                style={{ fontSize: '14px', padding: '3px 10px', opacity: 0.3 }}
+              >
+                {transaction.item_name}
               </Text>
               <Text
                 style={{ fontSize: '14px', opacity: 0.8, padding: '3px 10px' }}
@@ -230,7 +237,7 @@ export const PDFUrl = ({ transactions, userinfo }: PDFProps) => {
                   fontWeight: 'bold',
                 }}
               >
-                {formatCurrency((transaction.paid || 0) / 10)}
+                {formatCurrency(transaction.paid || 0)}
               </Text>
 
               <Text
@@ -257,8 +264,8 @@ export const PDFUrl = ({ transactions, userinfo }: PDFProps) => {
             Izračun
           </Text>
           {item('skupaj dobljeno: ', `${vsehPiv} piv`)}
-          {item('strošek: ', formatCurrency((vsehPiv || 0) * 1.5))}
-          {item('skupaj plačano: ', formatCurrency((vsegaPlacano || 0) / 10))}
+          {item('celotna cena: ', formatCurrency(vsehPiv || 0))}
+          {item('poravnano: ', formatCurrency(vsegaPlacano || 0))}
           <View
             style={{
               width: '100%',
@@ -312,10 +319,7 @@ export const PDFUrl = ({ transactions, userinfo }: PDFProps) => {
             marginLeft: 'auto',
           }}
         >
-          <Text>
-            {/* {user.user?.email}: ___________________ */}
-            Žan Oberstar 310
-          </Text>
+          <Text>{userinfo.fullname}</Text>
           <Text>
             {/* {user.user?.email}: ___________________ */}
             minister za tekoče zadeve

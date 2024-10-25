@@ -22,7 +22,7 @@ export const Nabava = () => {
           Zaloge ministrov
         </Button>
       </Alert>
-      <LoadingOverlay visible={false} />
+      <LoadingOverlay visible={isLoading} />
       <NabavaAdder />
       {error && (
         <Alert color="red" title="Error displaying nabava">

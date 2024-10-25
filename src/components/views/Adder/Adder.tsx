@@ -12,6 +12,8 @@ import {
   Text,
   Title,
   Fieldset,
+  Center,
+  Grid,
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { useFocusTrap } from '@mantine/hooks';
@@ -39,8 +41,6 @@ const addOrder = (
   navigate: (url: string) => void,
 ) => {
   const ordered = order;
-  const offset = 10;
-  paid = paid * offset; // max ena decimalka, zato množimo z 10
   return new Promise<void>((resolve, reject) => {
     console.log('add order', item?.id);
     if (!user || !item) {
@@ -71,7 +71,7 @@ const addOrder = (
         notifications.show({
           title: 'Success',
           color: 'green',
-          autoClose: 3000,
+          autoClose: 4000,
 
           message: (
             <Stack>
@@ -115,8 +115,7 @@ export const BeerAdded = () => {
 
   const [isLoading, setIsLoading] = useState(false);
 
-  const diffFloat = form.values.order * price - form.values.paid;
-  const diff = Math.round(diffFloat * 100) / 100.0;
+  const diff = form.values.order * price - form.values.paid;
 
   function order(order: Order) {
     setIsLoading(true);
@@ -134,105 +133,115 @@ export const BeerAdded = () => {
   const focusTrapRef = useFocusTrap();
 
   return (
-    <form onSubmit={form.onSubmit(order)}>
-      <Paper withBorder w="100%" pos="relative" shadow="sm">
-        <SimpleGrid w="100%" p="md" cols={{ md: 2, xs: 1 }}>
-          <Stack style={{ flex: 1 }} ref={focusTrapRef}>
-            <Title order={2}>Prodaja piva</Title>
-            <NameCombobox
-              value={form.getInputProps('user').value}
-              onChange={form.getInputProps('user').onChange}
-            />
-            <ItemSelect
-              label="Artikel"
-              value={form.values.item}
-              onChange={(item) => {
-                form.setFieldValue('item', item);
-              }}
-            />
-            <SimpleGrid cols={{ md: 2, sm: 1 }} spacing="xl">
-              <Fieldset legend="Naročeno" variant="unstyled">
-                <NumberInput
-                  // label="Število piv"
-                  placeholder="3"
-                  {...form.getInputProps('order')}
-                />
-              </Fieldset>
+    <Center w="100%" h="100%">
+      <form onSubmit={form.onSubmit(order)}>
+        <Stack>
+          <Title order={1}>Prodaja piva</Title>
 
-              <Fieldset legend="Plačano" variant="unstyled">
-                <Group wrap="nowrap" align="center">
-                  <NumberInput
-                    placeholder="vsa"
-                    min={0}
-                    rightSection="€"
-                    {...form.getInputProps('paid')}
+          <Paper withBorder w="100%" pos="relative" shadow="lg">
+            <Grid w="100%" p="md" columns={3}>
+              <Grid.Col span={2}>
+                <Stack style={{ flex: 1 }} ref={focusTrapRef} gap="lg">
+                  {/* <Title order={2}>Prodaja piva</Title> */}
+                  <NameCombobox
+                    value={form.getInputProps('user').value}
+                    onChange={form.getInputProps('user').onChange}
                   />
-                  <Tooltip label="Izračunaj ceno  ">
-                    <ActionIcon
-                      variant="light"
-                      size="lg"
-                      onClick={() => {
-                        form.setValues({
-                          paid: price * form.values.order,
-                        });
-                      }}
-                    >
-                      <IconCalculator />
-                    </ActionIcon>
-                  </Tooltip>
-                </Group>
-              </Fieldset>
-            </SimpleGrid>
-            <Button
-              my="xl"
-              size="lg"
-              fullWidth
-              type="submit"
-              variant="gradient"
-              disabled={
-                form.values.user == null || form.values.item == undefined
-              }
-            >
-              Dodaj
-            </Button>
-          </Stack>
-          <Alert
-            variant="light"
-            px="xl"
-            h="100%"
-            style={{
-              justifyContent: 'center',
-              alignItems: 'center',
-            }}
-            display="flex"
-            color={diff > 0 ? 'red' : 'green'}
-          >
-            <Stack gap="xs" h="100%">
-              <Text size="xl">
-                Dobi <b> {form.values.order} </b> 🍺.
-              </Text>
-              <Text size="xl">
-                Plača <b> {form.values.paid} </b> 💰.
-              </Text>
-              {diff > 0 ? (
-                <Text c="red" size="xl">
-                  Puf: <b> {Math.abs(diff)} </b> €.{' '}
-                </Text>
-              ) : (
-                <Text c="green" size="xl">
-                  {' '}
-                  Bonus: <b> {Math.abs(diff)} </b> €.
-                </Text>
-              )}
-            </Stack>
-          </Alert>
-        </SimpleGrid>
+                  <ItemSelect
+                    label="Artikel"
+                    value={form.values.item}
+                    onChange={(item) => {
+                      form.setFieldValue('item', item);
+                    }}
+                  />
+                  <SimpleGrid cols={{ md: 2, sm: 1 }} spacing="xl">
+                    <Fieldset legend="Naročeno" variant="unstyled">
+                      <NumberInput
+                        // label="Število piv"
+                        placeholder="3"
+                        {...form.getInputProps('order')}
+                      />
+                    </Fieldset>
 
-        <LoadingOverlay
-          visible={isLoading}
-          overlayProps={{ radius: 'sm', blur: 2 }}
-        ></LoadingOverlay>
-      </Paper>
-    </form>
+                    <Fieldset legend="Plačano" variant="unstyled">
+                      <Group wrap="nowrap" align="center">
+                        <NumberInput
+                          placeholder="vsa"
+                          min={0}
+                          rightSection="€"
+                          {...form.getInputProps('paid')}
+                        />
+                        <Tooltip label="Izračunaj ceno  ">
+                          <ActionIcon
+                            variant="light"
+                            size="lg"
+                            onClick={() => {
+                              form.setValues({
+                                paid: price * form.values.order,
+                              });
+                            }}
+                          >
+                            <IconCalculator />
+                          </ActionIcon>
+                        </Tooltip>
+                      </Group>
+                    </Fieldset>
+                  </SimpleGrid>
+                  <Button
+                    my="xl"
+                    size="lg"
+                    fullWidth
+                    type="submit"
+                    variant="gradient"
+                    disabled={
+                      form.values.user == null || form.values.item == undefined
+                    }
+                  >
+                    Dodaj
+                  </Button>
+                </Stack>
+              </Grid.Col>
+              <Grid.Col span={1}>
+                <Alert
+                  variant="light"
+                  px="xl"
+                  h="100%"
+                  style={{
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                  }}
+                  display="flex"
+                  color={diff > 0 ? 'red' : 'green'}
+                >
+                  <Stack gap="xs" h="100%">
+                    <Text size="xl">
+                      Dobi <b> {form.values.order} </b> 🍺.
+                    </Text>
+                    <Text size="xl">
+                      Plača <b> {form.values.paid} </b> 💰.
+                    </Text>
+                    {diff > 0 ? (
+                      <Text c="red" size="xl">
+                        Puf: <b> {Math.abs(diff)} </b> €.{' '}
+                      </Text>
+                    ) : (
+                      <Text c="green" size="xl">
+                        {' '}
+                        Bonus: <b> {Math.abs(diff)} </b> €.
+                      </Text>
+                    )}
+                  </Stack>
+                </Alert>
+              </Grid.Col>
+            </Grid>
+
+            <LoadingOverlay
+              visible={isLoading}
+              overlayProps={{ radius: 'sm', blur: 2 }}
+            ></LoadingOverlay>
+          </Paper>
+        </Stack>
+      </form>
+    </Center>
   );
 };
