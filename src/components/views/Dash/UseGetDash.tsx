@@ -1,12 +1,12 @@
-import useSWR from "swr";
-import { Tables } from "../../../supabase/supabase";
-import { supabaseClient } from "../../../supabase/supabaseClient";
+import useSWR from 'swr';
+import { Tables } from '../../../supabase/supabase';
+import { supabaseClient } from '../../../supabase/supabaseClient';
 
-export const useGetDash = () => {
+export const useGetTotalSummary = () => {
   const fetcher = () =>
-    new Promise<Tables<"total_summary">>((resolve, reject) => {
+    new Promise<Tables<'total_summary'>>((resolve, reject) => {
       supabaseClient
-        .from("total_summary")
+        .from('total_summary')
         .select()
         .then((res) => {
           if (!res.error) {
@@ -17,7 +17,7 @@ export const useGetDash = () => {
         });
     });
 
-  const out = useSWR<Tables<"total_summary">>(`/view/nabava/`, fetcher);
+  const out = useSWR<Tables<'total_summary'>>(`/view/nabava/`, fetcher);
 
   return out;
 };

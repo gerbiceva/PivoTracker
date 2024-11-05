@@ -45,17 +45,18 @@ export const HistoryBarChart = ({
           h={300}
           data={data.map((val) => {
             return {
-              ...val,
-              total_paid: (val.total_paid || 0) / 10,
+              total_ordered: val.total_ordered,
+              // total_value: val.total_value,
+              total_paid: val.total_paid,
               week_start: new Date(val.week_start || '').toLocaleDateString(),
             };
           })}
           dataKey="week_start"
           title="Tedenska naliza prodaje"
           series={[
-            { name: 'pivo_v_gajba', color: 'green.6', label: ' pivo v gajba' },
-            { name: 'total_ordered', color: 'gray.6', label: 'naročeno' },
-            { name: 'total_paid', color: 'teal.7', label: 'plačano' },
+            { name: 'total_ordered', color: 'gray', label: 'Naročeno' },
+            // { name: 'total_value', color: 'gray.6', label: 'Vrednost €' },
+            { name: 'total_paid', color: 'cyan', label: 'Plačano €' },
           ]}
           tooltipProps={{
             content: ({ label, payload }) => (

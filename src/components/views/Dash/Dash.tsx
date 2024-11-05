@@ -9,7 +9,8 @@ import {
   Stack,
 } from '@mantine/core';
 import {
-  IconBeer,
+  IconAlertTriangle,
+  IconBolt,
   IconExclamationCircle,
   IconGraph,
   IconHomeStats,
@@ -23,7 +24,7 @@ import { useNavigate } from 'react-router-dom';
 import { formatCurrency } from '../../../utils/Converter';
 import { StatElement } from './StatElement';
 import { StatsRing } from './StatsRing';
-import { useGetDash } from './UseGetDash';
+import { useGetTotalSummary } from './UseGetDash';
 import { useLiveTransactions } from '../../hooks.ts/liveTransactionsHook';
 import { Transactiongraph } from '../Transactions/TransactionGraph';
 import { HistoryBarChart } from './HistoryBarChart';
@@ -33,17 +34,18 @@ import { useGetNabava } from '../Nabava/UseGetNabava';
 export const Dashboard = () => {
   const { transactions } = useLiveTransactions();
   const bars = useGetWeeklyBars();
-  const { data, error, isLoading } = useGetDash();
+  const { data: dashboardData, error, isLoading } = useGetTotalSummary();
   const { data: nabava } = useGetNabava();
 
-  const owed = data?.total_debt || 0;
-  const paid = data?.total_paid || 0;
+  const owed = dashboardData?.total_debt || 0;
 
   //   stat 2
-  const beersBought =
+  const beersBoughtByGerba =
     nabava?.reduce((prev, curr) => (prev += curr.beer_count), 0) || 0;
+  const moneySpentByGerba =
+    nabava?.reduce((prev, curr) => (prev += curr.price), 0) || 0;
 
-  const beersSold = data?.total_ordered || 0;
+  const beersSold = dashboardData?.total_ordered || 0;
 
   const navigate = useNavigate();
   return (
@@ -60,69 +62,77 @@ export const Dashboard = () => {
             <Transactiongraph transactions={transactions} />
 
             <Stack gap="sm">
-              <SimpleGrid cols={{ md: 4, sm: 2 }} spacing="sm" p="0px">
+              <Alert p="0" variant="outline" color="gray">
+                <StatElement
+                  style={{
+                    backgroundColor: 'rgba(0,0,0,0)',
+                  }}
+                  withBorder={false}
+                  m={0}
+                  title={'Gerba profit'}
+                  value={formatCurrency(
+                    (dashboardData?.total_paid || 0) - moneySpentByGerba,
+                  )}
+                  diff={0}
+                  Icon={IconBolt}
+                />
+              </Alert>
+              <SimpleGrid cols={{ md: 3, sm: 1 }} spacing="sm" p="0px">
                 <StatElement
                   title={'Prodanega piva'}
-                  value={data?.total_ordered || 0}
+                  value={dashboardData?.total_ordered || 0}
                   diff={0}
                   Icon={IconShoppingBag}
                 />
                 <StatElement
                   title={'Plačano'}
-                  value={formatCurrency((data?.total_paid || 0) / 10)}
+                  value={formatCurrency(dashboardData?.total_paid || 0)}
                   diff={0}
                   Icon={IconPigMoney}
                 />
                 <StatElement
-                  title={'Vrednost skupaj'}
-                  value={formatCurrency((data?.total_value || 0) / 10)}
+                  title={'Prodano pivo'}
+                  value={formatCurrency(dashboardData?.total_value || 0)}
                   diff={0}
                   Icon={IconGraph}
-                />
-                <StatElement
-                  title={'Kupljenega piva'}
-                  value={data?.total_beer_count || 0}
-                  diff={0}
-                  Icon={IconBeer}
                 />
               </SimpleGrid>
               <SimpleGrid cols={{ md: 2, sm: 1 }} spacing="sm" p="0px">
                 {owed > 0 && (
                   <StatsRing
-                    label={'Delež pokritega dolga'}
+                    label={'Delež plačanega dolga'}
                     stats={`Še ${formatCurrency(Math.abs(owed))} dolga`}
                     sections={[
                       {
-                        color: 'red',
-                        value: (paid / owed) * 100,
+                        color: 'cyan',
+                        value:
+                          ((dashboardData?.total_paid || 0) /
+                            (dashboardData?.total_value || 0)) *
+                          100,
                       },
                     ]}
                     Icon={IconScale}
                   />
                 )}
-                {owed < 0 && (
-                  <StatsRing
-                    label={'Profit'}
-                    stats={`${formatCurrency(Math.abs(owed))} profita`}
-                    sections={[
-                      {
-                        color: 'green',
-                        value: 100,
-                      },
-                    ]}
-                    Icon={IconScale}
-                  />
-                )}
+
                 <StatsRing
                   label={'Delež na zalogi'}
-                  stats={`Še ${beersBought - beersSold} piv.`}
+                  stats={`Še ${beersBoughtByGerba - beersSold} piv.`}
                   sections={[
                     {
-                      color: 'grape',
-                      value: Math.max(0, (beersSold / beersBought) * 100),
+                      color:
+                        beersBoughtByGerba - beersSold >= 0 ? 'grape' : 'red',
+                      value: Math.max(
+                        0,
+                        (beersSold / beersBoughtByGerba) * 100,
+                      ),
                     },
                   ]}
-                  Icon={IconStack}
+                  Icon={
+                    beersBoughtByGerba - beersSold >= 0
+                      ? IconStack
+                      : IconAlertTriangle
+                  }
                 />
               </SimpleGrid>
             </Stack>

@@ -6,15 +6,14 @@ export type sumOrdersOptions =
   | 'total_ordered'
   | 'fullname'
   | 'total_paid'
-  | 'total_difference'
-  | 'total_owed';
+  | 'total_difference';
 export const useGetSummedDebt = (order: sumOrdersOptions = 'total_ordered') => {
   const fetcher = () =>
     new Promise<Tables<'everything_sum'>[]>((resolve, reject) => {
       supabaseClient
         .from('everything_sum')
         .select()
-        .order('total_paid', { ascending: false })
+        .order(order, { ascending: false })
         .then((res) => {
           if (!res.error) {
             resolve(res.data);

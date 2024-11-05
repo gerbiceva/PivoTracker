@@ -5,6 +5,7 @@ import { Tables } from '../../../supabase/supabase';
 import { formatCurrency } from '../../../utils/Converter';
 interface ChartTooltipProps {
   label: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   payload: Record<string, any>[] | undefined;
 }
 
@@ -16,6 +17,7 @@ function ChartTooltip({ label, payload }: ChartTooltipProps) {
       <Text fw={500} mb={5}>
         Zaporedna številka: {label}
       </Text>
+      {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
       {payload.map((item: any) => (
         <Text fw="500" key={item.name} c={item.color} fz="sm">
           {item.name}: {formatCurrency(item.value)} €

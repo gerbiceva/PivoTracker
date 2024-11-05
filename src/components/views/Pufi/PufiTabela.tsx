@@ -24,7 +24,7 @@ export interface IUserElements {
 }
 
 export function PuffTable() {
-  const [ord, stOrd] = useState<sumOrdersOptions>('total_owed');
+  const [ord, stOrd] = useState<sumOrdersOptions>('total_difference');
   const { isLoading, data, error } = useGetSummedDebt(ord);
 
   const rows = useMemo(() => {
@@ -64,7 +64,7 @@ export function PuffTable() {
         </Table.Td>
         <Table.Td align="right">{element.total_ordered}</Table.Td>
         <Table.Td align="right">
-          {formatCurrency((element.total_paid || 0) / 10)}
+          {formatCurrency(element.total_paid || 0)}
         </Table.Td>
         <Table.Td align="right">
           <DebtBadge debt={element.total_difference || 0} />
@@ -90,7 +90,7 @@ export function PuffTable() {
         data={[
           {
             label: 'Zadolžitev',
-            value: 'total_owed',
+            value: 'total_difference',
           },
           {
             label: 'Plačano',
