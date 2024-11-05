@@ -215,7 +215,13 @@ export const BeerAdded = () => {
                 >
                   <Stack gap="xs" h="100%">
                     <Text size="xl">
-                      Dobi <b> {form.values.order} </b> 🍺.
+                      Dobi{' '}
+                      <b>
+                        {' '}
+                        {form.values.order *
+                          (form.values.item?.beer_count || 1)}{' '}
+                      </b>{' '}
+                      🍺.
                     </Text>
                     <Text size="xl">
                       Plača <b> {form.values.paid} </b> 💰.

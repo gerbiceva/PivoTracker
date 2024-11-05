@@ -1,7 +1,9 @@
 import {
+  ActionIcon,
   Alert,
   Button,
   Divider,
+  Group,
   LoadingOverlay,
   Paper,
   ScrollArea,
@@ -11,6 +13,8 @@ import {
 import {
   IconAlertTriangle,
   IconBolt,
+  IconChevronLeft,
+  IconChevronRight,
   IconExclamationCircle,
   IconGraph,
   IconHomeStats,
@@ -30,11 +34,19 @@ import { Transactiongraph } from '../Transactions/TransactionGraph';
 import { HistoryBarChart } from './HistoryBarChart';
 import { useGetWeeklyBars } from './useGetWeeklyBars';
 import { useGetNabava } from '../Nabava/UseGetNabava';
+import { DatePickerInput } from '@mantine/dates';
+import { useDateManager } from './useDateManager';
 
 export const Dashboard = () => {
   const { transactions } = useLiveTransactions();
   const bars = useGetWeeklyBars();
-  const { data: dashboardData, error, isLoading } = useGetTotalSummary();
+  const { dateFrom, dateTo, nextEpoch, prevEpoch } = useDateManager();
+
+  const {
+    data: dashboardData,
+    error,
+    isLoading,
+  } = useGetTotalSummary(dateFrom, dateTo);
   const { data: nabava } = useGetNabava();
 
   const owed = dashboardData?.total_debt || 0;
@@ -60,9 +72,37 @@ export const Dashboard = () => {
         {!error && (
           <Stack justify="space-between" gap="3rem">
             <Transactiongraph transactions={transactions} />
+            <HistoryBarChart {...bars} />
+
+            <Divider my="3rem" label="Letna statistika"></Divider>
+
+            <Group w="100%" justify="end" wrap="nowrap" align="center">
+              <ActionIcon variant="subtle" onClick={prevEpoch}>
+                <IconChevronLeft />
+              </ActionIcon>
+              <DatePickerInput
+                value={dateFrom}
+                readOnly
+                placeholder="Pick date"
+                size="xs"
+                variant="unstyled"
+              />
+              <Divider orientation="vertical" my="8px"></Divider>
+
+              <DatePickerInput
+                value={dateTo}
+                readOnly
+                placeholder="Pick date"
+                size="xs"
+                variant="unstyled"
+              />
+              <ActionIcon variant="subtle" onClick={nextEpoch}>
+                <IconChevronRight />
+              </ActionIcon>
+            </Group>
 
             <Stack gap="sm">
-              <Alert p="0" variant="outline" color="gray">
+              <Alert p="0" variant="light" color="gray">
                 <StatElement
                   style={{
                     backgroundColor: 'rgba(0,0,0,0)',
@@ -79,7 +119,8 @@ export const Dashboard = () => {
               </Alert>
               <SimpleGrid cols={{ md: 3, sm: 1 }} spacing="sm" p="0px">
                 <StatElement
-                  title={'Prodanega piva'}
+                  description="prodanih piv"
+                  title={'Količina'}
                   value={dashboardData?.total_ordered || 0}
                   diff={0}
                   Icon={IconShoppingBag}
@@ -91,7 +132,8 @@ export const Dashboard = () => {
                   Icon={IconPigMoney}
                 />
                 <StatElement
-                  title={'Prodano pivo'}
+                  title={'Znesek'}
+                  description="prodanih piv"
                   value={formatCurrency(dashboardData?.total_value || 0)}
                   diff={0}
                   Icon={IconGraph}
@@ -136,8 +178,6 @@ export const Dashboard = () => {
                 />
               </SimpleGrid>
             </Stack>
-
-            <HistoryBarChart {...bars} />
 
             <Divider label="Links" py="xl"></Divider>
             <SimpleGrid cols={{ md: 3, sm: 2 }}>

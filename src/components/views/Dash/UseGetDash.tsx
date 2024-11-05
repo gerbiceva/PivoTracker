@@ -1,13 +1,22 @@
 import useSWR from 'swr';
-import { Tables } from '../../../supabase/supabase';
 import { supabaseClient } from '../../../supabase/supabaseClient';
 
-export const useGetTotalSummary = () => {
+export type dashData = {
+  total_ordered: number;
+  total_paid: number;
+  total_value: number;
+  total_debt: number;
+  total_beer_count: number;
+};
+
+export const useGetTotalSummary = (datefrom: Date, dateTo: Date) => {
   const fetcher = () =>
-    new Promise<Tables<'total_summary'>>((resolve, reject) => {
+    new Promise<dashData>((resolve, reject) => {
       supabaseClient
-        .from('total_summary')
-        .select()
+        .rpc('get_total_summary', {
+          datefrom: datefrom.toUTCString(),
+          dateto: dateTo.toUTCString(),
+        })
         .then((res) => {
           if (!res.error) {
             resolve(res.data[0]);
@@ -17,7 +26,7 @@ export const useGetTotalSummary = () => {
         });
     });
 
-  const out = useSWR<Tables<'total_summary'>>(`/view/nabava/`, fetcher);
+  const out = useSWR<dashData>(`/view/nabava/${datefrom}/${dateTo}`, fetcher);
 
   return out;
 };
