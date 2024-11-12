@@ -8,6 +8,7 @@ interface IDebtBadgeProps extends BadgeProps {
 export const DebtBadge = ({ debt, ...other }: IDebtBadgeProps) => {
   return (
     <Badge
+      fullWidth
       variant="light"
       radius="sm"
       size="lg"

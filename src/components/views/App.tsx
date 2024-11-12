@@ -14,6 +14,7 @@ function App() {
           zIndex: -100,
           opacity: 0.04,
           maxHeight: '90vh',
+          maxWidth: '90vw',
         }}
       />
       <Navbar />

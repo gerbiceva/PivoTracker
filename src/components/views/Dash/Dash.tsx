@@ -63,7 +63,7 @@ export const Dashboard = () => {
   return (
     <ScrollArea h="100%">
       <LoadingOverlay visible={isLoading} />
-      <Paper p="md">
+      <Paper p="md" bg="rgba(0,0,0,0)">
         {error && (
           <Alert icon={<IconExclamationCircle />} title="Napaka">
             Statistike ni mogoče naložiti
@@ -102,21 +102,39 @@ export const Dashboard = () => {
             </Group>
 
             <Stack gap="sm">
-              <Alert p="0" variant="light" color="gray">
-                <StatElement
-                  style={{
-                    backgroundColor: 'rgba(0,0,0,0)',
-                  }}
-                  withBorder={false}
-                  m={0}
-                  title={'Gerba profit'}
-                  value={formatCurrency(
-                    (dashboardData?.total_paid || 0) - moneySpentByGerba,
-                  )}
-                  diff={0}
-                  Icon={IconBolt}
-                />
-              </Alert>
+              <SimpleGrid cols={{ md: 2, sm: 1 }} spacing="sm" p="0px">
+                <Alert p="0" variant="light" color="gray">
+                  <StatElement
+                    style={{
+                      backgroundColor: 'rgba(0,0,0,0)',
+                    }}
+                    withBorder={false}
+                    m={0}
+                    title={'Gerba profit'}
+                    value={formatCurrency(
+                      (dashboardData?.total_paid || 0) - moneySpentByGerba,
+                    )}
+                    diff={0}
+                    Icon={IconBolt}
+                  />
+                </Alert>
+                <Alert p="0" variant="light" color="gray">
+                  <StatElement
+                    description="Razlika med uloženim denarjem in vrednostjo nakupljenega piva"
+                    style={{
+                      backgroundColor: 'rgba(0,0,0,0)',
+                    }}
+                    withBorder={false}
+                    m={0}
+                    title={'Profit po plačanih dolgovih'}
+                    value={formatCurrency(
+                      (dashboardData?.total_value || 0) - moneySpentByGerba,
+                    )}
+                    diff={0}
+                    Icon={IconBolt}
+                  />
+                </Alert>
+              </SimpleGrid>
               <SimpleGrid cols={{ md: 3, sm: 1 }} spacing="sm" p="0px">
                 <StatElement
                   description="prodanih piv"
