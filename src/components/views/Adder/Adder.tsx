@@ -14,6 +14,7 @@ import {
   Fieldset,
   Center,
   Grid,
+  useMatches,
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { useFocusTrap } from '@mantine/hooks';
@@ -93,6 +94,10 @@ const addOrder = (
 
 export const BeerAdded = () => {
   const navigate = useNavigate();
+  const cols = useMatches({
+    base: 3,
+    sm: 1,
+  });
   const form = useForm<Order>({
     initialValues: {
       user: null,
@@ -139,7 +144,7 @@ export const BeerAdded = () => {
           <Title order={1}>Prodaja piva</Title>
 
           <Paper withBorder w="100%" pos="relative" shadow="lg">
-            <Grid w="100%" p="md" columns={3}>
+            <Grid w="100%" p="md" columns={cols}>
               <Grid.Col span={2}>
                 <Stack style={{ flex: 1 }} ref={focusTrapRef} gap="lg">
                   {/* <Title order={2}>Prodaja piva</Title> */}

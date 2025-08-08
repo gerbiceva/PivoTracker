@@ -9,6 +9,7 @@ import { PuffTable } from '../components/views/Pufi/PufiTabela';
 import { Transactions } from '../components/views/Transactions/Transactions';
 import { UserView } from '../components/views/User/UserOverview';
 import { Zaloge } from '../components/views/Zaloge/Zaloge';
+import { WashingTimetable } from '../components/views/Washing/Timetable/WashingTimetable';
 
 export const router = createBrowserRouter([
   {
@@ -50,6 +51,10 @@ export const router = createBrowserRouter([
       {
         path: '/zaloge',
         element: <Zaloge />,
+      },
+      {
+        path: '/pranje',
+        element: <WashingTimetable />,
       },
       // {
       //   path: '/pdf',
