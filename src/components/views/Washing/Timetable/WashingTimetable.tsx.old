@@ -1,0 +1,205 @@
+import {
+  ActionIcon,
+  Alert,
+  Badge,
+  Group,
+  LoadingOverlay,
+  Paper,
+  SimpleGrid,
+  Stack,
+  Text,
+} from '@mantine/core';
+import {
+  IconChevronCompactLeft,
+  IconChevronCompactRight,
+} from '@tabler/icons-react';
+import { useCallback, useState } from 'react';
+import dayjs from 'dayjs';
+import weekday from 'dayjs/plugin/weekday';
+import weekOfYear from 'dayjs/plugin/weekOfYear';
+import { useGetMonthlyWashing } from './GetWashingByMonth';
+import { Tables } from '../../../../supabase/supabase';
+
+// Extend dayjs with plugins
+dayjs.extend(weekday);
+dayjs.extend(weekOfYear);
+
+type dayType = Tables<'reservations_expanded'>;
+
+interface CalendarDay {
+  date: dayjs.Dayjs;
+  isCurrentMonth: boolean;
+  isToday: boolean;
+  events: dayType[];
+}
+
+export const WashingTimetable = () => {
+  const [currentDate, setCurrentDate] = useState<dayjs.Dayjs>(dayjs());
+
+  const nextDate = useCallback(() => {
+    setCurrentDate(currentDate.add(1, 'month'));
+  }, [currentDate]);
+
+  const previousDate = useCallback(() => {
+    setCurrentDate(currentDate.subtract(1, 'month'));
+  }, [currentDate]);
+
+  // Modified generateDays function to work with two machines
+  const generateDays = (
+    machine1Data: any[] = [],
+    machine2Data: any[] = [],
+  ): CalendarDay[] => {
+    const startOfMonth = currentDate.startOf('month');
+    const endOfMonth = currentDate.endOf('month');
+
+    // Get the start day of the week (0-6, Sunday to Saturday)
+    const startDay = startOfMonth.day();
+
+    // Calculate the number of days to show from previous month
+    const daysFromPrevMonth = startDay;
+
+    // Calculate the number of days to show from next month
+    const totalDaysInGrid = 42; // 6 weeks * 7 days
+    const daysFromNextMonth =
+      totalDaysInGrid - daysFromPrevMonth - endOfMonth.date();
+
+    const days: CalendarDay[] = [];
+
+    // Combine data from both machines
+    const allEvents = [...(machine1Data || []), ...(machine2Data || [])];
+
+    // Add days from previous month
+    for (let i = daysFromPrevMonth - 1; i >= 0; i--) {
+      const date = startOfMonth.subtract(i + 1, 'day');
+      days.push({
+        date,
+        isCurrentMonth: false,
+        isToday: date.isSame(dayjs(), 'day'),
+        events: [],
+      });
+    }
+
+    // Add days from current month
+    for (let i = 0; i < endOfMonth.date(); i++) {
+      const date = startOfMonth.add(i, 'day');
+      const eventsForDay = allEvents.filter((event) => {
+        const eventDate = dayjs(event.slot_start);
+        return eventDate.isSame(date, 'day');
+      });
+
+      days.push({
+        date,
+        isCurrentMonth: true,
+        isToday: date.isSame(dayjs(), 'day'),
+        events: eventsForDay,
+      });
+    }
+
+    // Add days from next month
+    for (let i = 0; i < daysFromNextMonth; i++) {
+      const date = endOfMonth.add(i + 1, 'day');
+      days.push({
+        date,
+        isCurrentMonth: false,
+        isToday: date.isSame(dayjs(), 'day'),
+        events: [],
+      });
+    }
+
+    return days;
+  };
+
+  // Usage with two machines:
+  const { data: machine1Data, isLoading: isLoading1 } = useGetMonthlyWashing(
+    currentDate.month() + 1,
+    currentDate.year(),
+    1,
+  );
+
+  const { data: machine2Data, isLoading: isLoading2 } = useGetMonthlyWashing(
+    currentDate.month() + 1,
+    currentDate.year(),
+    2,
+  );
+
+  const days = generateDays(machine1Data, machine2Data);
+
+  // Weekday names
+  const weekdayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+  return (
+    <Stack w="100%" pos="relative">
+      <LoadingOverlay visible={isLoading1 || isLoading2} />
+      <Group p="md" gap="md" justify="center">
+        <ActionIcon size="md" variant="subtle" onClick={previousDate}>
+          <IconChevronCompactLeft />
+        </ActionIcon>
+
+        <Badge size="lg" variant="light" radius="sm">
+          {currentDate.format('MMMM YYYY')}
+        </Badge>
+
+        <ActionIcon size="md" variant="subtle" onClick={nextDate}>
+          <IconChevronCompactRight />
+        </ActionIcon>
+      </Group>
+
+      <SimpleGrid cols={7} spacing={0}>
+        {weekdayNames.map((day) => (
+          <div
+            key={day}
+            style={{ textAlign: 'center', padding: '8px', fontWeight: 'bold' }}
+          >
+            {day}
+          </div>
+        ))}
+      </SimpleGrid>
+
+      <SimpleGrid cols={7} spacing={0}>
+        {days.map((day, index) => (
+          <Paper
+            radius={0}
+            withBorder
+            key={index}
+            style={{
+              minHeight: '100px',
+              padding: '4px',
+              opacity: day.isCurrentMonth ? 1 : 0.3,
+              position: 'relative',
+            }}
+          >
+            <Text
+              style={{
+                fontWeight: day.isToday ? 'bold' : 'normal',
+                color: day.isToday ? '#228be6' : 'inherit',
+                marginBottom: '4px',
+                textAlign: 'right',
+              }}
+            >
+              {day.date.format('D')}
+            </Text>
+
+            {/* Render events for this day */}
+            {day.events.map((event) => (
+              <Badge
+                color="green"
+                key={event.reservation_id}
+                style={{
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  whiteSpace: 'nowrap',
+                }}
+                title={`Machine ${event.machine_id}: ${dayjs(
+                  event.slot_start,
+                ).format('HH:mm')} - ${dayjs(event.slot_end).format('HH:mm')}`}
+              >
+                {event.machine_id}: {dayjs(event.slot_start).format('HH:mm')} -{' '}
+                {dayjs(event.slot_end).format('HH:mm')}
+              </Badge>
+            ))}
+          </Paper>
+        ))}
+      </SimpleGrid>
+    </Stack>
+  );
+};

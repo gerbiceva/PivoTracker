@@ -366,6 +366,7 @@ export type Database = {
         Row: {
           created_at: string | null
           machine_id: number | null
+          machine_name: string | null
           note: string | null
           reservation_id: number | null
           slot: unknown | null
@@ -373,31 +374,8 @@ export type Database = {
           slot_end: string | null
           slot_index: number | null
           slot_start: string | null
+          user_email: string | null
           user_id: string | null
-        }
-        Insert: {
-          created_at?: string | null
-          machine_id?: number | null
-          note?: string | null
-          reservation_id?: number | null
-          slot?: unknown | null
-          slot_date?: never
-          slot_end?: never
-          slot_index?: never
-          slot_start?: never
-          user_id?: string | null
-        }
-        Update: {
-          created_at?: string | null
-          machine_id?: number | null
-          note?: string | null
-          reservation_id?: number | null
-          slot?: unknown | null
-          slot_date?: never
-          slot_end?: never
-          slot_index?: never
-          slot_start?: never
-          user_id?: string | null
         }
         Relationships: [
           {
@@ -691,6 +669,22 @@ export type Database = {
           reservation_id: number
           machine_id: number
           user_id: string
+          user_email: string
+          slot_range: unknown
+          slot_start: string
+          slot_end: string
+          slot_index: number
+          created_at: string
+          note: string
+        }[]
+      }
+      get_reservations_week: {
+        Args: { p_machine_id: number; p_week_start: string }
+        Returns: {
+          reservation_id: number
+          machine_id: number
+          user_id: string
+          user_email: string
           slot_range: unknown
           slot_start: string
           slot_end: string
