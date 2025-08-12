@@ -1,20 +1,16 @@
 import {
   Paper,
   Group,
-  Badge,
   Text,
   Accordion,
   SimpleGrid,
   Alert,
 } from '@mantine/core';
-import dayjs from 'dayjs';
 import { CalendarDay } from './WashingTimetable';
 import { SlotComponent } from './SlotComponent';
 import { AddWashingModal } from './AddWashingModal';
-import {
-  FormatLocalDateCustom,
-  ReadTimeFromUTCString,
-} from '../../../../utils/timeUtils';
+import { FormatLocalDateCustom } from '../../../../utils/timeUtils';
+import { ReservationItemInfo } from './ReservationItem';
 
 export const DayItem = ({ day }: { day: CalendarDay }) => {
   return (
@@ -64,53 +60,18 @@ export const DayItem = ({ day }: { day: CalendarDay }) => {
                   {day.events
                     .filter((ev) => ev.machine_id == 1)
                     .map((event) => (
-                      <Badge
-                        variant="light"
-                        color={event.machine_id == 1 ? 'indigo' : 'orange'}
-                        key={event.reservation_id}
-                        style={{
-                          overflow: 'hidden',
-                          textOverflow: 'ellipsis',
-                          whiteSpace: 'nowrap',
-                        }}
-                        title={`Machine ${event.machine_id}: ${dayjs(
-                          event.slot_start_utc,
-                        ).format('HH:mm')} - ${dayjs(event.slot_end_utc).format(
-                          'HH:mm',
-                        )}`}
-                      >
-                        {event.user_email}
-                      </Badge>
+                      <div>
+                        <ReservationItemInfo reservation={event} />
+                      </div>
                     ))}
                 </Group>
                 <Group mt="lg">
                   {day.events
                     .filter((ev) => ev.machine_id == 2)
                     .map((event) => (
-                      <Badge
-                        variant="light"
-                        color={event.machine_id == 1 ? 'indigo' : 'orange'}
-                        key={event.reservation_id}
-                        style={{
-                          overflow: 'hidden',
-                          textOverflow: 'ellipsis',
-                          whiteSpace: 'nowrap',
-                        }}
-                        title={`Machine ${event.machine_id}: ${dayjs(
-                          event.slot_start_utc,
-                        ).format('HH:mm')} - ${dayjs(event.slot_end_utc).format(
-                          'HH:mm',
-                        )}`}
-                      >
-                        {event.user_email}
-                        {`${FormatLocalDateCustom(
-                          ReadTimeFromUTCString(event.slot_start_utc!),
-                          'HH:mm',
-                        )} - ${FormatLocalDateCustom(
-                          ReadTimeFromUTCString(event.slot_end_utc!),
-                          'HH:mm',
-                        )}`}
-                      </Badge>
+                      <div>
+                        <ReservationItemInfo reservation={event} />
+                      </div>
                     ))}
                 </Group>
               </SimpleGrid>

@@ -37,3 +37,5 @@ export function groupBy<T extends Record<K, PropertyKey>, K extends keyof T>(
 
   return out as Record<T[K], T[]>;
 }
+
+export type Unpacked<T> = T extends (infer U)[] ? U : T;

@@ -10,12 +10,12 @@ import weekOfYear from 'dayjs/plugin/weekOfYear';
 import { useGetWeeklyWashing, weeklyWashingData } from './GetWashingByWeek';
 import { DayItem } from './DayItem';
 import { ReadTimeFromUTCString } from '../../../../utils/timeUtils';
+import { Unpacked } from '../../../../utils/objectSplit';
 
 // Extend dayjs with plugins
 dayjs.extend(weekday);
 dayjs.extend(weekOfYear);
 
-type Unpacked<T> = T extends (infer U)[] ? U : T;
 export type dayType = Unpacked<weeklyWashingData>;
 
 export interface CalendarDay {
@@ -45,7 +45,7 @@ export const WashingTimetable = () => {
     for (let i = 0; i < 7; i++) {
       const date = startOfWeek.add(i, 'day');
       const eventsForDay = allEvents.filter((event) => {
-        const eventDate = ReadTimeFromUTCString(event.slot_start_utc).local();
+        const eventDate = ReadTimeFromUTCString(event.slot_start_utc).local(); // LOCAL() is necessary to transform the UTC server time to local Europe/Ljubljana
         return eventDate.isSame(date, 'day');
       });
 

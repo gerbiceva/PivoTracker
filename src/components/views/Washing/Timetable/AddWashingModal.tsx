@@ -23,6 +23,7 @@ import {
 import { invalidateDailyWashing, useGetDailySlots } from './GetSlotsByDay';
 import { groupBy } from '../../../../utils/objectSplit';
 import { invalidateWeeklyWashing } from './GetWashingByWeek';
+import { ReservationItemInfo } from './ReservationItem';
 
 export interface WashingModalProps {
   day: dayjs.Dayjs;
@@ -97,29 +98,33 @@ export const AddWashingModal = ({ day }: WashingModalProps) => {
                     return (
                       <Card>
                         <Group justify="space-between">
-                          <Text>
-                            {FormatLocalDateCustom(
-                              ReadTimeFromUTCString(slot.slot_start_utc),
-                              'HH:mm',
-                            )}{' '}
-                            -{' '}
-                            {FormatLocalDateCustom(
-                              ReadTimeFromUTCString(slot.slot_end_utc),
-                              'HH:mm',
-                            )}
-                          </Text>
                           {slot.reservation_id ? (
-                            (slot.reservation_id, slot.machine_id)
-                          ) : (
-                            <ConfirmAdd
-                              callback={() => {
-                                AddReservation(
-                                  ReadTimeFromUTCString(slot.slot_start_utc),
-                                  ReadTimeFromUTCString(slot.slot_end_utc),
-                                  slot.machine_id,
-                                );
-                              }}
+                            <ReservationItemInfo
+                              reservation={{ ...slot, slot_index_local: 0 }}
                             />
+                          ) : (
+                            <>
+                              <Text>
+                                {FormatLocalDateCustom(
+                                  ReadTimeFromUTCString(slot.slot_start_utc),
+                                  'HH:mm',
+                                )}{' '}
+                                -{' '}
+                                {FormatLocalDateCustom(
+                                  ReadTimeFromUTCString(slot.slot_end_utc),
+                                  'HH:mm',
+                                )}
+                              </Text>
+                              <ConfirmAdd
+                                callback={() => {
+                                  AddReservation(
+                                    ReadTimeFromUTCString(slot.slot_start_utc),
+                                    ReadTimeFromUTCString(slot.slot_end_utc),
+                                    slot.machine_id,
+                                  );
+                                }}
+                              />
+                            </>
                           )}
                         </Group>
                       </Card>

@@ -3,8 +3,11 @@ import { Database } from '../../../../supabase/supabase';
 import { supabaseClient } from '../../../../supabase/supabaseClient';
 import { FormatDateUTC } from '../../../../utils/timeUtils';
 import dayjs, { Dayjs } from 'dayjs';
+import { Unpacked } from '../../../../utils/objectSplit';
 
-type funcType = Database['public']['Functions']['get_slots_for_day']['Returns'];
+export type ReservationType = Unpacked<
+  Database['public']['Functions']['get_slots_for_day']['Returns']
+>;
 
 export const useGetDailySlots = (
   date: Dayjs | null,
@@ -12,7 +15,7 @@ export const useGetDailySlots = (
 ) => {
   const dateStr = FormatDateUTC(date || dayjs());
   const fetcher = () =>
-    new Promise<funcType>((resolve, reject) => {
+    new Promise<ReservationType[]>((resolve, reject) => {
       supabaseClient
         .rpc('get_slots_for_day', {
           p_date: dateStr,
@@ -27,7 +30,7 @@ export const useGetDailySlots = (
         });
     });
 
-  const out = useSWR<funcType>(
+  const out = useSWR<ReservationType[]>(
     date ? ['washing-daily', dateStr] : null,
     fetcher,
     config,
