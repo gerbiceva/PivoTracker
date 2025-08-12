@@ -1,13 +1,4 @@
-import {
-  ActionIcon,
-  Badge,
-  Group,
-  LoadingOverlay,
-  Paper,
-  SimpleGrid,
-  Stack,
-  Text,
-} from '@mantine/core';
+import { ActionIcon, Badge, Group, LoadingOverlay, Stack } from '@mantine/core';
 import {
   IconChevronCompactLeft,
   IconChevronCompactRight,
@@ -16,15 +7,16 @@ import { useCallback, useState } from 'react';
 import dayjs from 'dayjs';
 import weekday from 'dayjs/plugin/weekday';
 import weekOfYear from 'dayjs/plugin/weekOfYear';
-import { Tables } from '../../../../supabase/supabase';
-import { useGetWeeklyWashing } from './GetWashingByWeek';
+import { useGetWeeklyWashing, weeklyWashingData } from './GetWashingByWeek';
 import { DayItem } from './DayItem';
+import { ReadTimeFromUTCString } from '../../../../utils/timeUtils';
 
 // Extend dayjs with plugins
 dayjs.extend(weekday);
 dayjs.extend(weekOfYear);
 
-type dayType = Tables<'reservations_expanded'>;
+type Unpacked<T> = T extends (infer U)[] ? U : T;
+export type dayType = Unpacked<weeklyWashingData>;
 
 export interface CalendarDay {
   date: dayjs.Dayjs;
@@ -33,7 +25,7 @@ export interface CalendarDay {
 }
 
 export const WashingTimetable = () => {
-  const [currentDate, setCurrentDate] = useState<dayjs.Dayjs>(dayjs());
+  const [currentDate, setCurrentDate] = useState<dayjs.Dayjs>(dayjs().utc());
 
   const nextWeek = useCallback(() => {
     setCurrentDate(currentDate.add(1, 'week'));
@@ -43,21 +35,17 @@ export const WashingTimetable = () => {
     setCurrentDate(currentDate.subtract(1, 'week'));
   }, [currentDate]);
 
-  const generateWeekDays = (
-    machine1Data: any[] = [],
-    machine2Data: any[] = [],
-  ): CalendarDay[] => {
+  const generateWeekDays = (data: weeklyWashingData = []): CalendarDay[] => {
     const startOfWeek = currentDate.startOf('week');
-    const endOfWeek = currentDate.endOf('week');
 
     const days: CalendarDay[] = [];
-    const allEvents = [...(machine1Data || []), ...(machine2Data || [])];
+    const allEvents = data;
 
     // Generate days for the current week (7 days)
     for (let i = 0; i < 7; i++) {
       const date = startOfWeek.add(i, 'day');
       const eventsForDay = allEvents.filter((event) => {
-        const eventDate = dayjs(event.slot_start);
+        const eventDate = ReadTimeFromUTCString(event.slot_start_utc).local();
         return eventDate.isSame(date, 'day');
       });
 
@@ -70,21 +58,14 @@ export const WashingTimetable = () => {
 
     return days;
   };
-  const { data: machine1Data, isLoading: isLoading1 } = useGetWeeklyWashing(
-    currentDate,
-    1,
-  );
 
-  const { data: machine2Data, isLoading: isLoading2 } = useGetWeeklyWashing(
-    currentDate,
-    2,
-  );
+  const { data, isLoading } = useGetWeeklyWashing(currentDate.startOf('week'));
 
-  const days = generateWeekDays(machine1Data, machine2Data);
+  const days = generateWeekDays(data);
 
   return (
     <Stack w="100%" pos="relative">
-      <LoadingOverlay visible={isLoading1 || isLoading2} />
+      <LoadingOverlay visible={isLoading} />
       <Group p="md" gap="md" justify="center">
         <ActionIcon size="md" variant="subtle" onClick={previousWeek}>
           <IconChevronCompactLeft />
@@ -101,7 +82,7 @@ export const WashingTimetable = () => {
 
       <Stack gap="sm" px="sm">
         {days.map((day, index) => (
-          <DayItem day={day} />
+          <DayItem day={day} key={day.date.toString() + index} />
         ))}
       </Stack>
     </Stack>

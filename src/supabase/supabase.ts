@@ -364,16 +364,16 @@ export type Database = {
       }
       reservations_expanded: {
         Row: {
-          created_at: string | null
+          created_at_utc: string | null
           machine_id: number | null
           machine_name: string | null
           note: string | null
           reservation_id: number | null
           slot: unknown | null
-          slot_date: string | null
-          slot_end: string | null
-          slot_index: number | null
-          slot_start: string | null
+          slot_date_utc: string | null
+          slot_end_utc: string | null
+          slot_index_local: number | null
+          slot_start_utc: string | null
           user_email: string | null
           user_id: string | null
         }
@@ -415,14 +415,13 @@ export type Database = {
       }
     }
     Functions: {
-      add_reservation_by_date_index: {
+      add_reservation_with_range: {
         Args: {
           p_machine_id: number
           p_user_id: string
-          p_date: string
-          p_slot_index: number
+          p_slot_start: string
+          p_slot_end: string
           p_note?: string
-          p_tz?: string
         }
         Returns: number
       }
@@ -663,33 +662,60 @@ export type Database = {
           note: string
         }[]
       }
-      get_reservations_month: {
-        Args: { p_machine_id: number; p_year: number; p_month: number }
+      get_reservations_expanded: {
+        Args: Record<PropertyKey, never>
         Returns: {
           reservation_id: number
           machine_id: number
+          machine_name: string
           user_id: string
           user_email: string
-          slot_range: unknown
-          slot_start: string
-          slot_end: string
-          slot_index: number
-          created_at: string
+          slot_start_utc: string
+          slot_end_utc: string
+          slot_index_local: number
+          note: string
+        }[]
+      }
+      get_reservations_month: {
+        Args: { p_date: string }
+        Returns: {
+          reservation_id: number
+          machine_id: number
+          machine_name: string
+          user_id: string
+          user_email: string
+          slot_start_utc: string
+          slot_end_utc: string
+          slot_index_local: number
           note: string
         }[]
       }
       get_reservations_week: {
-        Args: { p_machine_id: number; p_week_start: string }
+        Args: { p_date: string }
         Returns: {
           reservation_id: number
           machine_id: number
+          machine_name: string
           user_id: string
           user_email: string
-          slot_range: unknown
-          slot_start: string
-          slot_end: string
+          slot_start_utc: string
+          slot_end_utc: string
+          slot_index_local: number
+          note: string
+        }[]
+      }
+      get_slots_for_day: {
+        Args: { p_date: string }
+        Returns: {
+          machine_id: number
+          machine_name: string
           slot_index: number
-          created_at: string
+          slot_start_utc: string
+          slot_end_utc: string
+          is_empty: boolean
+          reservation_id: number
+          user_id: string
+          user_email: string
           note: string
         }[]
       }
@@ -716,7 +742,25 @@ export type Database = {
       [_ in never]: never
     }
     CompositeTypes: {
-      [_ in never]: never
+      machine_info: {
+        id: number | null
+        name: string | null
+        slots: Database["public"]["CompositeTypes"]["slot_info"][] | null
+      }
+      reservation_info: {
+        reservation_id: number | null
+        user_id: string | null
+        user_email: string | null
+        note: string | null
+      }
+      slot_info: {
+        time_start_utc: string | null
+        time_end_utc: string | null
+        is_empty: boolean | null
+        reservation:
+          | Database["public"]["CompositeTypes"]["reservation_info"]
+          | null
+      }
     }
   }
   storage: {

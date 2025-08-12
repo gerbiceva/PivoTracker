@@ -20,6 +20,7 @@ function App() {
       <Navbar />
       <CustomSpotlight />
       <Container
+        size="xl"
         p={0}
         w="100%"
         h="100%"

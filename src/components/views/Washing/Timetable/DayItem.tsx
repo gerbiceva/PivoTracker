@@ -11,19 +11,23 @@ import dayjs from 'dayjs';
 import { CalendarDay } from './WashingTimetable';
 import { SlotComponent } from './SlotComponent';
 import { AddWashingModal } from './AddWashingModal';
+import {
+  FormatLocalDateCustom,
+  ReadTimeFromUTCString,
+} from '../../../../utils/timeUtils';
 
 export const DayItem = ({ day }: { day: CalendarDay }) => {
   return (
     <Paper
       p="md"
       radius={0}
-      // withBorder
       shadow="md"
       style={{
         minHeight: '50px',
         padding: '4px',
       }}
     >
+      {/* {day.date.toISOString()} {FormatLocalDateCustom(day.date, 'MM.DD HH:mm')} */}
       <Group align="center">
         <Text
           size="2rem"
@@ -32,7 +36,8 @@ export const DayItem = ({ day }: { day: CalendarDay }) => {
             color: day.isToday ? '#228be6' : 'inherit',
           }}
         >
-          {day.date.format('D').padStart(2, '0')}
+          {/* {day.date.format('D')} */}
+          {FormatLocalDateCustom(day.date, 'D')}
         </Text>
 
         <Accordion
@@ -69,8 +74,8 @@ export const DayItem = ({ day }: { day: CalendarDay }) => {
                           whiteSpace: 'nowrap',
                         }}
                         title={`Machine ${event.machine_id}: ${dayjs(
-                          event.slot_start,
-                        ).format('HH:mm')} - ${dayjs(event.slot_end).format(
+                          event.slot_start_utc,
+                        ).format('HH:mm')} - ${dayjs(event.slot_end_utc).format(
                           'HH:mm',
                         )}`}
                       >
@@ -92,20 +97,24 @@ export const DayItem = ({ day }: { day: CalendarDay }) => {
                           whiteSpace: 'nowrap',
                         }}
                         title={`Machine ${event.machine_id}: ${dayjs(
-                          event.slot_start,
-                        ).format('HH:mm')} - ${dayjs(event.slot_end).format(
+                          event.slot_start_utc,
+                        ).format('HH:mm')} - ${dayjs(event.slot_end_utc).format(
                           'HH:mm',
                         )}`}
                       >
                         {event.user_email}
-                        {`${dayjs(event.slot_start).format('HH:mm')} - ${dayjs(
-                          event.slot_end,
-                        ).format('HH:mm')}`}
+                        {`${FormatLocalDateCustom(
+                          ReadTimeFromUTCString(event.slot_start_utc!),
+                          'HH:mm',
+                        )} - ${FormatLocalDateCustom(
+                          ReadTimeFromUTCString(event.slot_end_utc!),
+                          'HH:mm',
+                        )}`}
                       </Badge>
                     ))}
                 </Group>
               </SimpleGrid>
-              <AddWashingModal day={day} />
+              <AddWashingModal day={day.date} />
             </Accordion.Panel>
           </Accordion.Item>
         </Accordion>

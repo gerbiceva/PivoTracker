@@ -1,19 +1,135 @@
-import { Modal, Button, Stack } from '@mantine/core';
+import {
+  Modal,
+  Button,
+  Stack,
+  SimpleGrid,
+  Card,
+  Text,
+  Group,
+  Alert,
+  LoadingOverlay,
+} from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { IconPlus } from '@tabler/icons-react';
-import { CalendarDay } from './WashingTimetable';
+import { ConfirmAdd } from './ConfirmAdd';
+import { supabaseClient } from '../../../../supabase/supabaseClient';
+import { notifications } from '@mantine/notifications';
+import dayjs, { Dayjs } from 'dayjs';
+import {
+  FormatLocalDateCustom,
+  ReadTimeFromUTCString,
+  WriteTimeToUTCString,
+} from '../../../../utils/timeUtils';
+import { invalidateDailyWashing, useGetDailySlots } from './GetSlotsByDay';
+import { groupBy } from '../../../../utils/objectSplit';
+import { invalidateWeeklyWashing } from './GetWashingByWeek';
 
 export interface WashingModalProps {
-  day: CalendarDay;
+  day: dayjs.Dayjs;
 }
 
 export const AddWashingModal = ({ day }: WashingModalProps) => {
   const [opened, { open, close }] = useDisclosure(false);
+  const { data, isLoading, error } = useGetDailySlots(opened ? day : null);
+
+  const AddReservation = (
+    dateTimeStart: Dayjs,
+    dateTimeEnd: Dayjs,
+    machine: number,
+  ) => {
+    supabaseClient.auth
+      .getUser()
+      .then((user) => {
+        supabaseClient
+          .rpc('add_reservation_with_range', {
+            p_slot_start: WriteTimeToUTCString(dateTimeStart),
+            p_slot_end: WriteTimeToUTCString(dateTimeEnd),
+            p_machine_id: machine,
+            p_user_id: user.data.user?.id || '',
+          })
+          .select()
+          .then((data) => {
+            if (data.error) {
+              notifications.show({
+                title: 'Error',
+                color: 'red',
+                autoClose: 1000,
+                message: <Text>Ni uporabnika.</Text>,
+              });
+            } else {
+              notifications.show({
+                title: 'Dodano',
+                color: 'green',
+                autoClose: 300,
+                message: <Text>Dodano.</Text>,
+              });
+              invalidateWeeklyWashing();
+              invalidateDailyWashing();
+              close();
+            }
+          });
+      })
+      .catch(() => {
+        notifications.show({
+          title: 'Error',
+          color: 'red',
+          autoClose: 1000,
+          message: <Text>Ni uporabnika.</Text>,
+        });
+      });
+  };
+
+  const dataSplit = groupBy(data || [], 'machine_name');
 
   return (
     <>
       <Modal opened={opened} onClose={close} size="xl" centered>
-        <Stack>{Array(8)}</Stack>
+        <LoadingOverlay visible={isLoading} />
+        {error ? (
+          <Alert title="napaka">{error.message}</Alert>
+        ) : (
+          <SimpleGrid cols={Object.keys(dataSplit)?.length}>
+            {Object.keys(dataSplit)?.map((machineSlot) => {
+              return (
+                <Stack w="100%">
+                  <Text>{machineSlot}</Text>
+                  {dataSplit[machineSlot].map((slot) => {
+                    return (
+                      <Card>
+                        <Group justify="space-between">
+                          <Text>
+                            {FormatLocalDateCustom(
+                              ReadTimeFromUTCString(slot.slot_start_utc),
+                              'HH:mm',
+                            )}{' '}
+                            -{' '}
+                            {FormatLocalDateCustom(
+                              ReadTimeFromUTCString(slot.slot_end_utc),
+                              'HH:mm',
+                            )}
+                          </Text>
+                          {slot.reservation_id ? (
+                            (slot.reservation_id, slot.machine_id)
+                          ) : (
+                            <ConfirmAdd
+                              callback={() => {
+                                AddReservation(
+                                  ReadTimeFromUTCString(slot.slot_start_utc),
+                                  ReadTimeFromUTCString(slot.slot_end_utc),
+                                  slot.machine_id,
+                                );
+                              }}
+                            />
+                          )}
+                        </Group>
+                      </Card>
+                    );
+                  })}
+                </Stack>
+              );
+            })}
+          </SimpleGrid>
+        )}
       </Modal>
 
       <Button

@@ -1,18 +1,20 @@
-import useSWR from 'swr';
+import useSWR, { mutate, SWRConfiguration } from 'swr';
 import { Database } from '../../../../supabase/supabase';
 import { supabaseClient } from '../../../../supabase/supabaseClient';
-import { Dayjs } from 'dayjs';
 import { FormatDateUTC } from '../../../../utils/timeUtils';
+import dayjs, { Dayjs } from 'dayjs';
 
-type funcType =
-  Database['public']['Functions']['get_reservations_month']['Returns'];
+type funcType = Database['public']['Functions']['get_slots_for_day']['Returns'];
 
-export const useGetMonthlyWashing = (date: Dayjs) => {
-  const dateStr = FormatDateUTC(date);
+export const useGetDailySlots = (
+  date: Dayjs | null,
+  config?: SWRConfiguration,
+) => {
+  const dateStr = FormatDateUTC(date || dayjs());
   const fetcher = () =>
     new Promise<funcType>((resolve, reject) => {
       supabaseClient
-        .rpc('get_reservations_month', {
+        .rpc('get_slots_for_day', {
           p_date: dateStr,
         })
         .select()
@@ -26,9 +28,14 @@ export const useGetMonthlyWashing = (date: Dayjs) => {
     });
 
   const out = useSWR<funcType>(
-    `/func/get_reservations_month/${dateStr}`,
+    date ? ['washing-daily', dateStr] : null,
     fetcher,
+    config,
   );
 
   return out;
+};
+
+export const invalidateDailyWashing = () => {
+  mutate(['washing-daily'], undefined, { revalidate: true });
 };

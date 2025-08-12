@@ -1,21 +1,17 @@
-import useSWR from 'swr';
+import useSWR, { mutate } from 'swr';
 import { Database } from '../../../../supabase/supabase';
 import { supabaseClient } from '../../../../supabase/supabaseClient';
 import dayjs from 'dayjs';
 
-type funcType =
+export type weeklyWashingData =
   Database['public']['Functions']['get_reservations_week']['Returns'];
 
-export const useGetWeeklyWashing = (
-  dateStart: dayjs.Dayjs,
-  machineId: number,
-) => {
+export const useGetWeeklyWashing = (dateStart: dayjs.Dayjs) => {
   const fetcher = () =>
-    new Promise<funcType>((resolve, reject) => {
+    new Promise<weeklyWashingData>((resolve, reject) => {
       supabaseClient
         .rpc('get_reservations_week', {
-          p_week_start: dateStart.toISOString(),
-          p_machine_id: machineId,
+          p_date: dateStart.toISOString(),
         })
         .select()
         .then((res) => {
@@ -27,10 +23,15 @@ export const useGetWeeklyWashing = (
         });
     });
 
-  const out = useSWR<funcType>(
-    `/func/get_reservations_month/${dateStart}/${machineId}`,
-    fetcher,
-  );
+  const out = useSWR<weeklyWashingData>(['washing-weekly', dateStart], fetcher);
 
   return out;
+};
+
+export const invalidateWeeklyWashing = () => {
+  mutate(
+    (key) => Array.isArray(key) && key[0] === 'washing-weekly',
+    undefined, // keep current data as placeholder
+    { revalidate: true },
+  );
 };
