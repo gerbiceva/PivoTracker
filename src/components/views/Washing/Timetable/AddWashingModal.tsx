@@ -38,45 +38,32 @@ export const AddWashingModal = ({ day }: WashingModalProps) => {
     dateTimeEnd: Dayjs,
     machine: number,
   ) => {
-    supabaseClient.auth
-      .getUser()
-      .then((user) => {
-        supabaseClient
-          .rpc('add_reservation_with_range', {
-            p_slot_start: WriteTimeToUTCString(dateTimeStart),
-            p_slot_end: WriteTimeToUTCString(dateTimeEnd),
-            p_machine_id: machine,
-            p_user_id: user.data.user?.id || '',
-          })
-          .select()
-          .then((data) => {
-            if (data.error) {
-              notifications.show({
-                title: 'Error',
-                color: 'red',
-                autoClose: 1000,
-                message: <Text>Ni uporabnika.</Text>,
-              });
-            } else {
-              notifications.show({
-                title: 'Dodano',
-                color: 'green',
-                autoClose: 300,
-                message: <Text>Dodano.</Text>,
-              });
-              invalidateWeeklyWashing();
-              invalidateDailyWashing();
-              close();
-            }
-          });
+    supabaseClient
+      .rpc('add_reservation_with_range', {
+        p_slot_start: WriteTimeToUTCString(dateTimeStart),
+        p_slot_end: WriteTimeToUTCString(dateTimeEnd),
+        p_machine_id: machine,
       })
-      .catch(() => {
-        notifications.show({
-          title: 'Error',
-          color: 'red',
-          autoClose: 1000,
-          message: <Text>Ni uporabnika.</Text>,
-        });
+      .select()
+      .then((data) => {
+        if (data.error) {
+          notifications.show({
+            title: 'Error',
+            color: 'red',
+            autoClose: 1500,
+            message: <Text>{data.error.message}</Text>,
+          });
+        } else {
+          notifications.show({
+            title: 'Dodano',
+            color: 'green',
+            autoClose: 1500,
+            message: <Text>Dodano.</Text>,
+          });
+          invalidateWeeklyWashing();
+          invalidateDailyWashing();
+          close();
+        }
       });
   };
 
@@ -100,7 +87,7 @@ export const AddWashingModal = ({ day }: WashingModalProps) => {
                         <Group justify="space-between">
                           {slot.reservation_id ? (
                             <ReservationItemInfo
-                              reservation={{ ...slot, slot_index_local: 0 }}
+                              reservation={{ ...slot, name: slot.first_name }}
                             />
                           ) : (
                             <>

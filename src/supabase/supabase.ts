@@ -104,6 +104,47 @@ export type Database = {
           },
         ]
       }
+      gerba_user: {
+        Row: {
+          auth_user_id: string | null
+          created_at: string
+          data_of_birth: string | null
+          first_name: string
+          id: number
+          phone_number: string | null
+          room: number
+          surname: string
+        }
+        Insert: {
+          auth_user_id?: string | null
+          created_at?: string
+          data_of_birth?: string | null
+          first_name: string
+          id?: number
+          phone_number?: string | null
+          room: number
+          surname: string
+        }
+        Update: {
+          auth_user_id?: string | null
+          created_at?: string
+          data_of_birth?: string | null
+          first_name?: string
+          id?: number
+          phone_number?: string | null
+          room?: number
+          surname?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "gerba_user_auth_user_id_fkey"
+            columns: ["auth_user_id"]
+            isOneToOne: false
+            referencedRelation: "named_minister_transactions"
+            referencedColumns: ["minister_id"]
+          },
+        ]
+      }
       items: {
         Row: {
           beer_count: number
@@ -167,7 +208,7 @@ export type Database = {
           machine_id: number
           note: string | null
           slot: unknown
-          user_id: string
+          user_id: number | null
         }
         Insert: {
           created_at?: string | null
@@ -175,7 +216,7 @@ export type Database = {
           machine_id: number
           note?: string | null
           slot: unknown
-          user_id: string
+          user_id?: number | null
         }
         Update: {
           created_at?: string | null
@@ -183,7 +224,7 @@ export type Database = {
           machine_id?: number
           note?: string | null
           slot?: unknown
-          user_id?: string
+          user_id?: number | null
         }
         Relationships: [
           {
@@ -197,8 +238,8 @@ export type Database = {
             foreignKeyName: "reservations_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
-            referencedRelation: "named_minister_transactions"
-            referencedColumns: ["minister_id"]
+            referencedRelation: "gerba_user"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -362,38 +403,6 @@ export type Database = {
           },
         ]
       }
-      reservations_expanded: {
-        Row: {
-          created_at_utc: string | null
-          machine_id: number | null
-          machine_name: string | null
-          note: string | null
-          reservation_id: number | null
-          slot: unknown | null
-          slot_date_utc: string | null
-          slot_end_utc: string | null
-          slot_index_local: number | null
-          slot_start_utc: string | null
-          user_email: string | null
-          user_id: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "reservations_machine_id_fkey"
-            columns: ["machine_id"]
-            isOneToOne: false
-            referencedRelation: "washing_machines"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "reservations_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "named_minister_transactions"
-            referencedColumns: ["minister_id"]
-          },
-        ]
-      }
       total_summary: {
         Row: {
           total_beer_count: number | null
@@ -418,7 +427,6 @@ export type Database = {
       add_reservation_with_range: {
         Args: {
           p_machine_id: number
-          p_user_id: string
           p_slot_start: string
           p_slot_end: string
           p_note?: string
@@ -649,44 +657,14 @@ export type Database = {
         Args: { "": unknown }
         Returns: unknown
       }
-      get_reservations_by_user: {
-        Args: { p_user_id: string; p_from?: string; p_to?: string }
-        Returns: {
-          reservation_id: number
-          machine_id: number
-          slot_range: unknown
-          slot_start: string
-          slot_end: string
-          slot_index: number
-          created_at: string
-          note: string
-        }[]
-      }
-      get_reservations_expanded: {
-        Args: Record<PropertyKey, never>
+      get_reservations_for_user: {
+        Args: { p_gerba_user_id: number }
         Returns: {
           reservation_id: number
           machine_id: number
           machine_name: string
-          user_id: string
-          user_email: string
           slot_start_utc: string
           slot_end_utc: string
-          slot_index_local: number
-          note: string
-        }[]
-      }
-      get_reservations_month: {
-        Args: { p_date: string }
-        Returns: {
-          reservation_id: number
-          machine_id: number
-          machine_name: string
-          user_id: string
-          user_email: string
-          slot_start_utc: string
-          slot_end_utc: string
-          slot_index_local: number
           note: string
         }[]
       }
@@ -697,7 +675,13 @@ export type Database = {
           machine_id: number
           machine_name: string
           user_id: string
-          user_email: string
+          created_at: string
+          name: string
+          surname: string
+          room: number
+          phone_number: string
+          date_of_birth: string
+          auth_user_id: string
           slot_start_utc: string
           slot_end_utc: string
           slot_index_local: number
@@ -709,13 +693,19 @@ export type Database = {
         Returns: {
           machine_id: number
           machine_name: string
-          slot_index: number
           slot_start_utc: string
           slot_end_utc: string
+          slot_index_local: number
           is_empty: boolean
           reservation_id: number
           user_id: string
-          user_email: string
+          created_at: string
+          first_name: string
+          surname: string
+          room: number
+          phone_number: string
+          date_of_birth: string
+          auth_user_id: string
           note: string
         }[]
       }
@@ -727,6 +717,20 @@ export type Database = {
           total_value: number
           total_debt: number
           total_beer_count: number
+        }[]
+      }
+      get_user_expanded: {
+        Args: { p_gerba_user_id: number }
+        Returns: {
+          gerba_user_id: number
+          created_at: string
+          name: string
+          surname: string
+          room: number
+          phone_number: string
+          date_of_birth: string
+          auth_user_id: string
+          auth_email: string
         }[]
       }
       pivo_v_gajba: {
