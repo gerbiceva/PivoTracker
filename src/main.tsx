@@ -23,7 +23,6 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
         locale: 'sl-SI',
         firstDayOfWeek: 0,
         weekendDays: [0],
-        timezone: 'Europe/Ljubljana',
       }}
     >
       <MantineProvider theme={mantineTheme}>

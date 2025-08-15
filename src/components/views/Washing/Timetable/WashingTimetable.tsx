@@ -32,7 +32,12 @@ export const WashingTimetable = () => {
   }, [currentDate]);
 
   const previousWeek = useCallback(() => {
-    setCurrentDate(currentDate.subtract(1, 'week'));
+    const newWeek = currentDate.subtract(1, 'week');
+    // if (newWeek.startOf('week') <= dayjs().startOf('week')) {
+    //   return;
+    // }
+
+    setCurrentDate(newWeek);
   }, [currentDate]);
 
   const generateWeekDays = (data: weeklyWashingData = []): CalendarDay[] => {
@@ -67,7 +72,12 @@ export const WashingTimetable = () => {
     <Stack w="100%" pos="relative">
       <LoadingOverlay visible={isLoading} />
       <Group p="md" gap="md" justify="center">
-        <ActionIcon size="md" variant="subtle" onClick={previousWeek}>
+        <ActionIcon
+          size="md"
+          variant="subtle"
+          onClick={previousWeek}
+          // disabled={currentDate.subtract(1, 'week') < dayjs().startOf('week')}
+        >
           <IconChevronCompactLeft />
         </ActionIcon>
 

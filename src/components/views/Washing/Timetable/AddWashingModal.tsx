@@ -102,15 +102,20 @@ export const AddWashingModal = ({ day }: WashingModalProps) => {
                                   'HH:mm',
                                 )}
                               </Text>
-                              <ConfirmAdd
-                                callback={() => {
-                                  AddReservation(
-                                    ReadTimeFromUTCString(slot.slot_start_utc),
-                                    ReadTimeFromUTCString(slot.slot_end_utc),
-                                    slot.machine_id,
-                                  );
-                                }}
-                              />
+                              {ReadTimeFromUTCString(slot.slot_end_utc) >
+                                dayjs().utc() && (
+                                <ConfirmAdd
+                                  callback={() => {
+                                    AddReservation(
+                                      ReadTimeFromUTCString(
+                                        slot.slot_start_utc,
+                                      ),
+                                      ReadTimeFromUTCString(slot.slot_end_utc),
+                                      slot.machine_id,
+                                    );
+                                  }}
+                                />
+                              )}
                             </>
                           )}
                         </Group>

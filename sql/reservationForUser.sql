@@ -15,8 +15,8 @@ BEGIN
         r.id AS reservation_id,
         wm.id AS machine_id,
         wm.name AS machine_name,
-        lower(r.slot) AT TIME ZONE 'UTC' AS slot_start_utc,
-        upper(r.slot) AT TIME ZONE 'UTC' AS slot_end_utc,
+        lower(r.slot) AS slot_start_utc,
+        upper(r.slot) AS slot_end_utc,
         r.note
     FROM reservations r
     JOIN washing_machines wm ON wm.id = r.machine_id

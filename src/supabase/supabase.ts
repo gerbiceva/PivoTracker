@@ -8,7 +8,7 @@ export type Json =
   | Json[]
 
 export type Database = {
-  // Allows to automatically instanciate createClient with right options
+  // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
     PostgrestVersion: "13.0.4"
@@ -23,10 +23,10 @@ export type Database = {
     Functions: {
       graphql: {
         Args: {
+          extensions?: Json
           operationName?: string
           query?: string
           variables?: Json
-          extensions?: Json
         }
         Returns: Json
       }
@@ -427,9 +427,9 @@ export type Database = {
       add_reservation_with_range: {
         Args: {
           p_machine_id: number
-          p_slot_start: string
-          p_slot_end: string
           p_note?: string
+          p_slot_end: string
+          p_slot_start: string
         }
         Returns: number
       }
@@ -660,77 +660,91 @@ export type Database = {
       get_reservations_for_user: {
         Args: { p_gerba_user_id: number }
         Returns: {
-          reservation_id: number
           machine_id: number
           machine_name: string
-          slot_start_utc: string
-          slot_end_utc: string
           note: string
+          reservation_id: number
+          slot_end_utc: string
+          slot_start_utc: string
         }[]
       }
       get_reservations_week: {
         Args: { p_date: string }
         Returns: {
-          reservation_id: number
+          auth_user_id: string
+          created_at: string
+          date_of_birth: string
           machine_id: number
           machine_name: string
-          user_id: string
-          created_at: string
           name: string
-          surname: string
-          room: number
+          note: string
           phone_number: string
-          date_of_birth: string
-          auth_user_id: string
-          slot_start_utc: string
+          reservation_id: number
+          room: number
           slot_end_utc: string
           slot_index_local: number
-          note: string
+          slot_start_utc: string
+          surname: string
+          user_id: string
         }[]
       }
       get_slots_for_day: {
         Args: { p_date: string }
         Returns: {
+          auth_user_id: string
+          created_at: string
+          date_of_birth: string
+          first_name: string
+          is_empty: boolean
           machine_id: number
           machine_name: string
-          slot_start_utc: string
+          note: string
+          phone_number: string
+          reservation_id: number
+          room: number
           slot_end_utc: string
           slot_index_local: number
-          is_empty: boolean
-          reservation_id: number
-          user_id: string
-          created_at: string
-          first_name: string
+          slot_start_utc: string
           surname: string
-          room: number
-          phone_number: string
-          date_of_birth: string
-          auth_user_id: string
-          note: string
+          user_id: string
         }[]
       }
       get_total_summary: {
         Args: { datefrom: string; dateto: string }
         Returns: {
+          total_beer_count: number
+          total_debt: number
           total_ordered: number
           total_paid: number
           total_value: number
-          total_debt: number
-          total_beer_count: number
         }[]
       }
       get_user_expanded: {
         Args: { p_gerba_user_id: number }
         Returns: {
-          gerba_user_id: number
-          created_at: string
-          name: string
-          surname: string
-          room: number
-          phone_number: string
-          date_of_birth: string
-          auth_user_id: string
           auth_email: string
+          auth_user_id: string
+          created_at: string
+          date_of_birth: string
+          gerba_user_id: number
+          name: string
+          phone_number: string
+          room: number
+          surname: string
+        }[]
+      }
+      get_user_expanded_from_auth: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          auth_created_at: string
+          auth_email: string
+          auth_user_id: string
+          gerba_data_of_birth: string
+          gerba_name: string
+          gerba_phone_number: string
+          gerba_room: number
+          gerba_surname: string
+          gerba_user_id: number
         }[]
       }
       pivo_v_gajba: {
@@ -986,7 +1000,7 @@ export type Database = {
     }
     Functions: {
       can_insert_object: {
-        Args: { bucketid: string; name: string; owner: string; metadata: Json }
+        Args: { bucketid: string; metadata: Json; name: string; owner: string }
         Returns: undefined
       }
       extension: {
@@ -1004,38 +1018,38 @@ export type Database = {
       get_size_by_bucket: {
         Args: Record<PropertyKey, never>
         Returns: {
-          size: number
           bucket_id: string
+          size: number
         }[]
       }
       list_multipart_uploads_with_delimiter: {
         Args: {
           bucket_id: string
-          prefix_param: string
           delimiter_param: string
           max_keys?: number
           next_key_token?: string
           next_upload_token?: string
+          prefix_param: string
         }
         Returns: {
-          key: string
-          id: string
           created_at: string
+          id: string
+          key: string
         }[]
       }
       list_objects_with_delimiter: {
         Args: {
           bucket_id: string
-          prefix_param: string
           delimiter_param: string
           max_keys?: number
-          start_after?: string
           next_token?: string
+          prefix_param: string
+          start_after?: string
         }
         Returns: {
-          name: string
           id: string
           metadata: Json
+          name: string
           updated_at: string
         }[]
       }
@@ -1045,22 +1059,22 @@ export type Database = {
       }
       search: {
         Args: {
-          prefix: string
           bucketname: string
-          limits?: number
           levels?: number
+          limits?: number
           offsets?: number
+          prefix: string
           search?: string
           sortcolumn?: string
           sortorder?: string
         }
         Returns: {
-          name: string
-          id: string
-          updated_at: string
           created_at: string
+          id: string
           last_accessed_at: string
           metadata: Json
+          name: string
+          updated_at: string
         }[]
       }
     }

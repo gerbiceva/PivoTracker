@@ -10,6 +10,7 @@ import { Transactions } from '../components/views/Transactions/Transactions';
 import { UserView } from '../components/views/User/UserOverview';
 import { Zaloge } from '../components/views/Zaloge/Zaloge';
 import { WashingTimetable } from '../components/views/Washing/Timetable/WashingTimetable';
+import { MyWashing } from '../components/views/Washing/MyWashing/MyWashing';
 
 export const router = createBrowserRouter([
   {
@@ -56,6 +57,11 @@ export const router = createBrowserRouter([
         path: '/pranje',
         element: <WashingTimetable />,
       },
+      {
+        path: '/moje-pranje',
+        element: <MyWashing />,
+      },
+
       // {
       //   path: '/pdf',
       //   element: (

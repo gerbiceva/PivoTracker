@@ -7,6 +7,7 @@ import {
   IconLogout,
   IconShoppingBag,
   IconTransactionEuro,
+  IconWash,
 } from '@tabler/icons-react';
 
 // core styles are required for all packages
@@ -81,6 +82,32 @@ export const CustomSpotlight = () => {
       ),
     },
     {
+      id: 'pranje',
+      label: 'Pranje',
+      description: 'Dodaj nov termin za pranje',
+      onClick: () => window.location.replace('/pranje'),
+      leftSection: (
+        <IconWash
+          style={{ width: rem(24), height: rem(24) }}
+          stroke={1.5}
+          color="cyan"
+        />
+      ),
+    },
+    {
+      id: 'moje-pranje',
+      label: 'Moji termini',
+      description: 'Pregled rezerviranih terminov za pranje',
+      onClick: () => window.location.replace('/moje-pranje'),
+      leftSection: (
+        <IconWash
+          style={{ width: rem(24), height: rem(24) }}
+          stroke={1.5}
+          color="cyan"
+        />
+      ),
+    },
+    {
       id: 'logout',
       label: 'Odjava',
       description: 'Odjavi se iz sistema',
@@ -88,7 +115,11 @@ export const CustomSpotlight = () => {
         supabaseClient.auth.signOut();
       },
       leftSection: (
-        <IconLogout style={{ width: rem(24), height: rem(24) }} stroke={1.5} />
+        <IconLogout
+          style={{ width: rem(24), height: rem(24) }}
+          stroke={1.5}
+          color="red"
+        />
       ),
     },
     // supabaseClient.auth.signOut();

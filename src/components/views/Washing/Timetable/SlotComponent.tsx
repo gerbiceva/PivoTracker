@@ -41,7 +41,7 @@ export const SlotComponent = ({
     // Create the sections array with spacers
     const result: Section[] = [];
 
-    for (let i = 0; i <= 8; i++) {
+    for (let i = 0; i < 8; i++) {
       // Add spacer before all sections except the first one
       if (i > 0) {
         result.push({

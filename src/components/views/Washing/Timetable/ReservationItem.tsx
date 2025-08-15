@@ -2,23 +2,22 @@ import {
   Avatar,
   Box,
   Button,
-  Center,
   Flex,
   Group,
   Modal,
   Stack,
-  Text,
-  Tooltip,
   TextInput,
+  Tooltip,
 } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
-import { dayType } from './WashingTimetable';
 import {
   FormatLocalDateCustom,
   ReadTimeFromUTCString,
 } from '../../../../utils/timeUtils';
 import { useGetAuthUser } from '../../../../utils/UseGetAuthUser';
 import { getZodiacSign, zodiacToIcon } from '../../../../utils/zodiac';
+import { dayType } from './WashingTimetable';
+import { removeReservation } from '../RemoveReservation';
 
 export interface ReservationItemProps {
   reservation: dayType;
@@ -50,37 +49,75 @@ export const ReservationItemInfo = ({ reservation }: ReservationItemProps) => {
                 w="100%"
                 readOnly
                 value={reservation.name}
-                description="ime"
+                description="Ime"
                 variant="filled"
               />
               <TextInput
                 w="100%"
                 readOnly
                 value={reservation.surname}
-                description="priimek"
+                description="Priimek"
                 variant="filled"
               />
             </Group>
             <TextInput
               readOnly
               value={reservation.room}
-              description="številka sobe"
+              description="Številka sobe"
               variant="filled"
             />
           </Stack>
         </Flex>
+        <Stack>
+          {reservation.phone_number && (
+            <TextInput
+              readOnly
+              value={reservation.phone_number}
+              description="Telefon"
+              variant="filled"
+            />
+          )}
+          <Group w="100%" justify="stretch" wrap="nowrap">
+            <TextInput
+              w="100%"
+              readOnly
+              value={FormatLocalDateCustom(
+                ReadTimeFromUTCString(reservation.created_at),
+                'MMMM DD. HH:mm',
+              )}
+              description="Čas rezervacije"
+              variant="filled"
+            />
+            <TextInput
+              w="100%"
+              readOnly
+              value={
+                FormatLocalDateCustom(
+                  ReadTimeFromUTCString(reservation.slot_start_utc),
+                  'HH:mm',
+                ) +
+                ' - ' +
+                FormatLocalDateCustom(
+                  ReadTimeFromUTCString(reservation.slot_end_utc),
+                  'HH:mm',
+                )
+              }
+              description="Termin"
+              variant="filled"
+            />
+          </Group>
+        </Stack>
 
-        {reservation.phone_number && (
-          <TextInput
-            readOnly
-            value={reservation.phone_number}
-            description="telefon"
-            variant="filled"
-          />
-        )}
         <Group mt="xl" w="100%" justify="end">
           {data && data.id == reservation.user_id && (
-            <Button size="sm" variant="light" color="red">
+            <Button
+              size="sm"
+              variant="light"
+              color="red"
+              onClick={() => {
+                removeReservation(reservation.reservation_id);
+              }}
+            >
               Izbriši rezervacijo
             </Button>
           )}
@@ -89,11 +126,11 @@ export const ReservationItemInfo = ({ reservation }: ReservationItemProps) => {
       <Button
         fullWidth
         color={reservation.machine_id == 1 ? 'indigo' : 'orange'}
-        variant="light"
+        variant="filled"
         size="md"
         onClick={open}
         leftSection={
-          <Avatar size="sm">
+          <Avatar size="sm" color="light">
             {reservation.name[0] + reservation.surname[0].toLocaleUpperCase()}
           </Avatar>
         }

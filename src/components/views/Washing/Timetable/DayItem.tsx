@@ -9,8 +9,12 @@ import {
 import { CalendarDay } from './WashingTimetable';
 import { SlotComponent } from './SlotComponent';
 import { AddWashingModal } from './AddWashingModal';
-import { FormatLocalDateCustom } from '../../../../utils/timeUtils';
+import {
+  FormatLocalDateCustom,
+  ReadTimeFromUTCString,
+} from '../../../../utils/timeUtils';
 import { ReservationItemInfo } from './ReservationItem';
+import dayjs from 'dayjs';
 
 export const DayItem = ({ day }: { day: CalendarDay }) => {
   return (
@@ -75,7 +79,9 @@ export const DayItem = ({ day }: { day: CalendarDay }) => {
                     ))}
                 </Group>
               </SimpleGrid>
-              <AddWashingModal day={day.date} />
+              {day.date.endOf('day') >= dayjs().utc() && (
+                <AddWashingModal day={day.date} />
+              )}
             </Accordion.Panel>
           </Accordion.Item>
         </Accordion>
