@@ -1,5 +1,5 @@
-import { supabaseClient } from '../../../supabase/supabaseClient';
-import { Tables } from '../../../supabase/supabase';
+import { supabaseClient } from '../../../../supabase/supabaseClient';
+import { Tables } from '../../../../supabase/supabase';
 import useSWR from 'swr';
 
 export const useGetItems = () => {

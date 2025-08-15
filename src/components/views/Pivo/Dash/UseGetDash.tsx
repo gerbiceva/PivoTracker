@@ -1,5 +1,5 @@
 import useSWR from 'swr';
-import { supabaseClient } from '../../../supabase/supabaseClient';
+import { supabaseClient } from '../../../../supabase/supabaseClient';
 
 export type dashData = {
   total_ordered: number;

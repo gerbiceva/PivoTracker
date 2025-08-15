@@ -9,9 +9,9 @@ import {
 } from '@mantine/core';
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { DebtBadge } from '../../../components/pricing/DebtBadge';
-import { UserTag } from '../../../components/users/UserTag';
-import { formatCurrency } from '../../../utils/Converter';
+import { DebtBadge } from '../../../pricing/DebtBadge';
+import { UserTag } from '../../../users/UserTag';
+import { formatCurrency } from '../../../../utils/Converter';
 import { sumOrdersOptions, useGetSummedDebt } from './GetEverythingSum';
 import { UserModal } from './UserModal';
 

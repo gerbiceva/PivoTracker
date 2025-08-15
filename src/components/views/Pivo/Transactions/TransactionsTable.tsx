@@ -1,9 +1,9 @@
 import { Button, Table, TableProps } from '@mantine/core';
 import { IconTrash } from '@tabler/icons-react';
-import { DebtBadge } from '../../../components/pricing/DebtBadge';
-import { UserTag } from '../../../components/users/UserTag';
-import { Tables } from '../../../supabase/supabase';
-import { formatCurrency } from '../../../utils/Converter';
+import { DebtBadge } from '../../../pricing/DebtBadge';
+import { UserTag } from '../../../users/UserTag';
+import { Tables } from '../../../../supabase/supabase';
+import { formatCurrency } from '../../../../utils/Converter';
 
 interface ITransactionsTableProps extends TableProps {
   transactions: Tables<'named_transactions'>[];

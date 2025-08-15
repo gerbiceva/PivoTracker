@@ -1,7 +1,7 @@
 import { BarChart } from '@mantine/charts';
 import { Alert, Box, LoadingOverlay, Paper, Text } from '@mantine/core';
-import { Tables } from '../../../supabase/supabase';
-import { formatCurrency } from '../../../utils/Converter';
+import { Tables } from '../../../../supabase/supabase';
+import { formatCurrency } from '../../../../utils/Converter';
 
 interface ChartTooltipProps {
   label: string;

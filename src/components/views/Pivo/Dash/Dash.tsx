@@ -25,11 +25,11 @@ import {
   IconStack,
 } from '@tabler/icons-react';
 import { useNavigate } from 'react-router-dom';
-import { formatCurrency } from '../../../utils/Converter';
+import { formatCurrency } from '../../../../utils/Converter';
 import { StatElement } from './StatElement';
 import { StatsRing } from './StatsRing';
 import { useGetTotalSummary } from './UseGetDash';
-import { useLiveTransactions } from '../../hooks.ts/liveTransactionsHook';
+import { useLiveTransactions } from '../../../hooks.ts/liveTransactionsHook';
 import { Transactiongraph } from '../Transactions/TransactionGraph';
 import { HistoryBarChart } from './HistoryBarChart';
 import { useGetWeeklyBars } from './useGetWeeklyBars';

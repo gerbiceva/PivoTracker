@@ -7,7 +7,6 @@ import {
   SimpleGrid,
   ActionIcon,
   Alert,
-  Button,
 } from '@mantine/core';
 import { useGetReservationsForUser } from './UserReservations';
 import { useGetUserExpandedFromAuth } from './GetExpandedUserFromAuth';
@@ -19,7 +18,6 @@ import { IconPlus, IconTrash } from '@tabler/icons-react';
 import { groupReservationsByMonth } from './reservationUtils';
 import dayjs from 'dayjs';
 import { removeReservation } from '../RemoveReservation';
-import { notifications } from '@mantine/notifications';
 import { Link } from 'react-router-dom';
 
 export const MyWashing = () => {

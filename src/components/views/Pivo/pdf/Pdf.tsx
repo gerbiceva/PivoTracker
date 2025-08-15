@@ -10,8 +10,8 @@ import {
 } from '@react-pdf/renderer';
 import { IconFile } from '@tabler/icons-react';
 import { Link } from 'react-router-dom';
-import { Tables } from '../../../supabase/supabase';
-import { formatCurrency } from '../../../utils/Converter';
+import { Tables } from '../../../../supabase/supabase';
+import { formatCurrency } from '../../../../utils/Converter';
 
 Font.register({ family: 'Roboto', src: '/roboto.ttf' });
 

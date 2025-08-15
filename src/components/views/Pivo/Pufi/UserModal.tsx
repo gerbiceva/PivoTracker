@@ -11,9 +11,9 @@ import {
 import { useDisclosure } from '@mantine/hooks';
 import { IconPencil } from '@tabler/icons-react';
 import { useMemo } from 'react';
-import { DebtBadge } from '../../../components/pricing/DebtBadge';
-import { numToColor } from '../../../components/users/stringToCol';
-import { formatCurrency, getDateFromString } from '../../../utils/Converter';
+import { DebtBadge } from '../../../pricing/DebtBadge';
+import { numToColor } from '../../../users/stringToCol';
+import { formatCurrency, getDateFromString } from '../../../../utils/Converter';
 import { useGetTransactions } from '../Transactions/useTransactions';
 
 export const ModalWindow = ({

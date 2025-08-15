@@ -1,5 +1,5 @@
-import { Tables } from '../../../supabase/supabase';
-import { supabaseClient } from '../../../supabase/supabaseClient';
+import { Tables } from '../../../../supabase/supabase';
+import { supabaseClient } from '../../../../supabase/supabaseClient';
 import useSWR from 'swr';
 
 export type sumOrdersOptions =

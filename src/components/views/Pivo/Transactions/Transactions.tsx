@@ -7,7 +7,7 @@ import {
   Stack,
   Title,
 } from '@mantine/core';
-import { useLiveTransactions } from '../../../components/hooks.ts/liveTransactionsHook';
+import { useLiveTransactions } from '../../../hooks.ts/liveTransactionsHook';
 import { Transactiongraph } from './TransactionGraph';
 import { TransactionsTable } from './TransactionsTable';
 

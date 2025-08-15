@@ -1,6 +1,6 @@
 import useSWR from 'swr';
-import { Tables } from '../../../supabase/supabase';
-import { supabaseClient } from '../../../supabase/supabaseClient';
+import { Tables } from '../../../../supabase/supabase';
+import { supabaseClient } from '../../../../supabase/supabaseClient';
 import { useState } from 'react';
 
 export const useGetNabava = () => {

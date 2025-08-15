@@ -1,8 +1,8 @@
 import { Alert, Text, SimpleGrid, Stack, Skeleton } from '@mantine/core';
-import { Tables } from '../../../supabase/supabase';
+import { Tables } from '../../../../supabase/supabase';
 import { useGetItems } from './useItems';
 import { useEffect } from 'react';
-import { formatCurrency } from '../../../utils/Converter';
+import { formatCurrency } from '../../../../utils/Converter';
 
 interface Props {
   value: Tables<'items'> | undefined;

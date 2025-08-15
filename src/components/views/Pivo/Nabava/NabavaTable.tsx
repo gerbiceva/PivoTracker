@@ -1,7 +1,7 @@
 import { Alert, LoadingOverlay, Paper, Stack, Table } from '@mantine/core';
 import { useMemo } from 'react';
-import { Tables } from '../../../supabase/supabase';
-import { formatCurrency } from '../../../utils/Converter';
+import { Tables } from '../../../../supabase/supabase';
+import { formatCurrency } from '../../../../utils/Converter';
 
 interface NabavaTableProps {
   data: Tables<'gerba_storage'>[];

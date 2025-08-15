@@ -8,9 +8,9 @@ import {
   Group,
 } from '@mantine/core';
 import { useDebouncedState } from '@mantine/hooks';
-import { supabaseClient } from '../../../supabase/supabaseClient';
+import { supabaseClient } from '../../../../supabase/supabaseClient';
 import { notifications, showNotification } from '@mantine/notifications';
-import { Tables } from '../../../supabase/supabase';
+import { Tables } from '../../../../supabase/supabase';
 
 function getAsyncData(search: string): Promise<Tables<'customers'>[]> {
   return new Promise<Tables<'customers'>[]>((resolve) => {

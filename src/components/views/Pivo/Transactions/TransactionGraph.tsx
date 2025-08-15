@@ -1,8 +1,8 @@
 import { AreaChart } from '@mantine/charts';
 import { Paper, Text } from '@mantine/core';
 import { useMemo } from 'react';
-import { Tables } from '../../../supabase/supabase';
-import { formatCurrency } from '../../../utils/Converter';
+import { Tables } from '../../../../supabase/supabase';
+import { formatCurrency } from '../../../../utils/Converter';
 interface ChartTooltipProps {
   label: string;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

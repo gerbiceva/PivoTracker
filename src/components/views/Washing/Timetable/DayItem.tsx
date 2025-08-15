@@ -9,10 +9,7 @@ import {
 import { CalendarDay } from './WashingTimetable';
 import { SlotComponent } from './SlotComponent';
 import { AddWashingModal } from './AddWashingModal';
-import {
-  FormatLocalDateCustom,
-  ReadTimeFromUTCString,
-} from '../../../../utils/timeUtils';
+import { FormatLocalDateCustom } from '../../../../utils/timeUtils';
 import { ReservationItemInfo } from './ReservationItem';
 import dayjs from 'dayjs';
 
