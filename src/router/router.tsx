@@ -11,6 +11,7 @@ import { UserView } from '../components/views/Pivo/User/UserOverview';
 import { Zaloge } from '../components/views/Zaloge/Zaloge';
 import { WashingTimetable } from '../components/views/Washing/Timetable/WashingTimetable';
 import { MyWashing } from '../components/views/Washing/MyWashing/MyWashing';
+import { EnrollUser } from '../components/views/Admin/Users/Enroll';
 
 export const router = createBrowserRouter([
   {
@@ -61,13 +62,11 @@ export const router = createBrowserRouter([
         path: '/moje-pranje',
         element: <MyWashing />,
       },
+      {
+        path: '/admin/enroll',
+        element: <EnrollUser />,
+      },
 
-      // {
-      //   path: '/pdf',
-      //   element: (
-
-      //   ),
-      // },
       {
         path: '/*',
         element: '404',
