@@ -152,6 +152,8 @@ export const CustomSpotlight = () => {
       actions={Spotlightactions}
       nothingFound="Nothing found..."
       highlightQuery
+      scrollable
+      maxHeight="80vh"
       searchProps={{
         leftSection: (
           <IconSearch

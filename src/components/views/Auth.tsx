@@ -18,10 +18,12 @@ import { supabaseClient } from '../../supabase/supabaseClient';
 import { useUser } from '../../supabase/loader';
 import { Navigate } from 'react-router-dom';
 import { useState } from 'react';
+import { AuthError } from '@supabase/supabase-js';
 
 export function Authentication() {
   const { user } = useUser();
   const [loading, setLoading] = useState(false);
+  const [err, setErr] = useState<AuthError>();
 
   const form = useForm({
     initialValues: {
@@ -57,26 +59,32 @@ export function Authentication() {
               <Avatar variant="outline" size="md">
                 G59
               </Avatar>
-              <Title>Tekoče ministrstvo</Title>
+              <Title>Gerba unified interface</Title>
             </Group>
 
             <Paper withBorder shadow="md" p={30} mt={30} radius="md" miw={350}>
               <form
                 onSubmit={form.onSubmit(async (values) => {
                   setLoading(true);
+                  setErr(undefined);
                   await supabaseClient.auth
                     .signInWithPassword({
                       email: values.email,
                       password: values.password,
                     })
-                    .then(() => {
+                    .then((res) => {
+                      if (res.error) {
+                        setErr(res.error);
+                      }
+                    })
+                    .finally(() => {
                       setLoading(false);
                     });
                 })}
               >
                 <TextInput
                   label="Email"
-                  placeholder="you@mantine.dev"
+                  placeholder="bruc@brucmail.dev"
                   required
                   {...form.getInputProps('email')}
                 />
@@ -88,6 +96,11 @@ export function Authentication() {
                   {...form.getInputProps('password')}
                 />
 
+                {err && (
+                  <Alert mt="lg" color="red" title="Napaka">
+                    {err.message}
+                  </Alert>
+                )}
                 <Button fullWidth mt="xl" type="submit" loading={loading}>
                   Sign in
                 </Button>
