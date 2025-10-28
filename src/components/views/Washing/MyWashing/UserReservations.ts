@@ -15,7 +15,7 @@ export const useGetReservationsForUser = (
     new Promise<ReservationForUserType[]>((resolve, reject) => {
       supabaseClient
         .rpc('get_reservations_for_user', {
-          p_gerba_user_id: gerbaUserId!,
+          p_base_user_id: gerbaUserId!,
         })
         .select()
         .then((res) => {

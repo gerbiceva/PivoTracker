@@ -23,7 +23,7 @@ import { Link } from 'react-router-dom';
 export const MyWashing = () => {
   const { data } = useGetUserExpandedFromAuth();
   const { data: reservationData, isLoading } = useGetReservationsForUser(
-    data?.gerba_user_id,
+    data?.base_user_id,
   );
 
   const byMonth = reservationData
@@ -46,9 +46,9 @@ export const MyWashing = () => {
           <Text>
             Prikazanih <b>{reservationData?.length}</b> terminov za{' '}
             <b>
-              {data?.gerba_name} {data?.gerba_surname}
+              {data?.base_name} {data?.base_surname}
             </b>{' '}
-            soba <b>{data?.gerba_room}</b>.
+            soba <b>{data?.base_room}</b>.
           </Text>
         </Stack>
         <ActionIcon size="lg" variant="outline" component={Link} to="/pranje">

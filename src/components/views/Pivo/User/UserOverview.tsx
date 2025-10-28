@@ -64,7 +64,7 @@ export const UserView = () => {
           <Avatar variant="light" size="md" color={numToColor(parsedId)}>
             {userInfo?.id}
           </Avatar>
-          <Title c={numToColor(parsedId)}>{userInfo?.fullname}</Title>
+          <Title c={numToColor(parsedId)}>{userInfo?.name}</Title>
         </Group>
 
         {/* pdf */}

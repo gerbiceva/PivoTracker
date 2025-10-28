@@ -18,7 +18,7 @@ Font.register({ family: 'Roboto', src: '/roboto.ttf' });
 // Create Document Component
 interface PDFProps {
   transactions: Tables<'named_transactions'>[];
-  userinfo: Tables<'customers'>;
+  userinfo: Tables<'base_users'>;
 }
 
 export const PDFUrl = ({ transactions, userinfo }: PDFProps) => {
@@ -154,7 +154,7 @@ export const PDFUrl = ({ transactions, userinfo }: PDFProps) => {
                 padding: '5px 0',
               }}
             >
-              {userinfo.fullname}
+              {userinfo.name} + " " + {userinfo.surname}
             </Text>
           </View>
         </View>
@@ -319,7 +319,7 @@ export const PDFUrl = ({ transactions, userinfo }: PDFProps) => {
             marginLeft: 'auto',
           }}
         >
-          <Text>{userinfo.fullname}</Text>
+          <Text>{userinfo.name}</Text>
           <Text>
             {/* {user.user?.email}: ___________________ */}
             minister za tekoče zadeve

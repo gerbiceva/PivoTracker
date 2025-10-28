@@ -18,7 +18,7 @@ export const EnrollUserDetails = ({
 
   const handleUserSubmit = async (values: UserEditFormValues) => {
     setError(null);
-    const { error, data } = await supabaseClient
+    const { error } = await supabaseClient
       .from('residents')
       .insert({
         birth_date: values.datumRojstva.toISOString(),

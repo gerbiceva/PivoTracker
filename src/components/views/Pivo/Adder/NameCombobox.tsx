@@ -17,8 +17,8 @@ type customer = userType;
 function getAsyncData(search: string): Promise<customer[]> {
   return new Promise<customer[]>((resolve) => {
     supabaseClient
-      .from('base_users')
-      .select()
+      .from('user_view')
+      .select('*')
       .ilike('name', `%${search.toLowerCase()}%`)
       .then((res) => {
         if (!res.error) {
@@ -36,7 +36,7 @@ function getAsyncData(search: string): Promise<customer[]> {
 }
 
 function customerFromId(id: string, customers: customer[]): customer | null {
-  return customers.filter((val) => val.base_user_id.toString() == id)[0];
+  return customers.filter((val) => val.base_user_id!.toString() == id)[0];
 }
 
 interface Props {
@@ -73,7 +73,10 @@ export const NameCombobox = ({ onChange, value }: Props) => {
   }, [debouncedSearch]);
 
   const options = filteredOptions.map((item) => (
-    <Combobox.Option value={item.id.toString()} key={item.id}>
+    <Combobox.Option
+      value={item.base_user_id!.toString()}
+      key={item.base_user_id}
+    >
       {item.name + ' ' + item.surname}
     </Combobox.Option>
   ));
@@ -107,7 +110,7 @@ export const NameCombobox = ({ onChange, value }: Props) => {
           onFocus={() => combobox.openDropdown()}
           onBlur={() => {
             combobox.closeDropdown();
-            setSearch(value?.name || '');
+            setSearch((value?.name || '') + ' ' + value?.surname);
           }}
           placeholder="Ime priimek"
           rightSectionPointerEvents="none"

@@ -3,7 +3,7 @@ import { useMemo } from 'react';
 import { Tables } from '../../../supabase/supabase';
 
 interface zalogeTableProps {
-  data: Tables<'named_minister_transactions'>[];
+  data: Tables<'named_transactions'>[];
   error: Error | null;
   isLoading: boolean;
 }
@@ -38,10 +38,10 @@ export function ZalogeTable({ data, error, isLoading }: zalogeTableProps) {
     return data.map((element) => (
       <Table.Tr key={element.id} p="xs">
         <Table.Td>
-          {new Date(element.created_at || '').toLocaleDateString()}
+          {new Date(element.ordered_at || '').toLocaleDateString()}
         </Table.Td>
-        <Table.Td>{element.email}</Table.Td>
-        <Table.Td align="right">{element.beer_count}</Table.Td>
+        <Table.Td>{element.fullname}</Table.Td>
+        <Table.Td align="right">{element.item_beer_count}</Table.Td>
       </Table.Tr>
     ));
   }, [data, error, isLoading]);

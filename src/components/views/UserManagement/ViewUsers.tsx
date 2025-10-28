@@ -16,8 +16,7 @@ import {
 import { getSupaWR } from '../../../supabase/supa-utils/supaSWR';
 import { supabaseClient } from '../../../supabase/supabaseClient';
 import { IconAlertCircle, IconLink } from '@tabler/icons-react';
-import { numToColor, stringToColor } from '../../../utils/colorUtils';
-import { serialize } from 'swr/_internal';
+import { numToColor } from '../../../utils/colorUtils';
 import dayjs from 'dayjs';
 
 export const EditUsers = () => {
