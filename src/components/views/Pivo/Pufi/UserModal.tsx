@@ -12,7 +12,7 @@ import { useDisclosure } from '@mantine/hooks';
 import { IconPencil } from '@tabler/icons-react';
 import { useMemo } from 'react';
 import { DebtBadge } from '../../../pricing/DebtBadge';
-import { numToColor } from '../../../users/stringToCol';
+import { numToColor } from '../../../../utils/colorUtils';
 import { formatCurrency, getDateFromString } from '../../../../utils/Converter';
 import { useGetTransactions } from '../Transactions/useTransactions';
 

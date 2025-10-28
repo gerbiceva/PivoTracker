@@ -60,10 +60,13 @@ export const HistoryBarChart = ({
           ]}
           tooltipProps={{
             content: ({ label, payload }) => (
-              <ChartTooltip label={label} payload={payload} />
+              <ChartTooltip
+                label={label?.toLocaleString() || ''}
+                payload={payload}
+              />
             ),
           }}
-          valueFormatter={(val) => (val / 100).toString()}
+          valueFormatter={(val) => val.toString()}
           fillOpacity={0.7}
           withLegend
           withYAxis={false}

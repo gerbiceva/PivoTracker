@@ -1,4 +1,4 @@
-import { createTheme, virtualColor } from '@mantine/core';
+import { createTheme } from '@mantine/core';
 
 export const mantineTheme = createTheme({
   primaryColor: 'cyan',

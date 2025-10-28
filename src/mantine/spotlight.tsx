@@ -1,12 +1,11 @@
 import { rem } from '@mantine/core';
 import {
   IconBeer,
-  IconDatabase,
   IconHome,
   IconList,
   IconLogout,
-  IconShoppingBag,
   IconTransactionEuro,
+  IconUserPlus,
   IconWash,
 } from '@tabler/icons-react';
 
@@ -69,25 +68,42 @@ export const CustomSpotlight = () => {
             />
           ),
         },
+        // {
+        //   id: 'nabava',
+        //   label: 'Nabava',
+        //   description: 'Nabava piva iz trgovine',
+        //   onClick: () => window.location.replace('/nabava'),
+        //   leftSection: (
+        //     <IconShoppingBag
+        //       style={{ width: rem(24), height: rem(24) }}
+        //       stroke={1.5}
+        //     />
+        //   ),
+        // },
+        // {
+        //   id: 'zaloge',
+        //   label: 'Zaloge',
+        //   description: 'Zaloge in transakcije ministrov',
+        //   onClick: () => window.location.replace('/zaloge'),
+        //   leftSection: (
+        //     <IconDatabase
+        //       style={{ width: rem(24), height: rem(24) }}
+        //       stroke={1.5}
+        //     />
+        //   ),
+        // },
+      ],
+    },
+    {
+      group: 'Admin',
+      actions: [
         {
-          id: 'nabava',
-          label: 'Nabava',
-          description: 'Nabava piva iz trgovine',
-          onClick: () => window.location.replace('/nabava'),
+          id: 'enroll',
+          label: 'Enroll',
+          description: 'Dodajaj novega uporabnika',
+          onClick: () => window.location.replace('/admin/enroll'),
           leftSection: (
-            <IconShoppingBag
-              style={{ width: rem(24), height: rem(24) }}
-              stroke={1.5}
-            />
-          ),
-        },
-        {
-          id: 'zaloge',
-          label: 'Zaloge',
-          description: 'Zaloge in transakcije ministrov',
-          onClick: () => window.location.replace('/zaloge'),
-          leftSection: (
-            <IconDatabase
+            <IconUserPlus
               style={{ width: rem(24), height: rem(24) }}
               stroke={1.5}
             />

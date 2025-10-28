@@ -14,7 +14,7 @@ import { Transactiongraph } from '../Transactions/TransactionGraph';
 import { TransactionsTable } from '../Transactions/TransactionsTable';
 import { useGetTransactions } from '../Transactions/useTransactions';
 import { useGetUserInfo } from './getUserInfo';
-import { numToColor } from '../../../users/stringToCol';
+import { numToColor } from '../../../../utils/colorUtils';
 import { PDFUrl } from '../pdf/Pdf';
 
 export const UserView = () => {

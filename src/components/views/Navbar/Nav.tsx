@@ -1,7 +1,6 @@
 import {
   Badge,
   Box,
-  Burger,
   Group,
   Kbd,
   Paper,
@@ -13,13 +12,14 @@ import { useMediaQuery } from '@mantine/hooks';
 import { spotlight } from '@mantine/spotlight';
 import { useUser } from '../../../supabase/loader';
 import { ColorchemeToggle } from '../../colorshemeToggle/ColorschemeToggle';
+import { UserTag } from '../../users/UserTag';
 
 export const Navbar = () => {
   const matches = useMediaQuery('(min-width: 56.25em)');
   const { user } = useUser();
 
   return (
-    <>
+    <Box p="sm">
       {/* login indicator */}
       <Tooltip
         label={
@@ -42,26 +42,31 @@ export const Navbar = () => {
           {user?.email || 'Neprijavljen'}
         </Badge>
       </Tooltip>
+
       {/* navbar */}
       <Paper w="100%" withBorder px="xl" shadow="lg" py="sm">
         <Group w="100%" justify="space-between">
-          <Burger
-            onClick={spotlight.open}
-            display={!matches ? undefined : 'none'}
-          />
-
           <Group
             onClick={spotlight.open}
             display={!matches ? 'none' : undefined}
           >
+            {/* <Burger
+              onClick={spotlight.open}
+              display={!matches ? undefined : 'none'}
+            /> */}
+
             <Box>
               <Kbd>ctrl</Kbd> + <Kbd>K</Kbd>
             </Box>
             <Text fw="bold">meni</Text>
           </Group>
-          <ColorchemeToggle />
+
+          <Group>
+            {user && <UserTag fullname={user.email || ''} id={user.id} />}
+            <ColorchemeToggle />
+          </Group>
         </Group>
       </Paper>
-    </>
+    </Box>
   );
 };

@@ -18,14 +18,22 @@ export const EnrollUserDetails = ({
 
   const handleUserSubmit = async (values: UserEditFormValues) => {
     setError(null);
-    const { error } = await supabaseClient.from('gerba_user').insert({
-      first_name: values.ime,
-      surname: values.priimek,
-      room: values.stevilkaSobe,
-      phone_number: values.telefonska,
-      date_of_birth: values.datumRojstva.toISOString(),
-      auth_user_id: newUser.id,
-    });
+    const { error, data } = await supabaseClient
+      .from('residents')
+      .insert({
+        birth_date: values.datumRojstva.toISOString(),
+        room: values.stevilkaSobe,
+        phone_number: values.telefonska,
+      })
+      .select('id')
+      .single();
+
+    // const { error } = await supabaseClient
+    //   .from('base_users')
+    //   .update({
+    //     resident: newUser.,
+    //   })
+    //   .filter('id', 'eq');
 
     if (error) {
       setError(error.message);
