@@ -44,9 +44,9 @@ BEGIN
         bu.created_at,
         bu.name,
         bu.surname,
-        r.room,
+        r.room::integer,
         r.phone_number,
-        r.birth_date,
+        r.birth_date::date,
         bu.auth AS auth_user_id,
         au.email::text AS auth_email
     FROM base_users bu
@@ -69,9 +69,9 @@ BEGIN
         bu.id AS base_user_id,
         bu.name AS base_name,
         bu.surname AS base_surname,
-        r.room AS base_room,
+        r.room::integer AS base_room,
         r.phone_number AS base_phone_number,
-        r.birth_date AS base_data_of_birth
+        r.birth_date::date AS base_data_of_birth
     FROM auth.users au
     JOIN base_users bu ON bu.auth = au.id
     LEFT JOIN residents r ON bu.resident = r.id

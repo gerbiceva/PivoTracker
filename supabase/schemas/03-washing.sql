@@ -119,9 +119,9 @@ BEGIN
         bu.created_at,
         bu.name,
         bu.surname,
-        res.room,
+        res.room::integer,
         res.phone_number,
-        res.birth_date AS date_of_birth,
+        res.birth_date::date AS date_of_birth,
         bu.auth AS auth_user_id,
         lower(r.slot) AT TIME ZONE 'UTC' AS slot_start_utc,
         upper(r.slot) AT TIME ZONE 'UTC' AS slot_end_utc,
@@ -178,9 +178,9 @@ BEGIN
         bu.created_at,
         bu.name AS first_name,
         bu.surname,
-        res.room,
+        res.room::integer,
         res.phone_number,
-        res.birth_date AS date_of_birth,
+        res.birth_date::date AS date_of_birth,
         bu.auth AS auth_user_id,
         r.note
     FROM slots sl

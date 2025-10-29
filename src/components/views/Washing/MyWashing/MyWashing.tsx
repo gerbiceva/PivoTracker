@@ -7,6 +7,7 @@ import {
   SimpleGrid,
   ActionIcon,
   Alert,
+  Badge,
 } from '@mantine/core';
 import { useGetReservationsForUser } from './UserReservations';
 import { useGetUserExpandedFromAuth } from './GetExpandedUserFromAuth';
@@ -22,9 +23,11 @@ import { Link } from 'react-router-dom';
 
 export const MyWashing = () => {
   const { data } = useGetUserExpandedFromAuth();
-  const { data: reservationData, isLoading } = useGetReservationsForUser(
-    data?.base_user_id,
-  );
+  const {
+    data: reservationData,
+    isLoading,
+    error,
+  } = useGetReservationsForUser(data?.base_user_id);
 
   const byMonth = reservationData
     ? groupReservationsByMonth(reservationData)
@@ -38,8 +41,9 @@ export const MyWashing = () => {
     : undefined;
 
   return (
-    <Stack gap="xs" mt="md">
+    <Stack gap="xs" mt="md" p="lg">
       <LoadingOverlay visible={isLoading} />
+      {error && <Alert>{error.message}</Alert>}
       <Group w="100%" justify="space-between">
         <Stack>
           <Title>Moji termini</Title>
@@ -58,11 +62,11 @@ export const MyWashing = () => {
 
       {monthEntries?.map(([days, entries]) => (
         <>
-          <Text mt="md" size="xl" color="dimmed">
+          <Text mt="md" size="xl" c="dimmed" fw="bold">
             {FormatLocalDateCustom(days, 'MMMM')}
           </Text>
 
-          <SimpleGrid cols={{ xs: 1, md: 2, lg: 3 }} mt="md">
+          <SimpleGrid cols={{ xs: 2, md: 2, lg: 3 }} mt="md">
             {entries.map((reservation) => (
               <Alert
                 p="md"
@@ -70,7 +74,7 @@ export const MyWashing = () => {
                   ReadTimeFromUTCString(reservation.slot_end_utc) <
                   dayjs().utc()
                     ? 'filled'
-                    : 'light'
+                    : 'default'
                 }
                 color={reservation.machine_id == 1 ? 'indigo' : 'orange'}
               >
@@ -86,7 +90,12 @@ export const MyWashing = () => {
                         'HH:mm',
                       )}
                   </Text>
-                  <Text>{reservation.machine_name}</Text>
+                  <Badge
+                    variant="dot"
+                    color={reservation.machine_id == 1 ? 'indigo' : 'orange'}
+                  >
+                    {reservation.machine_name}
+                  </Badge>
                   <ActionIcon
                     color="grayish"
                     variant="light"

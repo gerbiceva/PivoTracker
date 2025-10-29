@@ -17,6 +17,7 @@ export const useGetReservationsForUser = (
         .rpc('get_reservations_for_user', {
           p_base_user_id: gerbaUserId!,
         })
+        .filter('slot_end_utc', 'gt', new Date().toISOString())
         .select()
         .then((res) => {
           if (!res.error) {

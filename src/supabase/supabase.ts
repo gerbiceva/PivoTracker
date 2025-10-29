@@ -46,7 +46,7 @@ export type Database = {
           id: number
           name: string
           resident: number | null
-          surname: string | null
+          surname: string
         }
         Insert: {
           auth?: string | null
@@ -54,7 +54,7 @@ export type Database = {
           id?: number
           name: string
           resident?: number | null
-          surname?: string | null
+          surname: string
         }
         Update: {
           auth?: string | null
@@ -62,7 +62,7 @@ export type Database = {
           id?: number
           name?: string
           resident?: number | null
-          surname?: string | null
+          surname?: string
         }
         Relationships: [
           {
