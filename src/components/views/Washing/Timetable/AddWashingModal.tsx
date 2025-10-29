@@ -134,7 +134,7 @@ export const AddWashingModal = ({ day }: WashingModalProps) => {
       <Button
         mt="xl"
         fullWidth
-        variant="light"
+        variant="filled"
         size="xs"
         onClick={open}
         leftSection={<IconPlus size="1rem"></IconPlus>}

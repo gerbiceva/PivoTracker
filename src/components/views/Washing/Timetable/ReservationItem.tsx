@@ -26,22 +26,16 @@ export interface ReservationItemProps {
 export const ReservationItemInfo = ({ reservation }: ReservationItemProps) => {
   const [opened, { open, close }] = useDisclosure(false);
   const { data } = useGetAuthUser();
+
+  const zodiac = getZodiacSign(
+    ReadTimeFromUTCString(reservation.date_of_birth),
+  );
   return (
     <>
       <Modal opened={opened} onClose={close} size="xl" centered>
         <Flex justify="center" align="center" gap="xl" mb="md">
-          <Tooltip
-            color="pink"
-            label={getZodiacSign(
-              ReadTimeFromUTCString(reservation.date_of_birth),
-            )}
-          >
-            <Box opacity={0.1}>
-              {zodiacToIcon(
-                getZodiacSign(ReadTimeFromUTCString(reservation.date_of_birth)),
-                '7rem',
-              )}
-            </Box>
+          <Tooltip color="pink" label={zodiac}>
+            <Box opacity={0.1}>{zodiac && zodiacToIcon(zodiac, '7rem')}</Box>
           </Tooltip>
           <Stack w="100%">
             <Group w="100%" justify="stretch" wrap="nowrap">
@@ -126,11 +120,11 @@ export const ReservationItemInfo = ({ reservation }: ReservationItemProps) => {
       <Button
         fullWidth
         color={reservation.machine_id == 1 ? 'indigo' : 'orange'}
-        variant="filled"
+        variant="light"
         size="md"
         onClick={open}
         leftSection={
-          <Avatar size="sm" color="light">
+          <Avatar size="sm" color="">
             {reservation.name[0] + reservation.surname[0].toLocaleUpperCase()}
           </Avatar>
         }

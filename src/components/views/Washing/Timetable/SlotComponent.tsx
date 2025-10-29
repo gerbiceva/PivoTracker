@@ -1,4 +1,13 @@
-import { MantineColor, Progress } from '@mantine/core';
+import {
+  alpha,
+  darken,
+  defaultVariantColorsResolver,
+  lighten,
+  MantineColor,
+  parseThemeColor,
+  Progress,
+  useMantineTheme,
+} from '@mantine/core';
 import { CalendarDay, dayType } from './WashingTimetable';
 import { useMemo } from 'react';
 
@@ -21,6 +30,9 @@ export const SlotComponent = ({
   machine: number;
   color: MantineColor;
 }) => {
+  const theme = useMantineTheme();
+  const parsedColor = parseThemeColor({ color, theme });
+
   const sections = useMemo<Section[]>(() => {
     // Create an array to represent all 6 sections
     const allSections = Array(8).fill(false);
@@ -60,17 +72,22 @@ export const SlotComponent = ({
 
     return result;
   }, [day, machine]);
+
   return (
-    <Progress.Root size="xl" style={{ flex: 1 }} mx="lg">
+    <Progress.Root size="1.5rem" style={{ flex: 1 }} mx="lg">
       {sections.map((section) =>
         section.isSpacer ? (
-          <Progress.Section value={2} color="grayish"></Progress.Section>
+          <Progress.Section value={2} style={{ opacity: 0 }}></Progress.Section>
         ) : (
           <Progress.Section
-            value={100 / 8}
-            color={section.present ? color : 'grayish'}
+            value={100 / 8} // 24h , 3hour long section -> 8
+            color={
+              section.present
+                ? alpha(darken(parsedColor.value, 0.0), 0.95)
+                : alpha(parsedColor.value, 0.05)
+            }
           >
-            <Progress.Label>
+            <Progress.Label c={lighten(parsedColor.value, 0.8)}>
               {section.present &&
                 section.dayEvent &&
                 `${FormatLocalDateCustom(

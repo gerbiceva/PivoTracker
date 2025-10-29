@@ -112,8 +112,7 @@ export function Authentication() {
               icon={<IconCircleKey> </IconCircleKey>}
               maw="350px"
             >
-              Uporabniške račune ustvarite v 3. (najboljšem) štuku, pri
-              pristojnemu ministru.
+              Uporabniški račun ustvari pri pristojnem vladniku.
             </Alert>
           </Stack>
         </Container>

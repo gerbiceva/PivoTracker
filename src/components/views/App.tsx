@@ -12,7 +12,7 @@ function App() {
         style={{
           position: 'absolute',
           zIndex: -100,
-          opacity: 0.04,
+          opacity: 0.02,
           maxHeight: '90vh',
           maxWidth: '90vw',
         }}

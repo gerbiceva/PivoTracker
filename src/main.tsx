@@ -16,6 +16,11 @@ import '@mantine/spotlight/styles.css';
 import '@mantine/charts/styles.css';
 import '@mantine/dates/styles.css';
 
+import 'dayjs/locale/sl'; // Import Slovenian locale
+import dayjs from 'dayjs';
+// Set the locale globally
+dayjs.locale('sl');
+
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <DatesProvider

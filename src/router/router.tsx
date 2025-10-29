@@ -12,6 +12,7 @@ import { MyWashing } from '../components/views/Washing/MyWashing/MyWashing';
 import { EnrollUser } from '../components/views/Admin/Users/Enroll';
 import { EditSelf } from '../components/views/UserManagement/ViewSelf';
 import { EditUsers } from '../components/views/UserManagement/ViewUsers';
+import { PranjeInfo } from '../components/views/Washing/Info/PranjeInfo';
 
 export const router = createBrowserRouter([
   {
@@ -43,17 +44,23 @@ export const router = createBrowserRouter([
         element: <PuffTable />,
       },
       {
-        path: '/user/:id',
-        element: <UserView />,
-      },
-      {
         path: '/user',
-        element: <EditSelf />,
+        children: [
+          {
+            path: '/user/:id',
+            element: <UserView />,
+          },
+          {
+            path: '/user',
+            element: <EditSelf />,
+          },
+          {
+            path: '/users',
+            element: <EditUsers />,
+          },
+        ],
       },
-      {
-        path: '/users',
-        element: <EditUsers />,
-      },
+
       // {
       //   path: '/nabava',
       //   element: <Nabava />,
@@ -64,12 +71,22 @@ export const router = createBrowserRouter([
       // },
       {
         path: '/pranje',
-        element: <WashingTimetable />,
+        children: [
+          {
+            path: '/pranje/novo',
+            element: <WashingTimetable />,
+          },
+          {
+            path: '/pranje/moje',
+            element: <MyWashing />,
+          },
+          {
+            path: '/pranje/info',
+            element: <PranjeInfo />,
+          },
+        ],
       },
-      {
-        path: '/moje-pranje',
-        element: <MyWashing />,
-      },
+
       {
         path: '/admin/enroll',
         element: <EnrollUser />,
