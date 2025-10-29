@@ -297,4 +297,25 @@ GRANT ALL ON TABLE "public"."user_view" TO "anon";
 GRANT ALL ON TABLE "public"."user_view" TO "authenticated";
 GRANT ALL ON TABLE "public"."user_view" TO "service_role";
 
+-- Trigger to create a public.base_users entry when a new auth.users entry is created
+CREATE OR REPLACE FUNCTION public.handle_new_base_user()
+returns trigger
+language plpgsql
+security definer set search_path = public
+as $$
+begin
+  insert into public.base_users (auth, name, surname)
+  values (
+    new.id,
+    new.raw_user_meta_data->>'name',
+    new.raw_user_meta_data->>'surname'
+  );
+  return new;
+end;
+$$;
+
+create trigger on_auth_user_created
+  after insert on auth.users
+  for each row execute procedure public.handle_new_base_user();
+
 RESET ALL;
