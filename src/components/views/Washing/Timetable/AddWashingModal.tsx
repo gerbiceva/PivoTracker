@@ -80,7 +80,9 @@ export const AddWashingModal = ({ day }: WashingModalProps) => {
             {Object.keys(dataSplit)?.map((machineSlot) => {
               return (
                 <Stack w="100%">
-                  <Text>{machineSlot}</Text>
+                  <Text fw="bold" ta="center" size="lg">
+                    {machineSlot}
+                  </Text>
                   {dataSplit[machineSlot].map((slot) => {
                     return (
                       <Card>

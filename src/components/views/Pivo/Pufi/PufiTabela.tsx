@@ -15,14 +15,6 @@ import { formatCurrency } from '../../../../utils/Converter';
 import { sumOrdersOptions, useGetSummedDebt } from './GetEverythingSum';
 import { UserModal } from './UserModal';
 
-export interface IUserElements {
-  fullname: string;
-  ordered: number;
-  paid: number;
-  owed: number;
-  ordered_at: string;
-}
-
 export function PuffTable() {
   const [ord, stOrd] = useState<sumOrdersOptions>('total_difference');
   const { isLoading, data, error } = useGetSummedDebt(ord);
@@ -58,9 +50,12 @@ export function PuffTable() {
     }
 
     return data.map((element) => (
-      <Table.Tr key={element.fullname} p="xs">
+      <Table.Tr key={element.name} p="xs">
         <Table.Td align="left">
-          <UserTag fullname={element.fullname || ''} id={element.id || -1} />
+          <UserTag
+            fullname={element.name || ''}
+            id={element.id?.toString() || ''}
+          />
         </Table.Td>
         <Table.Td align="right">{element.total_ordered}</Table.Td>
         <Table.Td align="right">
@@ -72,7 +67,7 @@ export function PuffTable() {
         <Table.Td align="right">
           <UserModal
             id={element.id || 0}
-            displayName={element.fullname || ''}
+            displayName={(element.name || '') + (element.surname || '')}
           />
         </Table.Td>
       </Table.Tr>
@@ -98,7 +93,7 @@ export function PuffTable() {
           },
           {
             label: 'Ime',
-            value: 'fullname',
+            value: 'name',
           },
           {
             label: 'Naročeno',

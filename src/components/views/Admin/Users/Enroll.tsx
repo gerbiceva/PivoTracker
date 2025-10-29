@@ -5,14 +5,7 @@ import { UserRegisterForm } from '../../../users/registerUser';
 import { IconAlertCircle } from '@tabler/icons-react';
 import { User } from '@supabase/supabase-js';
 import { EnrollUserDetails } from './EnrollUserDetails';
-import { LinkCustomer } from './LinkCustomer';
 import { UserEditFormValues } from '../../../users/UserEditForm';
-
-interface Customer {
-  id: number;
-  fullname: string;
-  user_link: string | null;
-}
 
 export const EnrollUser = () => {
   const [active, setActive] = useState(0);
@@ -20,14 +13,10 @@ export const EnrollUser = () => {
   const [userDetails, setUserDetails] = useState<UserEditFormValues | null>(
     null,
   );
-  const [linkedCustomer, setLinkedCustomer] = useState<Customer | null>(null);
   const navigate = useNavigate();
 
   const nextStep = () =>
     setActive((current) => (current < 3 ? current + 1 : current));
-
-  // const prevStep = () =>
-  //   setActive((current) => (current > 0 ? current - 1 : current));
 
   const handleRegisterSubmit = (user: User) => {
     setNewUser(user);
@@ -35,8 +24,8 @@ export const EnrollUser = () => {
   };
 
   return (
-    <Stack my="xl">
-      <Stepper active={active} my="xl">
+    <Stack my="xl" p="md">
+      <Stepper active={active}>
         <Stepper.Step label="Registracija" description="Nov vporaniški račun">
           <Alert
             title="Opozorilo"
@@ -56,27 +45,12 @@ export const EnrollUser = () => {
           <UserRegisterForm onSubmit={handleRegisterSubmit} />
         </Stepper.Step>
 
-        <Stepper.Step label="Vnos" description="Vnos novega uporabnika">
+        <Stepper.Step label="Podatki" description="Vnos podatkov">
           {newUser && (
             <EnrollUserDetails
               newUser={newUser}
               onSubmit={(values: UserEditFormValues) => {
                 setUserDetails(values);
-                nextStep();
-              }}
-            />
-          )}
-        </Stepper.Step>
-
-        <Stepper.Step label="Povezave" description="Poveži z kupci piva">
-          {newUser && userDetails && (
-            <LinkCustomer
-              newUser={newUser}
-              userDetails={userDetails}
-              onSubmit={(customer) => {
-                if (customer) {
-                  setLinkedCustomer(customer);
-                }
                 nextStep();
               }}
             />
@@ -108,16 +82,6 @@ export const EnrollUser = () => {
                 <b>Datum rojstva:</b>{' '}
                 {userDetails.datumRojstva.toLocaleDateString()}
               </Text>
-              {linkedCustomer && (
-                <>
-                  <Text>
-                    <b>Povezan kupec:</b> {linkedCustomer.fullname}
-                  </Text>
-                  <Text>
-                    <b>ID Kupca:</b> {linkedCustomer.id}
-                  </Text>
-                </>
-              )}
             </Paper>
           )}
         </Stepper.Step>

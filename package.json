@@ -11,7 +11,8 @@
     "typegen": "supabase gen types typescript --linked > src/supabase/supabase.ts",
     "typeprint": "supabase gen types typescript --linked",
     "supabase-start": "supabase start",
-    "supabase-bootstrap": "supabase login && supabase link && supabase db pull"
+    "supabase-bootstrap": "supabase login && supabase link",
+    "supabase-dbpull": "supabase db pull"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",

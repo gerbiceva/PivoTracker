@@ -8,13 +8,13 @@ export type UserExpandedType = Unpacked<
 >;
 
 export const useGetUserExpanded = (
-  gerbaUserId: number | null,
+  baseUserID: number | null,
   config?: SWRConfiguration,
 ) => {
   const fetcher = () =>
     new Promise<UserExpandedType>((resolve, reject) => {
       supabaseClient
-        .rpc('get_user_expanded', { p_gerba_user_id: gerbaUserId! })
+        .rpc('get_user_expanded', { p_base_user_id: baseUserID! })
         .select()
         .single()
         .then((res) => {
@@ -27,7 +27,7 @@ export const useGetUserExpanded = (
     });
 
   const out = useSWR<UserExpandedType>(
-    gerbaUserId ? ['user-expanded', gerbaUserId] : null,
+    baseUserID ? ['user-expanded', baseUserID] : null,
     fetcher,
     config,
   );

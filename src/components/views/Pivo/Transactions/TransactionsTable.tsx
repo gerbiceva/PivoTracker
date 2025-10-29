@@ -21,7 +21,7 @@ export const TransactionsTable = ({
         <Table.Td>
           <UserTag
             fullname={element.fullname || ''}
-            id={element.customer_id || -1}
+            id={element.customer_id?.toString() || ''}
           />
         </Table.Td>
         <Table.Td align="right">{element.ordered}</Table.Td>

@@ -49,7 +49,7 @@ export const Transactiongraph = ({ transactions }: ITransactionGraphProps) => {
       title="Debt / transactions"
       tooltipProps={{
         content: ({ label, payload }) => (
-          <ChartTooltip label={label} payload={payload} />
+          <ChartTooltip label={label?.toString() || ''} payload={payload} />
         ),
       }}
       withDots={false}

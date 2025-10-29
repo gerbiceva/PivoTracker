@@ -4,9 +4,9 @@ import useSWR from 'swr';
 
 export const useGetUserInfo = (id: number) => {
   const fetcher = () =>
-    new Promise<Tables<'customers'>>((resolve, reject) => {
+    new Promise<Tables<'base_users'>>((resolve, reject) => {
       supabaseClient
-        .from('customers')
+        .from('base_users')
         .select()
         .eq('id', id)
         .order('id', { ascending: false })
@@ -23,7 +23,7 @@ export const useGetUserInfo = (id: number) => {
         });
     });
 
-  const out = useSWR<Tables<'customers'>>(`/view/customers/${id}`, fetcher);
+  const out = useSWR<Tables<'base_users'>>(`/view/customers/${id}`, fetcher);
 
   return out;
 };

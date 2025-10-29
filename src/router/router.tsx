@@ -4,14 +4,14 @@ import { BeerAdded } from '../components/views/Pivo/Adder/Adder';
 import App from '../components/views/App';
 import { Authentication } from '../components/views/Auth';
 import { Dashboard } from '../components/views/Pivo/Dash/Dash';
-import { Nabava } from '../components/views/Pivo/Nabava/Nabava';
 import { PuffTable } from '../components/views/Pivo/Pufi/PufiTabela';
 import { Transactions } from '../components/views/Pivo/Transactions/Transactions';
 import { UserView } from '../components/views/Pivo/User/UserOverview';
-import { Zaloge } from '../components/views/Zaloge/Zaloge';
 import { WashingTimetable } from '../components/views/Washing/Timetable/WashingTimetable';
 import { MyWashing } from '../components/views/Washing/MyWashing/MyWashing';
 import { EnrollUser } from '../components/views/Admin/Users/Enroll';
+import { EditSelf } from '../components/views/UserManagement/ViewSelf';
+import { EditUsers } from '../components/views/UserManagement/ViewUsers';
 
 export const router = createBrowserRouter([
   {
@@ -47,13 +47,21 @@ export const router = createBrowserRouter([
         element: <UserView />,
       },
       {
-        path: '/nabava',
-        element: <Nabava />,
+        path: '/user',
+        element: <EditSelf />,
       },
       {
-        path: '/zaloge',
-        element: <Zaloge />,
+        path: '/users',
+        element: <EditUsers />,
       },
+      // {
+      //   path: '/nabava',
+      //   element: <Nabava />,
+      // },
+      // {
+      //   path: '/zaloge',
+      //   element: <Zaloge />,
+      // },
       {
         path: '/pranje',
         element: <WashingTimetable />,

@@ -9,18 +9,20 @@ import {
 } from '@mantine/core';
 import { useDebouncedState } from '@mantine/hooks';
 import { supabaseClient } from '../../../../supabase/supabaseClient';
-import { notifications, showNotification } from '@mantine/notifications';
-import { Tables } from '../../../../supabase/supabase';
+import { notifications } from '@mantine/notifications';
+import { userType } from '../../../users/userType';
 
-function getAsyncData(search: string): Promise<Tables<'customers'>[]> {
-  return new Promise<Tables<'customers'>[]>((resolve) => {
+type customer = userType;
+
+function getAsyncData(search: string): Promise<customer[]> {
+  return new Promise<customer[]>((resolve) => {
     supabaseClient
-      .from('customers')
-      .select()
-      .ilike('fullname', `%${search.toLowerCase()}%`)
+      .from('user_view')
+      .select('*')
+      .ilike('name', `%${search.toLowerCase()}%`)
       .then((res) => {
         if (!res.error) {
-          resolve(res.data.map((val) => val));
+          resolve(res.data);
         } else {
           notifications.show({
             title: 'Error',
@@ -33,16 +35,13 @@ function getAsyncData(search: string): Promise<Tables<'customers'>[]> {
   });
 }
 
-function customerFromId(
-  id: string,
-  customers: Tables<'customers'>[],
-): Tables<'customers'> | null {
-  return customers.filter((val) => val.id.toString() == id)[0];
+function customerFromId(id: string, customers: customer[]): customer | null {
+  return customers.filter((val) => val.base_user_id!.toString() == id)[0];
 }
 
 interface Props {
-  value: Tables<'customers'> | null;
-  onChange: (value: Tables<'customers'> | null) => void;
+  value: customer | null;
+  onChange: (value: customer | null) => void;
 }
 
 export const NameCombobox = ({ onChange, value }: Props) => {
@@ -54,9 +53,7 @@ export const NameCombobox = ({ onChange, value }: Props) => {
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(false);
   const [debouncedSearch, setDebouncedSearch] = useDebouncedState('', 300);
-  const [filteredOptions, setFilteredOptions] = useState<Tables<'customers'>[]>(
-    [],
-  );
+  const [filteredOptions, setFilteredOptions] = useState<customer[]>([]);
 
   useEffect(() => {
     // if value gets cleared, clear search
@@ -76,8 +73,11 @@ export const NameCombobox = ({ onChange, value }: Props) => {
   }, [debouncedSearch]);
 
   const options = filteredOptions.map((item) => (
-    <Combobox.Option value={item.id.toString()} key={item.id}>
-      {item.fullname}
+    <Combobox.Option
+      value={item.base_user_id!.toString()}
+      key={item.base_user_id}
+    >
+      {item.name + ' ' + item.surname}
     </Combobox.Option>
   ));
 
@@ -86,38 +86,11 @@ export const NameCombobox = ({ onChange, value }: Props) => {
       store={combobox}
       withinPortal={false}
       onOptionSubmit={(val) => {
-        if (val == '$create') {
-          //   console.log("create: " + search);
-          supabaseClient
-            .from('customers')
-            .insert({ fullname: search })
-            .select()
-            .then((res) => {
-              if (!res.error) {
-                onChange({
-                  created_at: null,
-                  user_link: res.data[0].user_link,
-                  fullname: res.data[0].fullname,
-                  id: res.data[0].id,
-                });
-                setSearch(res.data[0].fullname || '');
-              } else {
-                showNotification({
-                  color: 'red',
-                  title: 'Error',
-                  message: `Error: ${res.error.message}`,
-                });
-                setSearch('');
-                onChange(null);
-              }
-            });
-        } else {
-          customerFromId(val, filteredOptions) || null;
-          // setValue(customerFromId(val, filteredOptions) || null);
-          const newValue = customerFromId(val, filteredOptions);
-          onChange(newValue);
-          setSearch(newValue?.fullname || '');
-        }
+        customerFromId(val, filteredOptions) || null;
+        // setValue(customerFromId(val, filteredOptions) || null);
+        const newValue = customerFromId(val, filteredOptions);
+        onChange(newValue);
+        setSearch(newValue?.name || '');
         combobox.closeDropdown();
       }}
     >
@@ -137,7 +110,7 @@ export const NameCombobox = ({ onChange, value }: Props) => {
           onFocus={() => combobox.openDropdown()}
           onBlur={() => {
             combobox.closeDropdown();
-            setSearch(value?.fullname || '');
+            setSearch((value?.name || '') + ' ' + value?.surname);
           }}
           placeholder="Ime priimek"
           rightSectionPointerEvents="none"
@@ -155,16 +128,16 @@ export const NameCombobox = ({ onChange, value }: Props) => {
             {options.length > 0 ? (
               options
             ) : filteredOptions.length == 0 && search.length > 0 && !loading ? (
-              <Combobox.Option value="$create">
+              <Combobox.Option value="$empty">
                 <Group>
-                  <Text style={{ opacity: 0.4 }}>+ Dodaj</Text>
-                  <Text fw="bold">{search}</Text>
+                  <Text style={{ opacity: 0.4 }}>
+                    Uporabnika ni v bazi. Naj se luzer <b>prijavi!</b>
+                  </Text>
                 </Group>
               </Combobox.Option>
             ) : (
               <Combobox.Empty>Začnite tipkati</Combobox.Empty>
             )}
-            {/* {options} */}
           </Combobox.Options>
         )}
       </Combobox.Dropdown>

@@ -34,7 +34,7 @@ export enum ZodiacSign {
 }
 
 /* ---------- calculation ---------- */
-export const getZodiacSign = (date: Dayjs): ZodiacSign => {
+export const getZodiacSign = (date: Dayjs): ZodiacSign | undefined => {
   const day = date.date();
   const month = date.month() + 1; // Dayjs months are 0-based
 
@@ -64,7 +64,7 @@ export const getZodiacSign = (date: Dayjs): ZodiacSign => {
     case 12:
       return day >= 22 ? ZodiacSign.CAPRICORN : ZodiacSign.SAGITTARIUS;
     default:
-      throw new Error('Invalid date');
+      return undefined;
   }
 };
 

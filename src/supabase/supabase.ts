@@ -1,4 +1,3 @@
-
 export type Json =
   | string
   | number
@@ -40,32 +39,45 @@ export type Database = {
   }
   public: {
     Tables: {
-      customers: {
+      base_users: {
         Row: {
-          created_at: string | null
-          fullname: string
+          auth: string | null
+          created_at: string
           id: number
-          user_link: string | null
+          name: string
+          resident: number | null
+          surname: string
         }
         Insert: {
-          created_at?: string | null
-          fullname: string
+          auth?: string | null
+          created_at?: string
           id?: number
-          user_link?: string | null
+          name: string
+          resident?: number | null
+          surname: string
         }
         Update: {
-          created_at?: string | null
-          fullname?: string
+          auth?: string | null
+          created_at?: string
           id?: number
-          user_link?: string | null
+          name?: string
+          resident?: number | null
+          surname?: string
         }
         Relationships: [
           {
-            foreignKeyName: "customers_user_link_fkey"
-            columns: ["user_link"]
+            foreignKeyName: "base_users_resident_fkey"
+            columns: ["resident"]
             isOneToOne: false
-            referencedRelation: "named_minister_transactions"
-            referencedColumns: ["minister_id"]
+            referencedRelation: "residents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "base_users_resident_fkey"
+            columns: ["resident"]
+            isOneToOne: false
+            referencedRelation: "user_view"
+            referencedColumns: ["resident_id"]
           },
         ]
       }
@@ -94,56 +106,7 @@ export type Database = {
           notes?: string | null
           price?: number
         }
-        Relationships: [
-          {
-            foreignKeyName: "public_nabava_minister_fkey"
-            columns: ["minister"]
-            isOneToOne: false
-            referencedRelation: "named_minister_transactions"
-            referencedColumns: ["minister_id"]
-          },
-        ]
-      }
-      gerba_user: {
-        Row: {
-          auth_user_id: string | null
-          created_at: string
-          data_of_birth: string | null
-          first_name: string
-          id: number
-          phone_number: string | null
-          room: number
-          surname: string
-        }
-        Insert: {
-          auth_user_id?: string | null
-          created_at?: string
-          data_of_birth?: string | null
-          first_name: string
-          id?: number
-          phone_number?: string | null
-          room: number
-          surname: string
-        }
-        Update: {
-          auth_user_id?: string | null
-          created_at?: string
-          data_of_birth?: string | null
-          first_name?: string
-          id?: number
-          phone_number?: string | null
-          room?: number
-          surname?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "gerba_user_auth_user_id_fkey"
-            columns: ["auth_user_id"]
-            isOneToOne: false
-            referencedRelation: "named_minister_transactions"
-            referencedColumns: ["minister_id"]
-          },
-        ]
+        Relationships: []
       }
       items: {
         Row: {
@@ -172,32 +135,53 @@ export type Database = {
         }
         Relationships: []
       }
-      minister_storage_transactions: {
+      permission_types: {
         Row: {
-          beer_count: number
-          created_at: string
+          display_name: string
           id: number
-          to_minister: string
+          name: string
         }
         Insert: {
-          beer_count: number
-          created_at?: string
+          display_name?: string
           id?: number
-          to_minister: string
+          name: string
         }
         Update: {
-          beer_count?: number
+          display_name?: string
+          id?: number
+          name?: string
+        }
+        Relationships: []
+      }
+      permissions: {
+        Row: {
+          created_at: string
+          id: number
+          permission_creator: number | null
+          permission_type: number | null
+          user_id: number | null
+        }
+        Insert: {
           created_at?: string
           id?: number
-          to_minister?: string
+          permission_creator?: number | null
+          permission_type?: number | null
+          user_id?: number | null
+        }
+        Update: {
+          created_at?: string
+          id?: number
+          permission_creator?: number | null
+          permission_type?: number | null
+          user_id?: number | null
         }
         Relationships: [
           {
-            foreignKeyName: "minister_storage_to_minister_fkey"
-            columns: ["to_minister"]
+            foreignKeyName: "permissions_permission_type_fkey"
+            columns: ["permission_type"]
             isOneToOne: false
-            referencedRelation: "named_minister_transactions"
-            referencedColumns: ["minister_id"]
+            referencedRelation: "permission_types"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -238,10 +222,55 @@ export type Database = {
             foreignKeyName: "reservations_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
-            referencedRelation: "gerba_user"
+            referencedRelation: "base_users"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "reservations_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "everything"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "reservations_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "everything_sum"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reservations_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "user_view"
+            referencedColumns: ["base_user_id"]
+          },
         ]
+      }
+      residents: {
+        Row: {
+          birth_date: string | null
+          created_at: string
+          id: number
+          phone_number: string | null
+          room: number
+        }
+        Insert: {
+          birth_date?: string | null
+          created_at?: string
+          id?: number
+          phone_number?: string | null
+          room: number
+        }
+        Update: {
+          birth_date?: string | null
+          created_at?: string
+          id?: number
+          phone_number?: string | null
+          room?: number
+        }
+        Relationships: []
       }
       transactions: {
         Row: {
@@ -273,18 +302,18 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "public_transactions_minister_fkey"
-            columns: ["minister"]
+            foreignKeyName: "transactions_customer_id_fkey"
+            columns: ["customer_id"]
             isOneToOne: false
-            referencedRelation: "named_minister_transactions"
-            referencedColumns: ["minister_id"]
+            referencedRelation: "base_users"
+            referencedColumns: ["id"]
           },
           {
             foreignKeyName: "transactions_customer_id_fkey"
             columns: ["customer_id"]
             isOneToOne: false
-            referencedRelation: "customers"
-            referencedColumns: ["id"]
+            referencedRelation: "everything"
+            referencedColumns: ["user_id"]
           },
           {
             foreignKeyName: "transactions_customer_id_fkey"
@@ -292,6 +321,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "everything_sum"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "transactions_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "user_view"
+            referencedColumns: ["base_user_id"]
           },
           {
             foreignKeyName: "transactions_item_fkey"
@@ -330,13 +366,15 @@ export type Database = {
           ordered: number | null
           ordered_at: string | null
           paid: number | null
+          user_id: number | null
         }
         Relationships: []
       }
       everything_sum: {
         Row: {
-          fullname: string | null
           id: number | null
+          name: string | null
+          surname: string | null
           total_difference: number | null
           total_ordered: number | null
           total_paid: number | null
@@ -352,25 +390,6 @@ export type Database = {
           total_value: number | null
         }
         Relationships: []
-      }
-      named_minister_transactions: {
-        Row: {
-          beer_count: number | null
-          created_at: string | null
-          email: string | null
-          id: number | null
-          minister_id: string | null
-          to_minister: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "minister_storage_to_minister_fkey"
-            columns: ["to_minister"]
-            isOneToOne: false
-            referencedRelation: "named_minister_transactions"
-            referencedColumns: ["minister_id"]
-          },
-        ]
       }
       named_transactions: {
         Row: {
@@ -391,8 +410,15 @@ export type Database = {
             foreignKeyName: "transactions_customer_id_fkey"
             columns: ["customer_id"]
             isOneToOne: false
-            referencedRelation: "customers"
+            referencedRelation: "base_users"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "transactions_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "everything"
+            referencedColumns: ["user_id"]
           },
           {
             foreignKeyName: "transactions_customer_id_fkey"
@@ -400,6 +426,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "everything_sum"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "transactions_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "user_view"
+            referencedColumns: ["base_user_id"]
           },
         ]
       }
@@ -410,6 +443,21 @@ export type Database = {
           total_ordered: number | null
           total_paid: number | null
           total_value: number | null
+        }
+        Relationships: []
+      }
+      user_view: {
+        Row: {
+          auth_email: string | null
+          auth_user_id: string | null
+          base_user_id: number | null
+          birth_date: string | null
+          created_at: string | null
+          name: string | null
+          phone_number: string | null
+          resident_id: number | null
+          room: number | null
+          surname: string | null
         }
         Relationships: []
       }
@@ -433,232 +481,12 @@ export type Database = {
         }
         Returns: number
       }
-      gbt_bit_compress: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      gbt_bool_compress: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      gbt_bool_fetch: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      gbt_bpchar_compress: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      gbt_bytea_compress: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      gbt_cash_compress: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      gbt_cash_fetch: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      gbt_date_compress: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      gbt_date_fetch: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      gbt_decompress: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      gbt_enum_compress: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      gbt_enum_fetch: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      gbt_float4_compress: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      gbt_float4_fetch: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      gbt_float8_compress: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      gbt_float8_fetch: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      gbt_inet_compress: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      gbt_int2_compress: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      gbt_int2_fetch: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      gbt_int4_compress: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      gbt_int4_fetch: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      gbt_int8_compress: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      gbt_int8_fetch: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      gbt_intv_compress: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      gbt_intv_decompress: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      gbt_intv_fetch: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      gbt_macad_compress: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      gbt_macad_fetch: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      gbt_macad8_compress: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      gbt_macad8_fetch: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      gbt_numeric_compress: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      gbt_oid_compress: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      gbt_oid_fetch: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      gbt_text_compress: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      gbt_time_compress: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      gbt_time_fetch: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      gbt_timetz_compress: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      gbt_ts_compress: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      gbt_ts_fetch: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      gbt_tstz_compress: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      gbt_uuid_compress: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      gbt_uuid_fetch: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      gbt_var_decompress: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      gbt_var_fetch: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      gbtreekey_var_in: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      gbtreekey_var_out: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      gbtreekey16_in: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      gbtreekey16_out: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      gbtreekey2_in: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      gbtreekey2_out: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      gbtreekey32_in: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      gbtreekey32_out: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      gbtreekey4_in: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      gbtreekey4_out: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      gbtreekey8_in: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      gbtreekey8_out: {
-        Args: { "": unknown }
-        Returns: unknown
+      current_user_has_permission: {
+        Args: { permission_name: string }
+        Returns: boolean
       }
       get_reservations_for_user: {
-        Args: { p_gerba_user_id: number }
+        Args: { p_base_user_id: number }
         Returns: {
           machine_id: number
           machine_name: string
@@ -720,13 +548,13 @@ export type Database = {
         }[]
       }
       get_user_expanded: {
-        Args: { p_gerba_user_id: number }
+        Args: { p_base_user_id: number }
         Returns: {
           auth_email: string
           auth_user_id: string
+          base_user_id: number
           created_at: string
           date_of_birth: string
-          gerba_user_id: number
           name: string
           phone_number: string
           room: number
@@ -734,22 +562,18 @@ export type Database = {
         }[]
       }
       get_user_expanded_from_auth: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: {
           auth_created_at: string
           auth_email: string
           auth_user_id: string
-          gerba_data_of_birth: string
-          gerba_name: string
-          gerba_phone_number: string
-          gerba_room: number
-          gerba_surname: string
-          gerba_user_id: number
+          base_data_of_birth: string
+          base_name: string
+          base_phone_number: string
+          base_room: number
+          base_surname: string
+          base_user_id: number
         }[]
-      }
-      pivo_v_gajba: {
-        Args: { ordered: number; paid: number }
-        Returns: number
       }
       slot_range_from_date_index: {
         Args: { p_date: string; p_slot_index: number; p_tz?: string }
@@ -794,6 +618,7 @@ export type Database = {
           owner: string | null
           owner_id: string | null
           public: boolean | null
+          type: Database["storage"]["Enums"]["buckettype"]
           updated_at: string | null
         }
         Insert: {
@@ -806,6 +631,7 @@ export type Database = {
           owner?: string | null
           owner_id?: string | null
           public?: boolean | null
+          type?: Database["storage"]["Enums"]["buckettype"]
           updated_at?: string | null
         }
         Update: {
@@ -818,7 +644,32 @@ export type Database = {
           owner?: string | null
           owner_id?: string | null
           public?: boolean | null
+          type?: Database["storage"]["Enums"]["buckettype"]
           updated_at?: string | null
+        }
+        Relationships: []
+      }
+      buckets_analytics: {
+        Row: {
+          created_at: string
+          format: string
+          id: string
+          type: Database["storage"]["Enums"]["buckettype"]
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          format?: string
+          id: string
+          type?: Database["storage"]["Enums"]["buckettype"]
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          format?: string
+          id?: string
+          type?: Database["storage"]["Enums"]["buckettype"]
+          updated_at?: string
         }
         Relationships: []
       }
@@ -849,6 +700,7 @@ export type Database = {
           created_at: string | null
           id: string
           last_accessed_at: string | null
+          level: number | null
           metadata: Json | null
           name: string | null
           owner: string | null
@@ -863,6 +715,7 @@ export type Database = {
           created_at?: string | null
           id?: string
           last_accessed_at?: string | null
+          level?: number | null
           metadata?: Json | null
           name?: string | null
           owner?: string | null
@@ -877,6 +730,7 @@ export type Database = {
           created_at?: string | null
           id?: string
           last_accessed_at?: string | null
+          level?: number | null
           metadata?: Json | null
           name?: string | null
           owner?: string | null
@@ -889,6 +743,38 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "objects_bucketId_fkey"
+            columns: ["bucket_id"]
+            isOneToOne: false
+            referencedRelation: "buckets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      prefixes: {
+        Row: {
+          bucket_id: string
+          created_at: string | null
+          level: number
+          name: string
+          updated_at: string | null
+        }
+        Insert: {
+          bucket_id: string
+          created_at?: string | null
+          level?: number
+          name: string
+          updated_at?: string | null
+        }
+        Update: {
+          bucket_id?: string
+          created_at?: string | null
+          level?: number
+          name?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "prefixes_bucketId_fkey"
             columns: ["bucket_id"]
             isOneToOne: false
             referencedRelation: "buckets"
@@ -999,24 +885,30 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      add_prefixes: {
+        Args: { _bucket_id: string; _name: string }
+        Returns: undefined
+      }
       can_insert_object: {
         Args: { bucketid: string; metadata: Json; name: string; owner: string }
         Returns: undefined
       }
-      extension: {
-        Args: { name: string }
-        Returns: string
+      delete_leaf_prefixes: {
+        Args: { bucket_ids: string[]; names: string[] }
+        Returns: undefined
       }
-      filename: {
-        Args: { name: string }
-        Returns: string
+      delete_prefix: {
+        Args: { _bucket_id: string; _name: string }
+        Returns: boolean
       }
-      foldername: {
-        Args: { name: string }
-        Returns: string[]
-      }
+      extension: { Args: { name: string }; Returns: string }
+      filename: { Args: { name: string }; Returns: string }
+      foldername: { Args: { name: string }; Returns: string[] }
+      get_level: { Args: { name: string }; Returns: number }
+      get_prefix: { Args: { name: string }; Returns: string }
+      get_prefixes: { Args: { name: string }; Returns: string[] }
       get_size_by_bucket: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: {
           bucket_id: string
           size: number
@@ -1053,10 +945,11 @@ export type Database = {
           updated_at: string
         }[]
       }
-      operation: {
-        Args: Record<PropertyKey, never>
-        Returns: string
+      lock_top_prefixes: {
+        Args: { bucket_ids: string[]; names: string[] }
+        Returns: undefined
       }
+      operation: { Args: never; Returns: string }
       search: {
         Args: {
           bucketname: string
@@ -1077,9 +970,70 @@ export type Database = {
           updated_at: string
         }[]
       }
+      search_legacy_v1: {
+        Args: {
+          bucketname: string
+          levels?: number
+          limits?: number
+          offsets?: number
+          prefix: string
+          search?: string
+          sortcolumn?: string
+          sortorder?: string
+        }
+        Returns: {
+          created_at: string
+          id: string
+          last_accessed_at: string
+          metadata: Json
+          name: string
+          updated_at: string
+        }[]
+      }
+      search_v1_optimised: {
+        Args: {
+          bucketname: string
+          levels?: number
+          limits?: number
+          offsets?: number
+          prefix: string
+          search?: string
+          sortcolumn?: string
+          sortorder?: string
+        }
+        Returns: {
+          created_at: string
+          id: string
+          last_accessed_at: string
+          metadata: Json
+          name: string
+          updated_at: string
+        }[]
+      }
+      search_v2: {
+        Args: {
+          bucket_name: string
+          levels?: number
+          limits?: number
+          prefix: string
+          sort_column?: string
+          sort_column_after?: string
+          sort_order?: string
+          start_after?: string
+        }
+        Returns: {
+          created_at: string
+          id: string
+          key: string
+          last_accessed_at: string
+          metadata: Json
+          name: string
+          updated_at: string
+        }[]
+      }
     }
     Enums: {
-      [_ in never]: never
+      buckettype: "STANDARD" | "ANALYTICS"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1212,6 +1166,8 @@ export const Constants = {
     Enums: {},
   },
   storage: {
-    Enums: {},
+    Enums: {
+      buckettype: ["STANDARD", "ANALYTICS"],
+    },
   },
 } as const

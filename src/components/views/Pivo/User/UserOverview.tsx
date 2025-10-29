@@ -14,7 +14,7 @@ import { Transactiongraph } from '../Transactions/TransactionGraph';
 import { TransactionsTable } from '../Transactions/TransactionsTable';
 import { useGetTransactions } from '../Transactions/useTransactions';
 import { useGetUserInfo } from './getUserInfo';
-import { numToColor } from '../../../users/stringToCol';
+import { numToColor } from '../../../../utils/colorUtils';
 import { PDFUrl } from '../pdf/Pdf';
 
 export const UserView = () => {
@@ -64,7 +64,7 @@ export const UserView = () => {
           <Avatar variant="light" size="md" color={numToColor(parsedId)}>
             {userInfo?.id}
           </Avatar>
-          <Title c={numToColor(parsedId)}>{userInfo?.fullname}</Title>
+          <Title c={numToColor(parsedId)}>{userInfo?.name}</Title>
         </Group>
 
         {/* pdf */}
