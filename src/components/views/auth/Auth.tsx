@@ -14,8 +14,8 @@ import {
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { IconCircleKey } from '@tabler/icons-react';
-import { supabaseClient } from '../../supabase/supabaseClient';
-import { useUser } from '../../supabase/loader';
+import { supabaseClient } from '../../../supabase/supabaseClient';
+import { useUser } from '../../../supabase/loader';
 import { Navigate } from 'react-router-dom';
 import { useState } from 'react';
 import { AuthError } from '@supabase/supabase-js';

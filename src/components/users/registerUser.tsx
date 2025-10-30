@@ -6,7 +6,6 @@ import { User } from '@supabase/supabase-js';
 
 export interface SignupProps {
   email: string;
-  password: string;
   name: string;
   surname: string;
 }
@@ -21,7 +20,6 @@ export const UserRegisterForm = ({ onSubmit }: UserRegisterPromptProps) => {
     mode: 'controlled',
     initialValues: {
       email: '',
-      password: '',
       name: '',
       surname: '',
     },
@@ -31,9 +29,8 @@ export const UserRegisterForm = ({ onSubmit }: UserRegisterPromptProps) => {
   const signUp = useCallback(
     (values: SignupProps) => {
       supabaseClient.auth
-        .signUp({
+        .signInWithOtp({
           email: values.email,
-          password: values.password,
           options: {
             data: {
               name: values.name,
@@ -54,7 +51,7 @@ export const UserRegisterForm = ({ onSubmit }: UserRegisterPromptProps) => {
 
   return (
     <form onSubmit={form.onSubmit(signUp)} autoComplete="off">
-      <Stack maw="70ch" mx="auto">
+      <Stack mx="auto">
         {error && (
           <Alert
             title="Error"
@@ -73,15 +70,6 @@ export const UserRegisterForm = ({ onSubmit }: UserRegisterPromptProps) => {
             placeholder="bruc@brucmail.com"
             key={form.key('email')}
             {...form.getInputProps('email')}
-          />
-          <TextInput
-            required
-            w="100%"
-            label="Password"
-            description="Začasno geslo"
-            placeholder="tezkogeslo123"
-            key={form.key('password')}
-            {...form.getInputProps('password')}
           />
         </Group>
         <Group w="100%" wrap="nowrap" align="end">

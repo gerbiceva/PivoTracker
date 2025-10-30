@@ -2,7 +2,7 @@ import { createBrowserRouter } from 'react-router-dom';
 import { ProtectedPath } from '../components/ProtectedPath';
 import { BeerAdded } from '../components/views/Pivo/Adder/Adder';
 import App from '../components/views/App';
-import { Authentication } from '../components/views/Auth';
+import { Authentication } from '../components/views/auth/Auth';
 import { Dashboard } from '../components/views/Pivo/Dash/Dash';
 import { PuffTable } from '../components/views/Pivo/Pufi/PufiTabela';
 import { Transactions } from '../components/views/Pivo/Transactions/Transactions';

@@ -297,4 +297,22 @@ GRANT ALL ON TABLE "public"."user_view" TO "anon";
 GRANT ALL ON TABLE "public"."user_view" TO "authenticated";
 GRANT ALL ON TABLE "public"."user_view" TO "service_role";
 
+CREATE OR REPLACE VIEW "public"."user_permissions_view" AS
+    SELECT
+        p.id as permission_id,
+        p.user_id,
+        p.created_at,
+        p.permission_creator,
+        pt.id as permission_type_id,
+        pt.name as permission_name,
+        pt.display_name as permission_display_name
+    FROM public.permissions p
+    JOIN public.permission_types pt ON p.permission_type = pt.id;
+
+ALTER VIEW "public"."user_permissions_view" OWNER TO "postgres";
+
+GRANT ALL ON TABLE "public"."user_permissions_view" TO "anon";
+GRANT ALL ON TABLE "public"."user_permissions_view" TO "authenticated";
+GRANT ALL ON TABLE "public"."user_permissions_view" TO "service_role";
+
 RESET ALL;

@@ -13,6 +13,8 @@ import { spotlight } from '@mantine/spotlight';
 import { useUser } from '../../../supabase/loader';
 import { ColorchemeToggle } from '../../colorshemeToggle/ColorschemeToggle';
 import { UserTag } from '../../users/UserTag';
+import { LogoutBtn } from '../auth/Logout';
+import { IconLogout } from '@tabler/icons-react';
 
 export const Navbar = () => {
   const matches = useMediaQuery('(min-width: 56.25em)');
@@ -62,7 +64,10 @@ export const Navbar = () => {
           </Group>
 
           <Group>
-            {user && <UserTag fullname={user.email || ''} id={user.id} />}
+            {/* {user && <UserTag fullname={user.email || ''} id={user.id} />} */}
+            <LogoutBtn size="xs" variant="subtle">
+              <IconLogout />
+            </LogoutBtn>
             <ColorchemeToggle />
           </Group>
         </Group>
