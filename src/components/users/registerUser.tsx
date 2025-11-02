@@ -7,7 +7,8 @@ import { User } from '@supabase/supabase-js';
 export interface SignupProps {
   email: string;
   name: string;
-  surname: string;
+ surname: string;
+ room?: string;
 }
 
 interface UserRegisterPromptProps {
@@ -16,37 +17,57 @@ interface UserRegisterPromptProps {
 
 export const UserRegisterForm = ({ onSubmit }: UserRegisterPromptProps) => {
   const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
   const form = useForm<SignupProps>({
     mode: 'controlled',
     initialValues: {
       email: '',
       name: '',
       surname: '',
+      room: '',
     },
-    validate: {},
-  });
+    validate: {
+      email: (value) => {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return emailRegex.test(value) ? null : 'Invalid email format';
+      },
+    },
+ });
 
   const signUp = useCallback(
-    (values: SignupProps) => {
-      supabaseClient.auth
-        .signInWithOtp({
-          email: values.email,
-          options: {
-            data: {
-              name: values.name,
-              surname: values.surname,
-            },
-          },
-        })
-        .then((response) => {
-          if (response.error) {
-            setError(response.error.message);
-          } else if (response.data.user) {
-            onSubmit(response.data.user);
+    async (values: SignupProps) => {
+      setLoading(true);
+      setError(null);
+      
+      try {
+        // Call the invite-user edge function using supabase functions.invoke
+        const { error } = await supabaseClient.functions.invoke('invite-user', {
+          body: {
+            email: values.email,
+            name: values.name,
+            surname: values.surname,
+            room: values.room,
+            redirectTo: `${window.location.origin}/auth`, // Redirect to auth page after accepting invitation
           }
         });
+
+        if (error) {
+          throw new Error(error.message || 'Failed to send invitation');
+        }
+
+        // Show success message to user
+        alert('Invitation sent successfully! The user will receive an email with instructions.');
+        
+        // Reset form after successful submission
+        form.reset();
+      } catch (err: any) {
+        console.error('Error inviting user:', err);
+        setError(err.message || 'An error occurred while sending the invitation');
+      } finally {
+        setLoading(false);
+      }
     },
-    [onSubmit],
+    [onSubmit, form],
   );
 
   return (
@@ -90,8 +111,17 @@ export const UserRegisterForm = ({ onSubmit }: UserRegisterPromptProps) => {
             {...form.getInputProps('surname')}
           />
         </Group>
+        <Group w="100%" wrap="nowrap" align="end">
+          <TextInput
+            w="100%"
+            label="Soba (optional)"
+            placeholder="Soba 101"
+            key={form.key('room')}
+            {...form.getInputProps('room')}
+          />
+        </Group>
         <Group justify="flex-end" mt="md">
-          <Button type="submit">Submit</Button>
+          <Button type="submit" loading={loading}>Submit</Button>
         </Group>
       </Stack>
     </form>

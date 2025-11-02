@@ -80,6 +80,26 @@ END;
 $$;
 ALTER FUNCTION "public"."get_user_expanded_from_auth"() OWNER TO "postgres";
 
+CREATE OR REPLACE FUNCTION "public"."get_current_base_user_id"() RETURNS bigint
+    LANGUAGE "plpgsql" SECURITY INVOKER
+    AS $$
+DECLARE
+        user_base_id bigint;
+    BEGIN
+        SELECT bu.id INTO user_base_id
+        FROM public.base_users bu
+        WHERE bu.auth = (SELECT auth.uid())
+        LIMIT 1;
+        
+        RETURN user_base_id;
+    END;
+$$;
+ALTER FUNCTION "public"."get_current_base_user_id"() OWNER TO "postgres";
+
+GRANT ALL ON FUNCTION "public"."get_current_base_user_id"() TO "anon";
+GRANT ALL ON FUNCTION "public"."get_current_base_user_id"() TO "authenticated";
+GRANT ALL ON FUNCTION "public"."get_current_base_user_id"() TO "service_role";
+
 SET default_tablespace = '';
 SET default_table_access_method = "heap";
 
@@ -89,7 +109,8 @@ CREATE TABLE IF NOT EXISTS "public"."base_users" (
     "name" "text" NOT NULL,
     "surname" "text",
     "auth" "uuid",
-    "resident" bigint
+    "resident" bigint,
+    "invited_by" bigint
 );
 ALTER TABLE "public"."base_users" OWNER TO "postgres";
 COMMENT ON TABLE "public"."base_users" IS 'Basic authenticated user, where all users are stored.';
@@ -188,8 +209,14 @@ ALTER TABLE ONLY "public"."base_users"
     ADD CONSTRAINT "base_user_auth_fkey" FOREIGN KEY ("auth") REFERENCES "auth"."users"("id") ON UPDATE CASCADE;
 ALTER TABLE ONLY "public"."base_users"
     ADD CONSTRAINT "base_users_resident_fkey" FOREIGN KEY ("resident") REFERENCES "public"."residents"("id") ON UPDATE CASCADE ON DELETE SET NULL;
+ALTER TABLE ONLY "public"."base_users"
+    ADD CONSTRAINT "base_users_invited_by_fkey" FOREIGN KEY ("invited_by") REFERENCES "public"."base_users"("id") ON UPDATE CASCADE ON DELETE SET NULL;
 ALTER TABLE ONLY "public"."permissions"
     ADD CONSTRAINT "permissions_permission_type_fkey" FOREIGN KEY ("permission_type") REFERENCES "public"."permission_types"("id") ON UPDATE CASCADE ON DELETE CASCADE;
+ALTER TABLE ONLY "public"."permissions"
+    ADD CONSTRAINT "permissions_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "public"."base_users"("id") ON UPDATE CASCADE ON DELETE CASCADE;
+ALTER TABLE ONLY "public"."permissions"
+    ADD CONSTRAINT "permissions_permission_creator_fkey" FOREIGN KEY ("permission_creator") REFERENCES "public"."base_users"("id") ON UPDATE CASCADE ON DELETE CASCADE;
 
 ALTER TABLE "public"."base_users" ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "base_users_delete_manage_users" ON "public"."base_users" FOR DELETE TO "authenticated" USING ("public"."current_user_has_permission"('MANAGE_USERS'::"text"));
@@ -296,28 +323,6 @@ ALTER VIEW "public"."user_view" OWNER TO "postgres";
 GRANT ALL ON TABLE "public"."user_view" TO "anon";
 GRANT ALL ON TABLE "public"."user_view" TO "authenticated";
 GRANT ALL ON TABLE "public"."user_view" TO "service_role";
-
--- Trigger to create a public.base_users entry when a new auth.users entry is created
-CREATE OR REPLACE FUNCTION public.handle_new_base_user()
-returns trigger
-language plpgsql
-security definer set search_path = public
-as $$
-begin
-  insert into public.base_users (auth, name, surname)
-  values (
-    new.id,
-    new.raw_user_meta_data->>'name',
-    new.raw_user_meta_data->>'surname'
-  );
-  return new;
-end;
-$$;
-
-create trigger on_auth_user_created
-  after insert on auth.users
-  for each row execute procedure public.handle_new_base_user();
-
 
 CREATE OR REPLACE VIEW "public"."user_permissions_view" AS
     SELECT

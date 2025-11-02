@@ -7,7 +7,6 @@ import {
   Container,
   Group,
   Paper,
-  PasswordInput,
   Stack,
   TextInput,
   Title,
@@ -28,11 +27,12 @@ export function Authentication() {
   const form = useForm({
     initialValues: {
       email: '',
-      password: '',
+      otp: '',
     },
 
     validate: {
       email: (value) => (/^\S+@\S+$/.test(value) ? null : 'Invalid email'),
+      otp: (value) => (value && value.length > 0 ? (value.length === 6 ? null : 'OTP must be 6 digits') : null),
     },
   });
 
@@ -63,48 +63,90 @@ export function Authentication() {
             </Group>
 
             <Paper withBorder shadow="md" p={30} mt={30} radius="md" miw={350}>
-              <form
-                onSubmit={form.onSubmit(async (values) => {
-                  setLoading(true);
-                  setErr(undefined);
-                  await supabaseClient.auth
-                    .signInWithPassword({
-                      email: values.email,
-                      password: values.password,
-                    })
-                    .then((res) => {
-                      if (res.error) {
-                        setErr(res.error);
-                      }
-                    })
-                    .finally(() => {
-                      setLoading(false);
-                    });
-                })}
-              >
-                <TextInput
-                  label="Email"
-                  placeholder="bruc@brucmail.dev"
-                  required
-                  {...form.getInputProps('email')}
-                />
-                <PasswordInput
-                  label="Password"
-                  placeholder="Your password"
-                  required
-                  mt="md"
-                  {...form.getInputProps('password')}
-                />
+              <Stack>
+                <form
+                  onSubmit={form.onSubmit(async (values) => {
+                    setLoading(true);
+                    setErr(undefined);
 
-                {err && (
-                  <Alert mt="lg" color="red" title="Napaka">
-                    {err.message}
-                  </Alert>
-                )}
-                <Button fullWidth mt="xl" type="submit" loading={loading}>
-                  Sign in
-                </Button>
-              </form>
+                    // Send OTP
+                    await supabaseClient.auth
+                      .signInWithOtp({
+                        email: values.email,
+                        options: {
+                          shouldCreateUser: false,
+                          emailRedirectTo: window.location.origin
+                        }
+                      })
+                      .then((res) => {
+                        if (res.error) {
+                          setErr(res.error);
+                        } else {
+                          // Show success message to user to check their email
+                          alert('Please check your email for the OTP code');
+                        }
+                      })
+                      .finally(() => {
+                        setLoading(false);
+                      });
+                  })}
+                >
+                  <TextInput
+                    label="Email"
+                    placeholder="bruc@brucmail.dev"
+                    required
+                    {...form.getInputProps('email')}
+                  />
+
+                  {err && (
+                    <Alert mt="lg" color="red" title="Napaka">
+                      {err.message}
+                    </Alert>
+                  )}
+                  <Button fullWidth mt="xl" type="submit" loading={loading}>
+                    Send OTP
+                  </Button>
+                </form>
+                
+                <form
+                  onSubmit={form.onSubmit(async (values) => {
+                    if (!values.otp) {
+                      setErr({ message: 'Please enter an OTP code to verify', status: 400 } as AuthError);
+                      return;
+                    }
+                    
+                    setLoading(true);
+                    setErr(undefined);
+
+                    // Verify OTP
+                    await supabaseClient.auth
+                      .verifyOtp({
+                        email: values.email,
+                        token: values.otp,
+                        type: 'email'
+                      })
+                      .then((res) => {
+                        if (res.error) {
+                          setErr(res.error);
+                        }
+                      })
+                      .finally(() => {
+                        setLoading(false);
+                      });
+                  })}
+                >
+                  <TextInput
+                    label="OTP Code"
+                    placeholder="Enter 6-digit code (optional)"
+                    mt="md"
+                    maxLength={6}
+                    {...form.getInputProps('otp')}
+                  />
+                  <Button fullWidth mt="md" type="submit" loading={loading}>
+                    Verify OTP
+                  </Button>
+                </form>
+              </Stack>
             </Paper>
             <Alert
               mt="xl"
