@@ -639,6 +639,15 @@ export type Database = {
         }
         Returns: number
       }
+      create_and_link_resident: {
+        Args: {
+          p_base_user_id: number
+          p_birth_date?: string
+          p_phone_number?: string
+          p_room: number
+        }
+        Returns: number
+      }
       current_user_has_permission: {
         Args: { permission_name: string }
         Returns: boolean

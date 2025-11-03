@@ -74,12 +74,12 @@ export const ResidentInfoForm = ({ baseUserId }: ResidentInfoFormProps) => {
       });
       form.resetDirty();
     } else {
-      // Create new resident entry
-      await supabaseClient.from('residents').insert({
-        base_user_id: baseUserId,
-        room: Number(values.room),
-        phone_number: values.phone_number,
-        birth_date: new Date(values.birth_date).toISOString(),
+      // Create new resident entry using rpc function
+      await supabaseClient.rpc('create_and_link_resident', {
+        p_base_user_id: baseUserId,
+        p_room: Number(values.room),
+        p_phone_number: values.phone_number,
+        p_birth_date: new Date(values.birth_date).toISOString(),
       });
       mutate(
         (key) =>
