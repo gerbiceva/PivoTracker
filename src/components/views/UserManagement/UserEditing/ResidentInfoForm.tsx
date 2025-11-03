@@ -14,13 +14,15 @@ import { useEffect, useState } from 'react';
 import { IconAlertCircle } from '@tabler/icons-react';
 import { DateInput } from '@mantine/dates';
 import { useSWRConfig } from 'swr';
+import { ConfirmAdd } from '../../Washing/Timetable/ConfirmAdd';
+import { notifications } from '@mantine/notifications';
+import { refetchTables } from '../../../../supabase/supa-utils/supaSWRCache';
 
 interface ResidentInfoFormProps {
   baseUserId: number;
 }
 
 export const ResidentInfoForm = ({ baseUserId }: ResidentInfoFormProps) => {
-  const { mutate } = useSWRConfig();
   const [showCreateForm, setShowCreateForm] = useState(false);
   const {
     data: resident,
@@ -33,7 +35,7 @@ export const ResidentInfoForm = ({ baseUserId }: ResidentInfoFormProps) => {
         .select('*')
         .filter('base_user_id', 'eq', baseUserId)
         .single(),
-    table: 'residents',
+    table: ['residents'],
     params: [baseUserId],
   });
 
@@ -73,6 +75,7 @@ export const ResidentInfoForm = ({ baseUserId }: ResidentInfoFormProps) => {
         ...values,
       });
       form.resetDirty();
+      refetchTables('residents');
     } else {
       // Create new resident entry using rpc function
       await supabaseClient.rpc('create_and_link_resident', {
@@ -81,10 +84,14 @@ export const ResidentInfoForm = ({ baseUserId }: ResidentInfoFormProps) => {
         p_phone_number: values.phone_number,
         p_birth_date: new Date(values.birth_date).toISOString(),
       });
-      mutate(
-        (key) =>
-          typeof key === 'string' && key.startsWith('/api/supabase/residents'),
-      );
+      notifications.show({
+        title: 'Podatki dodani',
+        message: 'Uporabnik ima podatke o stanovalcu',
+      });
+      refetchTables('residents');
+      form.setInitialValues({
+        ...values,
+      });
       form.reset();
     }
   };
@@ -95,10 +102,7 @@ export const ResidentInfoForm = ({ baseUserId }: ResidentInfoFormProps) => {
         .from('residents')
         .delete()
         .eq('id', resident.resident_id);
-      mutate(
-        (key) =>
-          typeof key === 'string' && key.startsWith('/api/supabase/residents'),
-      );
+      refetchTables('residents');
     }
   };
 
@@ -135,9 +139,6 @@ export const ResidentInfoForm = ({ baseUserId }: ResidentInfoFormProps) => {
     );
   }
 
-  // If resident exists or showCreateForm is true, render the form
-  // The form's submit button will handle creation or update based on resident?.resident_id
-
   return (
     <form onSubmit={form.onSubmit(handleSubmit)}>
       <Stack style={{ position: 'relative' }} w="100%">
@@ -171,7 +172,9 @@ export const ResidentInfoForm = ({ baseUserId }: ResidentInfoFormProps) => {
               size="xs"
               variant="outline"
               color="red"
-              onClick={handleDelete}
+              onClick={() => {
+                confirm('Ali ste prepričani?') && handleDelete();
+              }}
             >
               Izbriši prebivalca
             </Button>
