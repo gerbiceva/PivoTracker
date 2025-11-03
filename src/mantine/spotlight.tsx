@@ -118,7 +118,7 @@ export const CustomSpotlight = () => {
           id: 'pranje',
           label: 'Pranje',
           description: 'Dodaj nov termin za pranje',
-          onClick: () => window.location.replace('/pranje'),
+          onClick: () => window.location.replace('/pranje/novo'),
           leftSection: (
             <IconWash
               style={{ width: rem(24), height: rem(24) }}
@@ -131,7 +131,7 @@ export const CustomSpotlight = () => {
           id: 'moje-pranje',
           label: 'Moji termini',
           description: 'Pregled rezerviranih terminov za pranje',
-          onClick: () => window.location.replace('/moje-pranje'),
+          onClick: () => window.location.replace('/pranje/moje'),
           leftSection: (
             <IconWash
               style={{ width: rem(24), height: rem(24) }}

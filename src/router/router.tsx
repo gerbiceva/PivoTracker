@@ -11,8 +11,9 @@ import { WashingTimetable } from '../components/views/Washing/Timetable/WashingT
 import { MyWashing } from '../components/views/Washing/MyWashing/MyWashing';
 import { EnrollUser } from '../components/views/Admin/Users/Enroll';
 import { EditSelf } from '../components/views/UserManagement/ViewSelf';
-import { EditUsers } from '../components/views/UserManagement/ViewUsers';
 import { PranjeInfo } from '../components/views/Washing/Info/PranjeInfo';
+import { UserEditing } from '../components/views/UserManagement/UserEditing/UserEditing';
+import { EditUserPage } from '../components/views/UserManagement/UserEditing/EditUserPage';
 
 export const router = createBrowserRouter([
   {
@@ -55,8 +56,12 @@ export const router = createBrowserRouter([
             element: <EditSelf />,
           },
           {
-            path: '/users',
-            element: <EditUsers />,
+            path: '/user/edit',
+            element: <UserEditing />,
+          },
+          {
+            path: '/user/edit/:id',
+            element: <EditUserPage />,
           },
         ],
       },
