@@ -369,9 +369,12 @@ CREATE POLICY "permissions_select_managers" ON "public"."permissions" FOR SELECT
 ALTER TABLE "public"."residents" ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "residents_delete_manage_users" ON "public"."residents" FOR DELETE TO "authenticated" USING ("public"."current_user_has_permission"('MANAGE_USERS'::"text"));
 CREATE POLICY "residents_insert_enroll_resident" ON "public"."residents" FOR INSERT TO "authenticated" WITH CHECK ("public"."current_user_has_permission"('ENROLL_RESIDENT'::"text"));
-CREATE POLICY "residents_select_own" ON "public"."residents" FOR SELECT TO "authenticated" USING (((( SELECT "auth"."uid"() AS "uid") IS NOT NULL) AND (EXISTS ( SELECT 1
-   FROM "public"."base_users" "bu"
-  WHERE (("bu"."resident" = "residents"."id") AND ("bu"."auth" = ( SELECT "auth"."uid"() AS "uid")))))));
+CREATE POLICY "residents_select_own" ON "public"."residents" FOR SELECT TO "authenticated" USING (
+  (public.current_user_has_permission('ENROLL_RESIDENT')) OR
+  ((( SELECT auth.uid() AS uid) IS NOT NULL) AND (EXISTS ( SELECT 1
+   FROM public.base_users bu
+  WHERE ((bu.resident = residents.id) AND (bu.auth = ( SELECT auth.uid() AS uid))))))
+);
 CREATE POLICY "residents_update_manage_users" ON "public"."residents" FOR UPDATE TO "authenticated" USING ("public"."current_user_has_permission"('MANAGE_USERS'::"text")) WITH CHECK ("public"."current_user_has_permission"('MANAGE_USERS'::"text"));
 
 ALTER PUBLICATION "supabase_realtime" OWNER TO "postgres";
