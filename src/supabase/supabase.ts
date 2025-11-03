@@ -750,6 +750,10 @@ export type Database = {
           surname: string
         }[]
       }
+      set_user_permissions: {
+        Args: { p_base_user_id: number; p_permission_type_ids: number[] }
+        Returns: undefined
+      }
       slot_range_from_date_index: {
         Args: { p_date: string; p_slot_index: number; p_tz?: string }
         Returns: unknown

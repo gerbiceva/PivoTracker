@@ -80,8 +80,8 @@ export const EditUserPermissions = ({ userId }: { userId: number }) => {
 
     // Delete all existing permissions for the user
     await supabaseClient.rpc('set_user_permissions', {
-      base_user_id: userId,
-      permissions: newPermissions,
+      p_base_user_id: userId,
+      p_permission_type_ids: newPermissions,
     });
 
     mutateUserPermissions();
