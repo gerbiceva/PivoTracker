@@ -1,16 +1,30 @@
 import {
   Stack,
-  Paper,
-  Title,
+  Text,
   LoadingOverlay,
   Alert,
   MultiSelect,
   Button,
+  Box,
+  Badge,
+  Group,
+  type MultiSelectProps,
 } from '@mantine/core';
 import { getSupaWR } from '../../../../supabase/supa-utils/supaSWR';
 import { supabaseClient } from '../../../../supabase/supabaseClient';
 import { IconAlertCircle } from '@tabler/icons-react';
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect } from 'react';
+import { numToColor } from '../../../../utils/colorUtils';
+
+const renderPermissionOption: MultiSelectProps['renderOption'] = ({
+  option,
+}) => (
+  <Group>
+    <Badge variant="light" color={numToColor(Number(option.value))}>
+      {option.label}
+    </Badge>
+  </Group>
+);
 
 export const EditUserPermissions = ({ userId }: { userId: number }) => {
   const {
@@ -48,26 +62,27 @@ export const EditUserPermissions = ({ userId }: { userId: number }) => {
     );
   }, [allPermissions]);
 
-  useState(() => {
+  console.log({ allPermissions });
+
+  useEffect(() => {
     if (userPermissions) {
       setSelectedPermissions(
         userPermissions.map((p) => p.permission_type_id?.toString() || ''),
       );
     }
-  });
+  }, [userPermissions]);
 
   const handleSavePermissions = async () => {
     if (!userId) return;
 
-    // Delete all existing permissions for the user
-    await supabaseClient.from('permissions').delete().eq('user_id', userId);
-
     // Add the new permissions
-    const newPermissions = selectedPermissions.map((id) => ({
-      user_id: userId,
-      permission_type: Number(id),
-    }));
-    await supabaseClient.from('permissions').insert(newPermissions);
+    const newPermissions = selectedPermissions.map((id) => Number(id));
+
+    // Delete all existing permissions for the user
+    await supabaseClient.rpc('set_user_permissions', {
+      base_user_id: userId,
+      permissions: newPermissions,
+    });
 
     mutateUserPermissions();
   };
@@ -84,19 +99,27 @@ export const EditUserPermissions = ({ userId }: { userId: number }) => {
   }
 
   return (
-    <Paper withBorder p="md" style={{ position: 'relative' }}>
+    <Box>
       <LoadingOverlay visible={isLoading} />
       <Stack>
-        <Title order={3}>Permissions</Title>
+        <Text size="xs" fw="bold" c="dimmed" mt="xl">
+          UREJANJE PRAVIC
+        </Text>
         <MultiSelect
+          comboboxProps={{
+            position: 'top',
+          }}
           data={permissionOptions}
           value={selectedPermissions}
           onChange={setSelectedPermissions}
           label="User Permissions"
           placeholder="Select permissions"
+          renderOption={renderPermissionOption}
+          hidePickedOptions
+          searchable
         />
         <Button onClick={handleSavePermissions}>Save Permissions</Button>
       </Stack>
-    </Paper>
+    </Box>
   );
 };

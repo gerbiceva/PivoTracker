@@ -5,6 +5,7 @@ import {
   IconList,
   IconLogout,
   IconTransactionEuro,
+  IconUser,
   IconUserPlus,
   IconWash,
 } from '@tabler/icons-react';
@@ -15,6 +16,7 @@ import { Spotlight, SpotlightActionData } from '@mantine/spotlight';
 import { supabaseClient } from '../supabase/supabaseClient';
 import { useNavigate } from 'react-router-dom';
 import { $currUser } from '../global-state/user';
+import { useStore } from '@nanostores/react';
 
 interface CustomSpotlighData extends SpotlightActionData {
   permission?: string;
@@ -28,7 +30,8 @@ interface CustomSpotlightGroupData {
 export const CustomSpotlight = () => {
   const navigate = useNavigate();
 
-  const permissions = $currUser.get()?.permissions || [];
+  const user = useStore($currUser);
+  const permissions = user?.permissions || [];
 
   let Spotlightactions: CustomSpotlightGroupData[] = (
     [
@@ -182,6 +185,36 @@ export const CustomSpotlight = () => {
         ],
       },
       {
+        group: 'Uporabnik',
+        actions: [
+          {
+            id: 'uredi-profil',
+            label: 'Uredi profil',
+            description: 'Uredi svoj profil',
+            onClick: () => navigate('/user'),
+            leftSection: (
+              <IconUser
+                style={{ width: rem(24), height: rem(24) }}
+                stroke={1.5}
+              />
+            ),
+          },
+          {
+            permission: 'MANAGE_USERS',
+            id: 'urejanje-uporabnikov',
+            label: 'Urejanje uporabnikov',
+            description: 'Urejanje uporabnikov',
+            onClick: () => navigate('/user/edit'),
+            leftSection: (
+              <IconUser
+                style={{ width: rem(24), height: rem(24) }}
+                stroke={1.5}
+              />
+            ),
+          },
+        ],
+      },
+      {
         group: 'Sistem',
         actions: [
           {
@@ -205,6 +238,10 @@ export const CustomSpotlight = () => {
   ).map((group) => ({
     ...group,
     actions: group.actions.filter((action) => {
+      if (!permissions) {
+        return false;
+      }
+
       if (!action.permission) {
         return true;
       }

@@ -1,4 +1,12 @@
-import { TextInput, Button, Stack, LoadingOverlay, Alert } from '@mantine/core';
+import {
+  TextInput,
+  Button,
+  Stack,
+  LoadingOverlay,
+  Alert,
+  Group,
+  Text,
+} from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { getSupaWR } from '../../../../supabase/supa-utils/supaSWR';
 import { supabaseClient } from '../../../../supabase/supabaseClient';
@@ -7,10 +15,10 @@ import { IconAlertCircle } from '@tabler/icons-react';
 import { DateInput } from '@mantine/dates';
 
 interface ResidentInfoFormProps {
-  residentId: number;
+  baseUserId: number;
 }
 
-export const ResidentInfoForm = ({ residentId }: ResidentInfoFormProps) => {
+export const ResidentInfoForm = ({ baseUserId }: ResidentInfoFormProps) => {
   const {
     data: resident,
     error,
@@ -18,12 +26,12 @@ export const ResidentInfoForm = ({ residentId }: ResidentInfoFormProps) => {
   } = getSupaWR({
     query: () =>
       supabaseClient
-        .from('residents')
+        .from('user_view')
         .select('*')
-        .eq('id', residentId)
+        .filter('base_user_id', 'eq', baseUserId)
         .single(),
     table: 'residents',
-    params: [residentId],
+    params: [baseUserId],
   });
 
   const form = useForm({
@@ -36,23 +44,32 @@ export const ResidentInfoForm = ({ residentId }: ResidentInfoFormProps) => {
 
   useEffect(() => {
     if (resident) {
-      form.setValues({
+      form.setInitialValues({
         room: resident.room?.toString() || '',
         phone_number: resident.phone_number || '',
         birth_date: new Date(resident.birth_date || ''),
       });
+      form.reset();
     }
   }, [resident]);
 
   const handleSubmit = async (values: typeof form.values) => {
-    await supabaseClient
-      .from('residents')
-      .update({
-        room: Number(values.room),
-        phone_number: values.phone_number,
-        birth_date: values.birth_date.toISOString(),
-      })
-      .eq('id', residentId);
+    if (resident?.resident_id) {
+      await supabaseClient
+        .from('residents')
+        .update({
+          room: Number(values.room),
+          phone_number: values.phone_number,
+          birth_date: new Date(values.birth_date).toISOString(),
+        })
+        .eq('id', resident.resident_id);
+
+      form.reset();
+      form.setValues({
+        ...values,
+      });
+      form.resetDirty();
+    }
   };
 
   if (error) {
@@ -66,14 +83,34 @@ export const ResidentInfoForm = ({ residentId }: ResidentInfoFormProps) => {
   return (
     <form onSubmit={form.onSubmit(handleSubmit)}>
       <Stack style={{ position: 'relative' }}>
+        <Text size="xs" fw="bold" c="dimmed" mt="xl">
+          INFORMACIJE PREBIVALCA
+        </Text>
+        <Group>
+          <TextInput description="Room" {...form.getInputProps('room')} />
+          <TextInput
+            description="Phone Number"
+            {...form.getInputProps('phone_number')}
+          />
+        </Group>
+        <Group>
+          <DateInput
+            description="Birth Date"
+            {...form.getInputProps('birth_date')}
+          />
+        </Group>
         <LoadingOverlay visible={isLoading} />
-        <TextInput label="Room" {...form.getInputProps('room')} />
-        <TextInput
-          label="Phone Number"
-          {...form.getInputProps('phone_number')}
-        />
-        <DateInput label="Birth Date" {...form.getInputProps('birth_date')} />
-        <Button type="submit">Save Resident Info</Button>
+
+        <div>
+          <Button
+            size="xs"
+            variant="light"
+            type="submit"
+            disabled={!form.isDirty()}
+          >
+            Shrani informacije prebivalca
+          </Button>
+        </div>
       </Stack>
     </form>
   );

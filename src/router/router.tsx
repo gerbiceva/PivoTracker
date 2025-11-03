@@ -24,12 +24,6 @@ export const router = createBrowserRouter([
     element: <App />,
 
     children: [
-      // AUTH
-      {
-        path: '/auth',
-        element: <Authentication />,
-      },
-
       // HOME
       {
         path: '/',
@@ -172,16 +166,22 @@ export const router = createBrowserRouter([
           </ProtectedPath>
         ),
       },
-
-      // OTHER
-      {
-        path: '/unauthorized',
-        element: <Unauthorized />,
-      },
-      {
-        path: '/*',
-        element: '404',
-      },
     ],
+  },
+
+  // OTHER
+  {
+    path: '/unauthorized',
+    element: <Unauthorized />,
+  },
+  {
+    path: '/*',
+    element: '404',
+  },
+
+  // AUTH
+  {
+    path: '/auth',
+    element: <Authentication />,
   },
 ]);

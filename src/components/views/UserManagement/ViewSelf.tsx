@@ -1,33 +1,26 @@
 import {
-  Text,
-  Stack,
-  Title,
-  Container,
-  TextInput,
-  SimpleGrid,
-  Fieldset,
-  Box,
-  Tooltip,
-  useMatches,
   Alert,
-  Group,
   Button,
+  Container,
+  Group,
+  SimpleGrid,
+  Stack,
+  Text,
+  TextInput,
+  Title,
+  useMatches,
 } from '@mantine/core';
-import { ReadTimeFromUTCString } from '../../../utils/timeUtils';
-import { getZodiacSign, zodiacToIcon } from '../../../utils/zodiac';
+import { $currUser } from '../../../global-state/user';
 import { getSupaWR } from '../../../supabase/supa-utils/supaSWR';
 import { supabaseClient } from '../../../supabase/supabaseClient';
-import { $currUser } from '../../../global-state/user';
-import { User } from '@supabase/supabase-js';
-import { PreinitializedWritableAtom } from 'nanostores';
 
-import { useStore } from '@nanostores/react';
 import { DateInput } from '@mantine/dates';
-import { LogoutBtn } from '../auth/Logout';
+import { useStore } from '@nanostores/react';
 import { IconHomeCancel, IconLogout } from '@tabler/icons-react';
 import dayjs from 'dayjs';
 import { Link } from 'react-router-dom';
 import { DisplayPermissions } from '../../permissons/DisplayPermissions';
+import { LogoutBtn } from '../auth/Logout';
 
 export const EditSelf = () => {
   const cols = useMatches({
@@ -44,10 +37,10 @@ export const EditSelf = () => {
       supabaseClient
         .from('user_view')
         .select('*')
-        .filter('auth_user_id', 'eq', user?.id)
+        .filter('auth_user_id', 'eq', user?.auth_user_id)
         .single(),
     table: 'base_users',
-    params: [user?.id],
+    params: [user?.auth_user_id],
   });
 
   return (
@@ -66,9 +59,9 @@ export const EditSelf = () => {
           <Alert w="fit-content" my="xl" color="gray">
             <Group justify="start" align="start" ml="auto">
               <Stack gap="0">
-                <Text c="dimmed">Zadnji login</Text>
+                <Text c="dimmed">Registriran</Text>
                 <Text fw="bold">
-                  {dayjs(user?.last_sign_in_at).format('DD.MM YYYY')}
+                  {dayjs(user?.created_at).format('DD.MM YYYY')}
                 </Text>
               </Stack>
               <LogoutBtn variant="subtle">

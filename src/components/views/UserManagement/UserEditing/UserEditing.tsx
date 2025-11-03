@@ -15,6 +15,7 @@ import { useNavigate } from 'react-router-dom';
 export const UserEditing = () => {
   const { users, error, isLoading, totalPages, activePage, setPage } =
     useUserEditing();
+
   const navigate = useNavigate();
 
   if (error) {

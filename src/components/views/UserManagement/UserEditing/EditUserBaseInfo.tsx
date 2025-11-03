@@ -1,17 +1,20 @@
 import {
   TextInput,
   Button,
-  Stack,
+  Text,
   Paper,
-  Title,
   LoadingOverlay,
   Alert,
+  Box,
+  Stack,
+  Group,
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { getSupaWR } from '../../../../supabase/supa-utils/supaSWR';
 import { supabaseClient } from '../../../../supabase/supabaseClient';
 import { useEffect } from 'react';
 import { IconAlertCircle } from '@tabler/icons-react';
+import { showNotification } from '@mantine/notifications';
 
 export const EditUserBaseInfo = ({ userId }: { userId: number }) => {
   const {
@@ -19,12 +22,15 @@ export const EditUserBaseInfo = ({ userId }: { userId: number }) => {
     error,
     isLoading,
   } = getSupaWR({
-    query: () => supabaseClient.from('').select('*'),
+    query: () =>
+      supabaseClient
+        .from('base_users')
+        .select('*')
+        .filter('id', 'eq', userId)
+        .single(),
     table: 'base_users',
     params: [userId],
   });
-
-  console.log({ user });
 
   const form = useForm({
     initialValues: {
@@ -35,16 +41,41 @@ export const EditUserBaseInfo = ({ userId }: { userId: number }) => {
 
   useEffect(() => {
     if (user) {
-      form.setValues({
+      form.setInitialValues({
         name: user.name || '',
         surname: user.surname || '',
       });
+      form.reset();
     }
   }, [user]);
 
   const handleSubmit = async (values: typeof form.values) => {
     if (!userId) return;
-    await supabaseClient.from('base_users').update(values).eq('id', userId);
+    try {
+      const { error } = await supabaseClient
+        .from('base_users')
+        .update(values)
+        .eq('id', userId);
+      if (error) {
+        throw error;
+      }
+      showNotification({
+        title: 'Success',
+        message: 'User information updated successfully',
+        color: 'green',
+      });
+      form.reset();
+      form.setValues({
+        ...values,
+      });
+      form.resetDirty();
+    } catch (error) {
+      showNotification({
+        title: 'Error',
+        message: (error as Error).message,
+        color: 'red',
+      });
+    }
   };
 
   if (error) {
@@ -56,16 +87,28 @@ export const EditUserBaseInfo = ({ userId }: { userId: number }) => {
   }
 
   return (
-    <Paper withBorder p="md" style={{ position: 'relative' }}>
+    <Box>
       <LoadingOverlay visible={isLoading} />
       <form onSubmit={form.onSubmit(handleSubmit)}>
         <Stack>
-          <Title order={3}>Base Information</Title>
-          <TextInput label="Name" {...form.getInputProps('name')} />
-          <TextInput label="Surname" {...form.getInputProps('surname')} />
-          <Button type="submit">Save</Button>
+          <Text size="xs" fw="bold" c="dimmed" mt="xl">
+            OSEBNE INFORMACIJE
+          </Text>
+          <Group>
+            <TextInput description="Name" {...form.getInputProps('name')} />
+            <TextInput
+              description="Surname"
+              {...form.getInputProps('surname')}
+            />
+          </Group>
+
+          <div>
+            <Button type="submit" size="xs" disabled={!form.isDirty()}>
+              Shrani osebne informacije
+            </Button>
+          </div>
         </Stack>
       </form>
-    </Paper>
+    </Box>
   );
 };
