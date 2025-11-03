@@ -82,19 +82,25 @@ export const ResidentInfoForm = ({ baseUserId }: ResidentInfoFormProps) => {
 
   return (
     <form onSubmit={form.onSubmit(handleSubmit)}>
-      <Stack style={{ position: 'relative' }}>
+      <Stack style={{ position: 'relative' }} w="100%">
         <Text size="xs" fw="bold" c="dimmed" mt="xl">
           INFORMACIJE PREBIVALCA
         </Text>
-        <Group>
-          <TextInput description="Room" {...form.getInputProps('room')} />
+        <Group w="100%">
           <TextInput
+            flex={1}
+            description="Room"
+            {...form.getInputProps('room')}
+          />
+          <TextInput
+            flex={1}
             description="Phone Number"
             {...form.getInputProps('phone_number')}
           />
         </Group>
         <Group>
           <DateInput
+            flex={1}
             description="Birth Date"
             {...form.getInputProps('birth_date')}
           />

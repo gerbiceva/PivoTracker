@@ -94,9 +94,14 @@ export const EditUserBaseInfo = ({ userId }: { userId: number }) => {
           <Text size="xs" fw="bold" c="dimmed" mt="xl">
             OSEBNE INFORMACIJE
           </Text>
-          <Group>
-            <TextInput description="Name" {...form.getInputProps('name')} />
+          <Group wrap="wrap">
             <TextInput
+              flex={1}
+              description="Name"
+              {...form.getInputProps('name')}
+            />
+            <TextInput
+              flex={1}
               description="Surname"
               {...form.getInputProps('surname')}
             />

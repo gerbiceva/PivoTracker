@@ -188,9 +188,9 @@ export const CustomSpotlight = () => {
         group: 'Uporabnik',
         actions: [
           {
-            id: 'uredi-profil',
-            label: 'Uredi profil',
-            description: 'Uredi svoj profil',
+            id: 'preglej-profil',
+            label: 'Preglej profil',
+            description: 'Preglej svoj profil',
             onClick: () => navigate('/user'),
             leftSection: (
               <IconUser

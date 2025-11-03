@@ -47,11 +47,19 @@ export const EditUserPermissions = ({ userId }: { userId: number }) => {
     error: allPermissionsError,
     isLoading: areAllPermissionsLoading,
   } = getSupaWR({
-    query: () => supabaseClient.from('permission_types').select('*'),
+    query: () =>
+      supabaseClient.from('permission_types').select('*').order('id'),
     table: 'permission_types',
   });
 
   const [selectedPermissions, setSelectedPermissions] = useState<string[]>([]);
+  const [initialPermissions, setInitialPermissions] = useState<string[]>([]);
+
+  const permissionsChanged = useMemo(() => {
+    const sortedInitial = [...initialPermissions].sort();
+    const sortedSelected = [...selectedPermissions].sort();
+    return JSON.stringify(sortedInitial) !== JSON.stringify(sortedSelected);
+  }, [initialPermissions, selectedPermissions]);
 
   const permissionOptions = useMemo(() => {
     return (
@@ -66,9 +74,11 @@ export const EditUserPermissions = ({ userId }: { userId: number }) => {
 
   useEffect(() => {
     if (userPermissions) {
-      setSelectedPermissions(
-        userPermissions.map((p) => p.permission_type_id?.toString() || ''),
-      );
+      const initial =
+        userPermissions.map((p) => p.permission_type_id?.toString() || '') ||
+        [];
+      setSelectedPermissions(initial);
+      setInitialPermissions(initial);
     }
   }, [userPermissions]);
 
@@ -76,7 +86,9 @@ export const EditUserPermissions = ({ userId }: { userId: number }) => {
     if (!userId) return;
 
     // Add the new permissions
-    const newPermissions = selectedPermissions.map((id) => Number(id));
+    const newPermissions = selectedPermissions
+      .map((id) => Number(id))
+      .sort((a, b) => a - b);
 
     // Delete all existing permissions for the user
     await supabaseClient.rpc('set_user_permissions', {
@@ -112,13 +124,22 @@ export const EditUserPermissions = ({ userId }: { userId: number }) => {
           data={permissionOptions}
           value={selectedPermissions}
           onChange={setSelectedPermissions}
-          label="User Permissions"
+          description="User Permissions"
           placeholder="Select permissions"
           renderOption={renderPermissionOption}
           hidePickedOptions
           searchable
         />
-        <Button onClick={handleSavePermissions}>Save Permissions</Button>
+        <div>
+          <Button
+            size="xs"
+            variant="light"
+            disabled={!permissionsChanged}
+            onClick={handleSavePermissions}
+          >
+            Save Permissions
+          </Button>
+        </div>
       </Stack>
     </Box>
   );
