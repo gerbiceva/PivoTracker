@@ -41,8 +41,8 @@ Deno.serve(async (req) => {
     });
   }
 
-  // Parse the request body to get the email, name, and surname
-  const { email, name, surname, room, redirectTo } = await req.json();
+  // Parse the request body to get the email, name, surname, room, phone_number, date_of_birth, and redirectTo
+  const { email, name, surname, room, phone_number, date_of_birth, redirectTo } = await req.json();
 
   if (!email) {
     return new Response(JSON.stringify({ error: "Email is required" }), {
@@ -126,12 +126,18 @@ Deno.serve(async (req) => {
     } else {
       createdBaseUserId = baseUserData?.id;
       
-      // Create a resident record if room number is provided
-      if (room !== undefined && room !== null) {
+      // Create a resident record if room number, phone number, or date of birth is provided
+      if (
+        (room !== undefined && room !== null && room !== "") ||
+        (phone_number !== undefined && phone_number !== null && phone_number !== "") ||
+        (date_of_birth !== undefined && date_of_birth !== null && date_of_birth !== "")
+      ) {
         const { data: residentData, error: residentError } = await supabaseAdmin
           .from('residents')
           .insert({
-            room: room,
+            ...(room !== undefined && room !== null && room !== "" && { room: room }),
+            ...(phone_number !== undefined && phone_number !== null && phone_number !== "" && { phone_number: phone_number }),
+            ...(date_of_birth !== undefined && date_of_birth !== null && date_of_birth !== "" && { date_of_birth: date_of_birth }),
             created_at: new Date().toISOString()
           })
           .select('id')
