@@ -9,6 +9,7 @@
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
     "typegen": "supabase gen types typescript --linked > src/supabase/supabase.ts",
+    "typegen-local": "supabase gen types typescript --local> src/supabase/supabase.ts",
     "typeprint": "supabase gen types typescript --linked",
     "supabase-start": "supabase start",
     "supabase-db-reset": "supabase db reset",

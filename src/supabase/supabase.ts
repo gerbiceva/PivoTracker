@@ -7,11 +7,6 @@ export type Json =
   | Json[]
 
 export type Database = {
-  // Allows to automatically instantiate createClient with right options
-  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
-  __InternalSupabase: {
-    PostgrestVersion: "13.0.4"
-  }
   graphql_public: {
     Tables: {
       [_ in never]: never
@@ -44,27 +39,58 @@ export type Database = {
           auth: string | null
           created_at: string
           id: number
+          invited_by: number | null
           name: string
           resident: number | null
-          surname: string
+          surname: string | null
         }
         Insert: {
           auth?: string | null
           created_at?: string
           id?: number
+          invited_by?: number | null
           name: string
           resident?: number | null
-          surname: string
+          surname?: string | null
         }
         Update: {
           auth?: string | null
           created_at?: string
           id?: number
+          invited_by?: number | null
           name?: string
           resident?: number | null
-          surname?: string
+          surname?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "base_users_invited_by_fkey"
+            columns: ["invited_by"]
+            isOneToOne: false
+            referencedRelation: "base_users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "base_users_invited_by_fkey"
+            columns: ["invited_by"]
+            isOneToOne: false
+            referencedRelation: "everything"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "base_users_invited_by_fkey"
+            columns: ["invited_by"]
+            isOneToOne: false
+            referencedRelation: "everything_sum"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "base_users_invited_by_fkey"
+            columns: ["invited_by"]
+            isOneToOne: false
+            referencedRelation: "user_view"
+            referencedColumns: ["base_user_id"]
+          },
           {
             foreignKeyName: "base_users_resident_fkey"
             columns: ["resident"]
@@ -177,6 +203,34 @@ export type Database = {
         }
         Relationships: [
           {
+            foreignKeyName: "permissions_permission_creator_fkey"
+            columns: ["permission_creator"]
+            isOneToOne: false
+            referencedRelation: "base_users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "permissions_permission_creator_fkey"
+            columns: ["permission_creator"]
+            isOneToOne: false
+            referencedRelation: "everything"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "permissions_permission_creator_fkey"
+            columns: ["permission_creator"]
+            isOneToOne: false
+            referencedRelation: "everything_sum"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "permissions_permission_creator_fkey"
+            columns: ["permission_creator"]
+            isOneToOne: false
+            referencedRelation: "user_view"
+            referencedColumns: ["base_user_id"]
+          },
+          {
             foreignKeyName: "permissions_permission_type_fkey"
             columns: ["permission_type"]
             isOneToOne: false
@@ -189,6 +243,34 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "user_permissions_view"
             referencedColumns: ["permission_type_id"]
+          },
+          {
+            foreignKeyName: "permissions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "base_users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "permissions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "everything"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "permissions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "everything_sum"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "permissions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "user_view"
+            referencedColumns: ["base_user_id"]
           },
         ]
       }
@@ -293,7 +375,7 @@ export type Database = {
           customer_id: number
           id?: number
           item?: string | null
-          minister?: string
+          minister: string
           ordered?: number
           ordered_at?: string
           paid: number
@@ -463,7 +545,64 @@ export type Database = {
           permission_type_id: number | null
           user_id: number | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "permissions_permission_creator_fkey"
+            columns: ["permission_creator"]
+            isOneToOne: false
+            referencedRelation: "base_users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "permissions_permission_creator_fkey"
+            columns: ["permission_creator"]
+            isOneToOne: false
+            referencedRelation: "everything"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "permissions_permission_creator_fkey"
+            columns: ["permission_creator"]
+            isOneToOne: false
+            referencedRelation: "everything_sum"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "permissions_permission_creator_fkey"
+            columns: ["permission_creator"]
+            isOneToOne: false
+            referencedRelation: "user_view"
+            referencedColumns: ["base_user_id"]
+          },
+          {
+            foreignKeyName: "permissions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "base_users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "permissions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "everything"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "permissions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "everything_sum"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "permissions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "user_view"
+            referencedColumns: ["base_user_id"]
+          },
+        ]
       }
       user_view: {
         Row: {
@@ -504,6 +643,7 @@ export type Database = {
         Args: { permission_name: string }
         Returns: boolean
       }
+      get_current_base_user_id: { Args: never; Returns: number }
       get_reservations_for_user: {
         Args: { p_base_user_id: number }
         Returns: {
@@ -592,6 +732,22 @@ export type Database = {
           base_room: number
           base_surname: string
           base_user_id: number
+        }[]
+      }
+      get_user_full_details: {
+        Args: { p_base_user_id?: number }
+        Returns: {
+          auth_email: string
+          auth_user_id: string
+          base_user_id: number
+          birth_date: string
+          created_at: string
+          name: string
+          permissions: string[]
+          phone_number: string
+          resident_id: number
+          room: number
+          surname: string
         }[]
       }
       slot_range_from_date_index: {
@@ -751,3 +907,4 @@ export const Constants = {
     Enums: {},
   },
 } as const
+

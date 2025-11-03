@@ -1,5 +1,7 @@
-import { createBrowserRouter } from 'react-router-dom';
+import { createBrowserRouter, Outlet } from 'react-router-dom';
 import { ProtectedPath } from '../components/ProtectedPath';
+import { PermissionPath } from '../components/PermissionPath';
+import { Unauthorized } from '../components/views/Unauthorized';
 import { BeerAdded } from '../components/views/Pivo/Adder/Adder';
 import App from '../components/views/App';
 import { Authentication } from '../components/views/auth/Auth';
@@ -14,76 +16,143 @@ import { EditSelf } from '../components/views/UserManagement/ViewSelf';
 import { PranjeInfo } from '../components/views/Washing/Info/PranjeInfo';
 import { UserEditing } from '../components/views/UserManagement/UserEditing/UserEditing';
 import { EditUserPage } from '../components/views/UserManagement/UserEditing/EditUserPage';
+import { Title } from '@mantine/core';
 
 export const router = createBrowserRouter([
   {
-    path: '/auth',
-    element: <Authentication />,
-  },
-  {
     path: '/',
-    element: (
-      <ProtectedPath redirectUrl="/auth">
-        <App />
-      </ProtectedPath>
-    ),
+    element: <App />,
+
     children: [
+      // AUTH
       {
-        path: '/transactions',
-        element: <Transactions />,
+        path: '/auth',
+        element: <Authentication />,
       },
+
+      // HOME
       {
         path: '/',
-        element: <Dashboard />,
+        element: <Title>Domov - dom - kuča</Title>,
       },
+
+      // PIVO
       {
-        path: '/add',
-        element: <BeerAdded />,
-      },
-      {
-        path: '/puff',
-        element: <PuffTable />,
-      },
-      {
-        path: '/user',
+        path: '/pivo',
+        element: (
+          <ProtectedPath redirectUrl="/auth">
+            <Outlet />
+          </ProtectedPath>
+        ),
         children: [
           {
-            path: '/user/:id',
-            element: <UserView />,
+            path: '/pivo/transactions',
+            element: (
+              <PermissionPath permission="MANAGE_TRANSACTIONS">
+                <Transactions />
+              </PermissionPath>
+            ),
           },
+          {
+            path: '/pivo/',
+            element: (
+              <PermissionPath permission="MANAGE_TRANSACTIONS">
+                <Dashboard />
+              </PermissionPath>
+            ),
+          },
+
+          {
+            path: '/pivo/add',
+            element: (
+              <PermissionPath permission="MANAGE_TRANSACTIONS">
+                <BeerAdded />
+              </PermissionPath>
+            ),
+          },
+          {
+            path: '/pivo/puff',
+            element: (
+              <PermissionPath permission="MANAGE_TRANSACTIONS">
+                <PuffTable />
+              </PermissionPath>
+            ),
+          },
+          // {
+          //   path: '/nabava',
+          //   element: <Nabava />,
+          // },
+          // {
+          //   path: '/zaloge',
+          //   element: <Zaloge />,
+          // },
+        ],
+      },
+
+      // USERS
+      {
+        path: '/user',
+        element: (
+          <ProtectedPath redirectUrl="/auth">
+            <Outlet />
+          </ProtectedPath>
+        ),
+        children: [
           {
             path: '/user',
             element: <EditSelf />,
           },
           {
+            path: '/user/:id',
+            element: (
+              <PermissionPath permission="MANAGE_USERS">
+                <UserView />
+              </PermissionPath>
+            ),
+          },
+          {
             path: '/user/edit',
-            element: <UserEditing />,
+            element: (
+              <PermissionPath permission="MANAGE_USERS">
+                <UserEditing />
+              </PermissionPath>
+            ),
           },
           {
             path: '/user/edit/:id',
-            element: <EditUserPage />,
+            element: (
+              <PermissionPath permission="MANAGE_USERS">
+                <EditUserPage />
+              </PermissionPath>
+            ),
           },
         ],
       },
 
-      // {
-      //   path: '/nabava',
-      //   element: <Nabava />,
-      // },
-      // {
-      //   path: '/zaloge',
-      //   element: <Zaloge />,
-      // },
+      // PRANJE
       {
         path: '/pranje',
+        element: (
+          <ProtectedPath redirectUrl="/auth">
+            <Outlet />
+          </ProtectedPath>
+        ),
         children: [
           {
             path: '/pranje/novo',
-            element: <WashingTimetable />,
+            element: (
+              <PermissionPath permission="CAN_WASH">
+                <WashingTimetable />
+              </PermissionPath>
+            ),
           },
           {
             path: '/pranje/moje',
-            element: <MyWashing />,
+            element: (
+              <PermissionPath permission="CAN_WASH">
+                <MyWashing />
+              </PermissionPath>
+            ),
           },
           {
             path: '/pranje/info',
@@ -92,11 +161,23 @@ export const router = createBrowserRouter([
         ],
       },
 
+      // ADMIN
       {
         path: '/admin/enroll',
-        element: <EnrollUser />,
+        element: (
+          <ProtectedPath redirectUrl="/auth">
+            <PermissionPath permission="ENROLL">
+              <EnrollUser />
+            </PermissionPath>
+          </ProtectedPath>
+        ),
       },
 
+      // OTHER
+      {
+        path: '/unauthorized',
+        element: <Unauthorized />,
+      },
       {
         path: '/*',
         element: '404',

@@ -1,18 +1,9 @@
-import {
-  Alert,
-  Button,
-  Stack,
-  Stepper,
-  Paper,
-  Text,
-  Container,
-} from '@mantine/core';
+import { Alert, Container, Stack } from '@mantine/core';
+import { User } from '@supabase/supabase-js';
+import { IconAlertCircle } from '@tabler/icons-react';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { UserRegisterForm } from '../../../users/registerUser';
-import { IconAlertCircle } from '@tabler/icons-react';
-import { User } from '@supabase/supabase-js';
-import { EnrollUserDetails } from './EnrollUserDetails';
 import { UserEditFormValues } from '../../../users/UserEditForm';
 
 export const EnrollUser = () => {
