@@ -1,27 +1,8 @@
 import { Alert, Container, Stack } from '@mantine/core';
-import { User } from '@supabase/supabase-js';
 import { IconAlertCircle } from '@tabler/icons-react';
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { UserRegisterForm } from '../../../users/registerUser';
-import { UserEditFormValues } from '../../../users/UserEditForm';
 
 export const EnrollUser = () => {
-  const [active, setActive] = useState(0);
-  const [newUser, setNewUser] = useState<User | null>(null);
-  const [userDetails, setUserDetails] = useState<UserEditFormValues | null>(
-    null,
-  );
-  const navigate = useNavigate();
-
-  const nextStep = () =>
-    setActive((current) => (current < 3 ? current + 1 : current));
-
-  const handleRegisterSubmit = (user: User) => {
-    setNewUser(user);
-    nextStep();
-  };
-
   return (
     <Container>
       <Stack my="xl" p="md">
@@ -40,7 +21,7 @@ export const EnrollUser = () => {
             spremeni geslo ob prvem vpisu.
           </p>
         </Alert>
-        <UserRegisterForm onSubmit={handleRegisterSubmit} />
+        <UserRegisterForm />
       </Stack>
     </Container>
   );

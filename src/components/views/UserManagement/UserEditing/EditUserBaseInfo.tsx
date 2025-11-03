@@ -2,7 +2,6 @@ import {
   TextInput,
   Button,
   Text,
-  Paper,
   LoadingOverlay,
   Alert,
   Box,
