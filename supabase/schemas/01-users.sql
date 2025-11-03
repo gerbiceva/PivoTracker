@@ -191,6 +191,48 @@ GRANT ALL ON FUNCTION "public"."set_user_permissions"(p_base_user_id bigint, p_p
 GRANT ALL ON FUNCTION "public"."set_user_permissions"(p_base_user_id bigint, p_permission_type_ids bigint[]) TO "authenticated";
 GRANT ALL ON FUNCTION "public"."set_user_permissions"(p_base_user_id bigint, p_permission_type_ids bigint[]) TO "service_role";
 
+CREATE OR REPLACE FUNCTION "public"."create_and_link_resident"(
+    p_base_user_id bigint,
+    p_room bigint,
+    p_phone_number text DEFAULT NULL,
+    p_birth_date date DEFAULT NULL
+) RETURNS bigint
+    LANGUAGE "plpgsql" SECURITY INVOKER
+    AS $$
+DECLARE
+    resident_id bigint;
+    existing_resident_id bigint;
+BEGIN
+    -- Check if the base_user exists
+    IF NOT EXISTS (SELECT 1 FROM public.base_users WHERE id = p_base_user_id) THEN
+        RAISE EXCEPTION 'Base user with ID % does not exist.', p_base_user_id;
+    END IF;
+
+    -- Check if the base_user already has a resident linked
+    SELECT resident INTO existing_resident_id FROM public.base_users WHERE id = p_base_user_id;
+    IF existing_resident_id IS NOT NULL THEN
+        RAISE EXCEPTION 'Base user with ID % already has a resident linked (ID: %).', p_base_user_id, existing_resident_id;
+    END IF;
+
+    -- Insert new resident record
+    INSERT INTO public.residents (room, phone_number, birth_date, created_at)
+    VALUES (p_room, p_phone_number, p_birth_date, now())
+    RETURNING id INTO resident_id;
+
+    -- Link the new resident to the base_user
+    UPDATE public.base_users
+    SET resident = resident_id
+    WHERE id = p_base_user_id;
+
+    RETURN resident_id;
+END;
+$$;
+ALTER FUNCTION "public"."create_and_link_resident"(p_base_user_id bigint, p_room bigint, p_phone_number text, p_birth_date date) OWNER TO "postgres";
+
+GRANT ALL ON FUNCTION "public"."create_and_link_resident"(p_base_user_id bigint, p_room bigint, p_phone_number text, p_birth_date date) TO "anon";
+GRANT ALL ON FUNCTION "public"."create_and_link_resident"(p_base_user_id bigint, p_room bigint, p_phone_number text, p_birth_date date) TO "authenticated";
+GRANT ALL ON FUNCTION "public"."create_and_link_resident"(p_base_user_id bigint, p_room bigint, p_phone_number text, p_birth_date date) TO "service_role";
+
 SET default_tablespace = '';
 SET default_table_access_method = "heap";
 
@@ -293,6 +335,8 @@ ALTER TABLE ONLY "public"."permission_types"
     ADD CONSTRAINT "permission_types_pkey" PRIMARY KEY ("id");
 ALTER TABLE ONLY "public"."permissions"
     ADD CONSTRAINT "permissions_pkey" PRIMARY KEY ("id");
+ALTER TABLE ONLY "public"."permissions"
+    ADD CONSTRAINT "unique_user_permission" UNIQUE ("user_id", "permission_type");
 ALTER TABLE ONLY "public"."residents"
     ADD CONSTRAINT "residents_pkey" PRIMARY KEY ("id");
 
