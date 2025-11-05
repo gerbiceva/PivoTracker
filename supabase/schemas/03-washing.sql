@@ -307,6 +307,7 @@ GRANT ALL ON FUNCTION "public"."slot_range_from_date_index"("p_date" "date", "p_
 
 ALTER TABLE "public"."reservations" ENABLE ROW LEVEL SECURITY;
 
+CREATE POLICY "reservations_select_by_can_wash" ON "public"."reservations" FOR SELECT TO "authenticated" USING ("public"."current_user_has_permission"('CAN_WASH'::"text"));
 CREATE POLICY "reservations_insert_by_can_wash" ON "public"."reservations" FOR INSERT TO "authenticated" WITH CHECK ("public"."current_user_has_permission"('CAN_WASH'::"text") AND "user_id" = (SELECT "id" FROM "public"."base_users" WHERE "auth" = auth.uid()));
 CREATE POLICY "reservations_delete_own_rows" ON "public"."reservations" FOR DELETE TO "authenticated" USING ("user_id" = (SELECT "id" FROM "public"."base_users" WHERE "auth" = auth.uid()));
 
@@ -338,5 +339,27 @@ ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" GRANT ALL ON TAB
 ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" GRANT ALL ON TABLES TO "anon";
 ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" GRANT ALL ON TABLES TO "authenticated";
 ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" GRANT ALL ON TABLES TO "service_role";
+
+-- Create a function to delete a reservation by its ID in the washing schema
+-- This function is a workaround for potential issues with supabaseClient.from().delete().eq() on bigint IDs
+CREATE OR REPLACE FUNCTION "public".delete_reservation_by_id(p_reservation_id BIGINT)
+RETURNS TABLE(deleted_count BIGINT) AS $$
+BEGIN
+    -- Perform the delete operation
+    -- Use a subquery to get the count of deleted rows
+    RETURN QUERY
+    WITH deleted AS (
+        DELETE FROM public.reservations
+        WHERE id = p_reservation_id
+        AND "user_id" = (SELECT "id" FROM "public"."base_users" WHERE "auth" = auth.uid()) -- Re-implement RLS logic here
+        RETURNING *
+    )
+    SELECT count(*)::BIGINT FROM deleted;
+
+END;
+$$ LANGUAGE plpgsql SECURITY INVOKER;
+
+-- Grant execute permission on the function to authenticated users
+GRANT EXECUTE ON FUNCTION "public".delete_reservation_by_id(BIGINT) TO authenticated;
 
 RESET ALL;

@@ -639,9 +639,24 @@ export type Database = {
         }
         Returns: number
       }
+      create_and_link_resident: {
+        Args: {
+          p_base_user_id: number
+          p_birth_date?: string
+          p_phone_number?: string
+          p_room: number
+        }
+        Returns: number
+      }
       current_user_has_permission: {
         Args: { permission_name: string }
         Returns: boolean
+      }
+      delete_reservation_by_id: {
+        Args: { p_reservation_id: number }
+        Returns: {
+          deleted_count: number
+        }[]
       }
       get_current_base_user_id: { Args: never; Returns: number }
       get_reservations_for_user: {
