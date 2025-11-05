@@ -16,7 +16,7 @@ import { EditSelf } from '../components/views/UserManagement/ViewSelf';
 import { PranjeInfo } from '../components/views/Washing/Info/PranjeInfo';
 import { UserEditing } from '../components/views/UserManagement/UserEditing/UserEditing';
 import { EditUserPage } from '../components/views/UserManagement/UserEditing/EditUserPage';
-import { Title } from '@mantine/core';
+import { HomePage } from '../components/views/Homepage';
 
 export const router = createBrowserRouter([
   {
@@ -27,7 +27,11 @@ export const router = createBrowserRouter([
       // HOME
       {
         path: '/',
-        element: <Title>Domov - dom - kuča</Title>,
+        element: (
+          <ProtectedPath redirectUrl={'/auth'}>
+            <HomePage />
+          </ProtectedPath>
+        ),
       },
 
       // PIVO
