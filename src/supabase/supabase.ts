@@ -652,6 +652,12 @@ export type Database = {
         Args: { permission_name: string }
         Returns: boolean
       }
+      delete_reservation_by_id: {
+        Args: { p_reservation_id: number }
+        Returns: {
+          deleted_count: number
+        }[]
+      }
       get_current_base_user_id: { Args: never; Returns: number }
       get_reservations_for_user: {
         Args: { p_base_user_id: number }
