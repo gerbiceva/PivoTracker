@@ -13,8 +13,6 @@ import { supabaseClient } from '../../../../supabase/supabaseClient';
 import { useEffect, useState } from 'react';
 import { IconAlertCircle } from '@tabler/icons-react';
 import { DateInput } from '@mantine/dates';
-import { useSWRConfig } from 'swr';
-import { ConfirmAdd } from '../../Washing/Timetable/ConfirmAdd';
 import { notifications } from '@mantine/notifications';
 import { refetchTables } from '../../../../supabase/supa-utils/supaSWRCache';
 
