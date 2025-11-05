@@ -97,8 +97,8 @@ export const useLiveTransactions = () => {
           );
         },
       )
-      .subscribe((state) => {
-        console.log(state);
+      .subscribe(() => {
+        // console.log(state);
       });
   }, []);
 

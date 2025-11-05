@@ -17,12 +17,9 @@ import {
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { useFocusTrap } from '@mantine/hooks';
-import { notifications } from '@mantine/notifications';
 import { useState } from 'react';
 import { Database, Tables } from '../../../../supabase/supabase';
-import { supabaseClient } from '../../../../supabase/supabaseClient';
 import { NameCombobox } from './NameCombobox';
-import { useNavigate } from 'react-router-dom';
 import { IconCalculator } from '@tabler/icons-react';
 import { ItemSelect } from './ItemSelect';
 
@@ -33,64 +30,64 @@ interface Order {
   paid: number;
 }
 
-const addOrder = (
-  { user, order, paid, item }: Order,
-  navigate: (url: string) => void,
-) => {
-  const ordered = order;
-  return new Promise<void>((resolve, reject) => {
-    console.log('add order', item?.id);
-    if (!user || !item) {
-      console.error('No user or item');
-      return;
-    }
+const addOrder = ({ user, item }: Order) =>
+  // navigate: (url: string) => void,
+  {
+    // const ordered = order;
+    return new Promise<void>(() => {
+      // console.log('add order', item?.id);
+      if (!user || !item) {
+        console.error('No user or item');
+        return;
+      }
 
-    supabaseClient
-      .from('transactions')
-      .insert({
-        customer_id: user.base_user_id!,
-        ordered,
-        paid,
-        item: item.id,
-      })
-      .then((res) => {
-        if (res.error) {
-          console.log(res.error);
-          notifications.show({
-            title: 'Error',
-            color: 'red',
-            autoClose: 1000,
-            message: <Text>Ni uspelo dodati piva + {res.error.message}</Text>,
-          });
-          return reject();
-        }
+      //   supabaseClient
+      //     .from('transactions')
+      //     .insert({
+      //       minister: user.base_user_id,
+      //       id:
+      //       customer_id: user.base_user_id!,
+      //       ordered,
+      //       paid,
+      //       item: item.id,
+      //     })
+      //     .then((res) => {
+      //       if (res.error) {
+      //         // console.log(res.error);
+      //         notifications.show({
+      //           title: 'Error',
+      //           color: 'red',
+      //           autoClose: 1000,
+      //           message: <Text>Ni uspelo dodati piva + {res.error.message}</Text>,
+      //         });
+      //         return reject();
+      //       }
 
-        notifications.show({
-          title: 'Success',
-          color: 'green',
-          autoClose: 4000,
+      //       notifications.show({
+      //         title: 'Success',
+      //         color: 'green',
+      //         autoClose: 4000,
 
-          message: (
-            <Stack>
-              <Text>Uspešno dodano pivo</Text>
-              <Button
-                onClick={() => {
-                  navigate(`/user/${user.base_user_id}`);
-                }}
-              >
-                Preglej uporabnika
-              </Button>
-            </Stack>
-          ),
-        });
-        resolve();
-      });
-  });
-};
+      //         message: (
+      //           <Stack>
+      //             <Text>Uspešno dodano pivo</Text>
+      //             <Button
+      //               onClick={() => {
+      //                 navigate(`/user/${user.base_user_id}`);
+      //               }}
+      //             >
+      //               Preglej uporabnika
+      //             </Button>
+      //           </Stack>
+      //         ),
+      //       });
+      //       resolve();
+      //     });
+      // TODO:
+    });
+  };
 
 export const BeerAdded = () => {
-  const navigate = useNavigate();
-
   const cols = useMatches({
     base: 1,
     md: 3,
@@ -123,7 +120,7 @@ export const BeerAdded = () => {
 
   function order(order: Order) {
     setIsLoading(true);
-    addOrder(order, navigate).finally(() => {
+    addOrder(order).finally(() => {
       setIsLoading(false);
       form.reset();
       form.setValues({

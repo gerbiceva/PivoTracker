@@ -7,7 +7,6 @@ import {
   Alert,
   Stack,
   ThemeIcon,
-  Box,
 } from '@mantine/core';
 import { CalendarDay } from './WashingTimetable';
 import { SlotComponent } from './SlotComponent';
@@ -17,13 +16,7 @@ import { ReservationItemInfo } from './ReservationItem';
 import dayjs from 'dayjs';
 import { IconMoodEmpty } from '@tabler/icons-react';
 
-export const DayItem = ({
-  day,
-  enabled = true,
-}: {
-  day: CalendarDay;
-  enabled?: boolean;
-}) => {
+export const DayItem = ({ day }: { day: CalendarDay; enabled?: boolean }) => {
   return (
     <Paper
       withBorder

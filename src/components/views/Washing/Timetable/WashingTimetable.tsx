@@ -3,7 +3,6 @@ import {
   Alert,
   Badge,
   Button,
-  ColorSwatch,
   Text,
   Group,
   LoadingOverlay,
@@ -14,7 +13,6 @@ import {
   IconChevronCompactLeft,
   IconChevronCompactRight,
   IconHelpCircleFilled,
-  IconQuestionMark,
 } from '@tabler/icons-react';
 import { useCallback, useState } from 'react';
 import dayjs from 'dayjs';

@@ -32,7 +32,12 @@ export function Authentication() {
 
     validate: {
       email: (value) => (/^\S+@\S+$/.test(value) ? null : 'Invalid email'),
-      otp: (value) => (value && value.length > 0 ? (value.length === 6 ? null : 'OTP must be 6 digits') : null),
+      otp: (value) =>
+        value && value.length > 0
+          ? value.length === 6
+            ? null
+            : 'OTP must be 6 digits'
+          : null,
     },
   });
 
@@ -75,8 +80,8 @@ export function Authentication() {
                         email: values.email,
                         options: {
                           shouldCreateUser: false,
-                          emailRedirectTo: window.location.origin
-                        }
+                          emailRedirectTo: window.location.origin,
+                        },
                       })
                       .then((res) => {
                         if (res.error) {
@@ -107,14 +112,17 @@ export function Authentication() {
                     Send OTP
                   </Button>
                 </form>
-                
+
                 <form
                   onSubmit={form.onSubmit(async (values) => {
                     if (!values.otp) {
-                      setErr({ message: 'Please enter an OTP code to verify', status: 400 } as AuthError);
+                      setErr({
+                        message: 'Please enter an OTP code to verify',
+                        status: 400,
+                      } as AuthError);
                       return;
                     }
-                    
+
                     setLoading(true);
                     setErr(undefined);
 
@@ -123,7 +131,7 @@ export function Authentication() {
                       .verifyOtp({
                         email: values.email,
                         token: values.otp,
-                        type: 'email'
+                        type: 'email',
                       })
                       .then((res) => {
                         if (res.error) {

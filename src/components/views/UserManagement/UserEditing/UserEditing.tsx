@@ -8,8 +8,10 @@ import {
   Text,
   Alert,
   TextInput,
+  Group,
+  ActionIcon,
 } from '@mantine/core';
-import { IconAlertCircle, IconSearch } from '@tabler/icons-react';
+import { IconAlertCircle, IconSearch, IconUserPlus } from '@tabler/icons-react';
 import { useUserEditing } from './useUserEditing';
 import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
@@ -48,8 +50,21 @@ export const UserEditing = () => {
   return (
     <Container>
       <Stack>
-        <Title>User Management</Title>
-        <Text c="dimmed">Edit user information and permissions.</Text>
+        <Group w="100%" justify="space-between">
+          <Stack>
+            <Title>User Management</Title>
+            <Text c="dimmed">Edit user information and permissions.</Text>
+          </Stack>
+          <ActionIcon
+            variant="light"
+            size="xl"
+            onClick={() => {
+              navigate('/admin/enroll');
+            }}
+          >
+            <IconUserPlus />
+          </ActionIcon>
+        </Group>
         <TextInput
           placeholder="Search by name or surname"
           value={inputValue}
