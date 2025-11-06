@@ -16,7 +16,13 @@ import { ReservationItemInfo } from './ReservationItem';
 import dayjs from 'dayjs';
 import { IconMoodEmpty } from '@tabler/icons-react';
 
-export const DayItem = ({ day }: { day: CalendarDay; enabled?: boolean }) => {
+export const DayItem = ({
+  day,
+  enabled,
+}: {
+  day: CalendarDay;
+  enabled?: boolean;
+}) => {
   return (
     <Paper
       withBorder
@@ -103,7 +109,7 @@ export const DayItem = ({ day }: { day: CalendarDay; enabled?: boolean }) => {
 
               {day.date.endOf('day') >= dayjs().utc() && (
                 <div style={{ width: 'fit-content', marginLeft: 'auto' }}>
-                  <AddWashingModal day={day.date} enabled={false} />
+                  <AddWashingModal day={day.date} enabled={!enabled} />
                 </div>
               )}
             </Accordion.Panel>

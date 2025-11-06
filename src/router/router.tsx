@@ -175,10 +175,6 @@ export const router = createBrowserRouter([
 
   // OTHER
   {
-    path: '/unauthorized',
-    element: <Unauthorized />,
-  },
-  {
     path: '/*',
     element: '404',
   },
