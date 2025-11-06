@@ -6,6 +6,7 @@ import {
   Alert,
   Group,
   Text,
+  SimpleGrid,
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { getSupaWR } from '../../../../supabase/supa-utils/supaSWR';
@@ -143,25 +144,17 @@ export const ResidentInfoForm = ({ baseUserId }: ResidentInfoFormProps) => {
         <Text size="xs" fw="bold" c="dimmed" mt="xl">
           INFORMACIJE PREBIVALCA
         </Text>
-        <Group w="100%">
+        <SimpleGrid cols={{ base: 1, sm: 2 }}>
+          <TextInput description="Room" {...form.getInputProps('room')} />
           <TextInput
-            flex={1}
-            description="Room"
-            {...form.getInputProps('room')}
-          />
-          <TextInput
-            flex={1}
             description="Phone Number"
             {...form.getInputProps('phone_number')}
           />
-        </Group>
-        <Group>
           <DateInput
-            flex={1}
             description="Birth Date"
             {...form.getInputProps('birth_date')}
           />
-        </Group>
+        </SimpleGrid>
         <LoadingOverlay visible={isLoading} />
 
         <Group justify="flex-end">

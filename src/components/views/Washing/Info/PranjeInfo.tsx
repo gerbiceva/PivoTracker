@@ -11,7 +11,7 @@ import {
   Box,
 } from '@mantine/core';
 import { Link } from 'react-router-dom';
-import { DayItem } from '../Timetable/DayItem';
+import { WashingDayItem } from '../Timetable/DayItem';
 import dayjs from 'dayjs';
 import { ReservationAlert } from '../MyWashing/ReservationAlert';
 
@@ -105,7 +105,7 @@ export const PranjeInfo = () => {
         <Text>
           Za dodajanje novih terminov je v dropdownu gumb <b>Dodaj termin +</b>
         </Text>
-        <DayItem
+        <WashingDayItem
           day={{
             date: dayjs(),
             events: [

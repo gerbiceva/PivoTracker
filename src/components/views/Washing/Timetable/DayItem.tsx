@@ -7,6 +7,7 @@ import {
   Alert,
   Stack,
   ThemeIcon,
+  Flex,
 } from '@mantine/core';
 import { CalendarDay } from './WashingTimetable';
 import { SlotComponent } from './SlotComponent';
@@ -16,7 +17,7 @@ import { ReservationItemInfo } from './ReservationItem';
 import dayjs from 'dayjs';
 import { IconMoodEmpty } from '@tabler/icons-react';
 
-export const DayItem = ({
+export const WashingDayItem = ({
   day,
   enabled,
 }: {
@@ -35,7 +36,7 @@ export const DayItem = ({
       }}
     >
       {/* {day.date.toISOString()} {FormatLocalDateCustom(day.date, 'MM.DD HH:mm')} */}
-      <Group align="center">
+      <Flex direction={{ base: 'column', sm: 'row' }} gap="sm">
         <Stack align="center" gap="xs">
           <ThemeIcon size="xl" variant={day.isToday ? 'filled' : 'light'}>
             {FormatLocalDateCustom(day.date, 'D')}
@@ -58,10 +59,10 @@ export const DayItem = ({
             }}
           >
             <Accordion.Control>
-              <Group>
+              <SimpleGrid cols={{ base: 1, sm: 2 }}>
                 <SlotComponent day={day} machine={1} color="indigo" />
                 <SlotComponent day={day} machine={2} color="orange" />
-              </Group>
+              </SimpleGrid>
             </Accordion.Control>
 
             <Accordion.Panel>
@@ -115,7 +116,7 @@ export const DayItem = ({
             </Accordion.Panel>
           </Accordion.Item>
         </Accordion>
-      </Group>
+      </Flex>
     </Paper>
   );
 };

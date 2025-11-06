@@ -72,7 +72,7 @@ export const AddWashingModal = ({ day, enabled = true }: WashingModalProps) => {
 
   return (
     <>
-      <Modal opened={opened} onClose={close} size="xl" centered>
+      <Modal opened={opened} onClose={close} size="xl" centered fullScreen>
         <LoadingOverlay visible={isLoading} />
         {error ? (
           <Alert title="napaka">{error.message}</Alert>
