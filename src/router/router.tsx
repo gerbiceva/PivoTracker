@@ -1,7 +1,6 @@
 import { createBrowserRouter, Outlet } from 'react-router-dom';
 import { ProtectedPath } from '../components/ProtectedPath';
 import { PermissionPath } from '../components/PermissionPath';
-import { Unauthorized } from '../components/views/Unauthorized';
 import { BeerAdded } from '../components/views/Pivo/Adder/Adder';
 import App from '../components/views/App';
 import { Authentication } from '../components/views/auth/Auth';
