@@ -18,6 +18,7 @@ import { useUser } from '../../../supabase/loader';
 import { Navigate } from 'react-router-dom';
 import { useState } from 'react';
 import { AuthError } from '@supabase/supabase-js';
+import { notifications } from '@mantine/notifications';
 
 export function Authentication() {
   const { user } = useUser();
@@ -88,7 +89,11 @@ export function Authentication() {
                           setErr(res.error);
                         } else {
                           // Show success message to user to check their email
-                          alert('Please check your email for the OTP code');
+                          notifications.show({
+                            title: 'Prijava poslana',
+                            message:
+                              'OTP koda je bila poslana na vaš e-mail naslov. Kopirajte kodo iz maila, da se prijavite.',
+                          });
                         }
                       })
                       .finally(() => {
