@@ -13,7 +13,7 @@ import {
 import { useForm } from '@mantine/form';
 import { supabaseClient } from '../../../supabase/supabaseClient';
 import { useUser } from '../../../supabase/loader';
-import { Navigate, redirect } from 'react-router-dom';
+import { Navigate } from 'react-router-dom';
 import { useState } from 'react';
 import { AuthError } from '@supabase/supabase-js';
 import { notifications } from '@mantine/notifications';

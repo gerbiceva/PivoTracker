@@ -27,7 +27,7 @@ export const useUser = () => {
 
   useEffect(() => {
     const { data: authListener } = supabaseClient.auth.onAuthStateChange(
-      (event, session) => {
+      (_, session) => {
         setUser(session?.user ?? undefined);
         setLoading(false);
       },
