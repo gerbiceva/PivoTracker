@@ -27,7 +27,7 @@ export function Authentication() {
 
   const form = useForm({
     initialValues: {
-      email: 'lan.vukusic@gmail.com',
+      email: '',
       otp: '',
     },
 

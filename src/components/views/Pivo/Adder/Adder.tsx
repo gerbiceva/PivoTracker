@@ -22,6 +22,10 @@ import { Database, Tables } from '../../../../supabase/supabase';
 import { NameCombobox } from './NameCombobox';
 import { IconCalculator } from '@tabler/icons-react';
 import { ItemSelect } from './ItemSelect';
+import { notifications } from '@mantine/notifications';
+import { supabaseClient } from '../../../../supabase/supabaseClient';
+import { useNavigate } from 'react-router-dom';
+import { useUser } from '../../../../supabase/loader';
 
 interface Order {
   user: Database['public']['Views']['user_view']['Row'] | null;
@@ -30,69 +34,68 @@ interface Order {
   paid: number;
 }
 
-const addOrder = ({ user, item }: Order) =>
-  // navigate: (url: string) => void,
-  {
+export const BeerAdder = () => {
+  const { loading: loadingMinister, user: minister } = useUser();
+
+  const addOrder = ({ user, item, order, paid }: Order) => {
     // const ordered = order;
-    return new Promise<void>(() => {
+    return new Promise<void>((resolve, reject) => {
       // console.log('add order', item?.id);
-      if (!user || !item) {
+      if (!user || !item || !minister || !user.base_user_id) {
         console.error('No user or item');
         return;
       }
 
-      //   supabaseClient
-      //     .from('transactions')
-      //     .insert({
-      //       minister: user.base_user_id,
-      //       id:
-      //       customer_id: user.base_user_id!,
-      //       ordered,
-      //       paid,
-      //       item: item.id,
-      //     })
-      //     .then((res) => {
-      //       if (res.error) {
-      //         // console.log(res.error);
-      //         notifications.show({
-      //           title: 'Error',
-      //           color: 'red',
-      //           autoClose: 1000,
-      //           message: <Text>Ni uspelo dodati piva + {res.error.message}</Text>,
-      //         });
-      //         return reject();
-      //       }
+      supabaseClient
+        .from('transactions')
+        .insert({
+          customer_id: user.base_user_id,
+          minister: minister.id,
+          paid,
+          ordered: order,
+          item: item.id,
+        })
+        .then((res) => {
+          if (res.error) {
+            // console.log(res.error);
+            notifications.show({
+              title: 'Error',
+              color: 'red',
+              autoClose: 1000,
+              message: <Text>Ni uspelo dodati piva + {res.error.message}</Text>,
+            });
+            return reject();
+          }
 
-      //       notifications.show({
-      //         title: 'Success',
-      //         color: 'green',
-      //         autoClose: 4000,
+          notifications.show({
+            title: 'Success',
+            color: 'green',
+            autoClose: 3000,
 
-      //         message: (
-      //           <Stack>
-      //             <Text>Uspešno dodano pivo</Text>
-      //             <Button
-      //               onClick={() => {
-      //                 navigate(`/user/${user.base_user_id}`);
-      //               }}
-      //             >
-      //               Preglej uporabnika
-      //             </Button>
-      //           </Stack>
-      //         ),
-      //       });
-      //       resolve();
-      //     });
-      // TODO:
+            message: (
+              <Stack>
+                <Text>Uspešno dodano pivo</Text>
+                <Button
+                  onClick={() => {
+                    navigate(`/pivo/user/${user.base_user_id}`);
+                  }}
+                >
+                  Preglej uporabnika
+                </Button>
+              </Stack>
+            ),
+          });
+          resolve();
+        });
     });
   };
 
-export const BeerAdded = () => {
   const cols = useMatches({
     base: 1,
     md: 3,
   });
-  console.log({ cols });
+
+  const navigate = useNavigate();
 
   const form = useForm<Order>({
     initialValues: {
@@ -158,6 +161,7 @@ export const BeerAdded = () => {
                     <NumberInput
                       // label="Število piv"
                       placeholder="3"
+                      min={0}
                       {...form.getInputProps('order')}
                     />
                   </Fieldset>
@@ -240,7 +244,7 @@ export const BeerAdded = () => {
           </Grid>
 
           <LoadingOverlay
-            visible={isLoading}
+            visible={isLoading || loadingMinister}
             overlayProps={{ radius: 'sm', blur: 2 }}
           />
         </Stack>

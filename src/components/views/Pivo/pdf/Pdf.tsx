@@ -12,13 +12,14 @@ import { IconFile } from '@tabler/icons-react';
 import { Link } from 'react-router-dom';
 import { Tables } from '../../../../supabase/supabase';
 import { formatCurrency } from '../../../../utils/Converter';
+import { baseUserToString } from '../../../../utils/userUtils';
 
 Font.register({ family: 'Roboto', src: '/roboto.ttf' });
 
 // Create Document Component
 interface PDFProps {
   transactions: Tables<'named_transactions'>[];
-  userinfo: Tables<'base_users'>;
+  userinfo: Tables<'user_view'>;
 }
 
 export const PDFUrl = ({ transactions, userinfo }: PDFProps) => {
@@ -137,24 +138,26 @@ export const PDFUrl = ({ transactions, userinfo }: PDFProps) => {
 
           {/* prejemnik */}
           <View>
-            <Text
-              style={{
-                backgroundColor: 'black',
-                borderRadius: '8px',
-                padding: '10px',
-                fontSize: '15px',
-                color: 'white',
-                margin: '5px auto',
-              }}
-            >
-              {userinfo.id}
-            </Text>
+            {userinfo.room && (
+              <Text
+                style={{
+                  backgroundColor: 'black',
+                  borderRadius: '8px',
+                  padding: '10px',
+                  fontSize: '15px',
+                  color: 'white',
+                  margin: '5px auto',
+                }}
+              >
+                {userinfo.room}
+              </Text>
+            )}
             <Text
               style={{
                 padding: '5px 0',
               }}
             >
-              {userinfo.name} + " " + {userinfo.surname}
+              {userinfo.name + ' ' + userinfo.surname}
             </Text>
           </View>
         </View>
@@ -263,8 +266,7 @@ export const PDFUrl = ({ transactions, userinfo }: PDFProps) => {
           >
             Izračun
           </Text>
-          {item('skupaj dobljeno: ', `${vsehPiv} piv`)}
-          {item('celotna cena: ', formatCurrency(vsehPiv || 0))}
+          {item('skupaj piv: ', `${vsehPiv} piv`)}
           {item('poravnano: ', formatCurrency(vsegaPlacano || 0))}
           <View
             style={{
@@ -319,11 +321,8 @@ export const PDFUrl = ({ transactions, userinfo }: PDFProps) => {
             marginLeft: 'auto',
           }}
         >
-          <Text>{userinfo.name}</Text>
-          <Text>
-            {/* {user.user?.email}: ___________________ */}
-            minister za tekoče zadeve
-          </Text>
+          <Text>{baseUserToString(userinfo)}</Text>
+          <Text>minister za tekoče zadeve</Text>
         </View>
       </Page>
     </Document>

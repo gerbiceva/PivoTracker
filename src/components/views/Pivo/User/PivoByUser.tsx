@@ -17,7 +17,7 @@ import { useGetUserInfo } from './getUserInfo';
 import { numToColor } from '../../../../utils/colorUtils';
 import { PDFUrl } from '../pdf/Pdf';
 
-export const UserView = () => {
+export const PivoByUser = () => {
   // read link params
   const { id } = useParams();
   const parsedId = parseInt(id || '');
@@ -28,6 +28,9 @@ export const UserView = () => {
     error: userErr,
     isLoading: isLoadingUser,
   } = useGetUserInfo(parsedId);
+
+  console.log(parsedId);
+
   const {
     data: transactions,
     error: TransactionErr,
@@ -62,7 +65,7 @@ export const UserView = () => {
         {/* ime in tag */}
         <Group align="center" py="xl">
           <Avatar variant="light" size="md" color={numToColor(parsedId)}>
-            {userInfo?.id}
+            {userInfo?.base_user_id}
           </Avatar>
           <Title c={numToColor(parsedId)}>{userInfo?.name}</Title>
         </Group>

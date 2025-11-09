@@ -4,12 +4,12 @@ import useSWR from 'swr';
 
 export const useGetUserInfo = (id: number) => {
   const fetcher = () =>
-    new Promise<Tables<'base_users'>>((resolve, reject) => {
+    new Promise<Tables<'user_view'>>((resolve, reject) => {
       supabaseClient
-        .from('base_users')
+        .from('user_view')
         .select()
-        .eq('id', id)
-        .order('id', { ascending: false })
+        .eq('base_user_id', id)
+        .order('base_user_id', { ascending: false })
         .then((res) => {
           if (!res.error) {
             if (res.data.length == 1) {
@@ -23,7 +23,7 @@ export const useGetUserInfo = (id: number) => {
         });
     });
 
-  const out = useSWR<Tables<'base_users'>>(`/view/customers/${id}`, fetcher);
+  const out = useSWR<Tables<'user_view'>>(`/view/customers/${id}`, fetcher);
 
   return out;
 };

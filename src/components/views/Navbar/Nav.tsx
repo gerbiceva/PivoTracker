@@ -1,6 +1,7 @@
 import {
   Badge,
   Box,
+  Burger,
   Group,
   Kbd,
   Paper,
@@ -47,24 +48,21 @@ export const Navbar = () => {
         <Group w="100%" justify="space-between">
           <Group
             onClick={spotlight.open}
-            display={!matches ? 'none' : undefined}
+            style={{ display: matches ? 'flex' : 'none', cursor: 'pointer' }}
           >
-            {/* <Burger
-              onClick={spotlight.open}
-              display={!matches ? undefined : 'none'}
-            /> */}
-
             <Box>
               <Kbd>ctrl</Kbd> + <Kbd>K</Kbd>
             </Box>
             <Text fw="bold">meni</Text>
           </Group>
 
+          <Burger
+            opened={false}
+            onClick={spotlight.open}
+            style={{ display: matches ? 'none' : 'block' }}
+          />
+
           <Group>
-            {/* {user && <UserTag fullname={user.email || ''} id={user.id} />}
-            <LogoutBtn size="xs" variant="subtle">
-              <IconLogout />
-            </LogoutBtn> */}
             <ColorchemeToggle />
           </Group>
         </Group>

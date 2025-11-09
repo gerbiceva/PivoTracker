@@ -1,13 +1,13 @@
 import { createBrowserRouter, Outlet } from 'react-router-dom';
 import { ProtectedPath } from '../components/ProtectedPath';
 import { PermissionPath } from '../components/PermissionPath';
-import { BeerAdded } from '../components/views/Pivo/Adder/Adder';
+import { BeerAdder } from '../components/views/Pivo/Adder/Adder';
 import App from '../components/views/App';
 import { Authentication } from '../components/views/auth/Auth';
 import { Dashboard } from '../components/views/Pivo/Dash/Dash';
 import { PuffTable } from '../components/views/Pivo/Pufi/PufiTabela';
 import { Transactions } from '../components/views/Pivo/Transactions/Transactions';
-import { UserView } from '../components/views/Pivo/User/UserOverview';
+import { PivoByUser } from '../components/views/Pivo/User/PivoByUser';
 import { WashingTimetable } from '../components/views/Washing/Timetable/WashingTimetable';
 import { MyWashing } from '../components/views/Washing/MyWashing/MyWashing';
 import { EnrollUser } from '../components/views/Admin/Users/Enroll';
@@ -59,15 +59,23 @@ export const router = createBrowserRouter([
             path: '/pivo/add',
             element: (
               <PermissionPath permission="MANAGE_TRANSACTIONS">
-                <BeerAdded />
+                <BeerAdder />
               </PermissionPath>
             ),
           },
           {
-            path: '/pivo/puff',
+            path: '/pivo/puf',
             element: (
               <PermissionPath permission="MANAGE_TRANSACTIONS">
                 <PuffTable />
+              </PermissionPath>
+            ),
+          },
+          {
+            path: '/pivo/user/:id',
+            element: (
+              <PermissionPath permission="MANAGE_TRANSACTIONS">
+                <PivoByUser />
               </PermissionPath>
             ),
           },
@@ -99,7 +107,7 @@ export const router = createBrowserRouter([
             path: '/user/:id',
             element: (
               <PermissionPath permission="MANAGE_USERS">
-                <UserView />
+                <PivoByUser />
               </PermissionPath>
             ),
           },
