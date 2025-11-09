@@ -26,11 +26,7 @@ export const router = createBrowserRouter([
       // HOME
       {
         path: '/',
-        element: (
-          <ProtectedPath redirectUrl={'/auth'}>
-            <HomePage />
-          </ProtectedPath>
-        ),
+        element: <HomePage />,
       },
 
       // PIVO
