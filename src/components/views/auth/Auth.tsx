@@ -18,6 +18,7 @@ import { useState } from 'react';
 import { AuthError } from '@supabase/supabase-js';
 import { notifications } from '@mantine/notifications';
 import { IconSparkles } from '@tabler/icons-react';
+import { useMediaQuery } from '@mantine/hooks';
 
 export function Authentication() {
   const { user, loading: loadginUser } = useUser();
@@ -50,7 +51,7 @@ export function Authentication() {
   }
 
   return (
-    <SimpleGrid cols={{ base: 1, sm: 2 }} spacing={0} h="100vh">
+    <SimpleGrid cols={{ base: 1, md: 2 }} spacing={0} h="100vh">
       <Paper
         p={30}
         shadow="xl"
@@ -197,6 +198,7 @@ export function Authentication() {
       </Paper>
 
       <Box
+        visibleFrom="md"
         style={{
           minHeight: '100vh',
           position: 'relative',

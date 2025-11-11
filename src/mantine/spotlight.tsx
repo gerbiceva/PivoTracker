@@ -1,6 +1,8 @@
 import { rem } from '@mantine/core';
 import {
   IconBeer,
+  IconCalendarEvent,
+  IconCalendarPlus,
   IconHome,
   IconList,
   IconLogout,
@@ -45,6 +47,36 @@ export const CustomSpotlight = () => {
             onClick: () => navigate('/'),
             leftSection: (
               <IconHome
+                style={{ width: rem(24), height: rem(24) }}
+                stroke={1.5}
+              />
+            ),
+          },
+        ],
+      },
+      {
+        group: 'Dogodki',
+        actions: [
+          {
+            id: 'events',
+            label: 'Dogodki',
+            description: 'Koledar dogodkov',
+            onClick: () => navigate('/events'),
+            leftSection: (
+              <IconCalendarEvent
+                style={{ width: rem(24), height: rem(24) }}
+                stroke={1.5}
+              />
+            ),
+          },
+          {
+            permission: 'MANAGE_EVENTS',
+            id: 'events',
+            label: 'Dodaj Dogodek',
+            description: 'Koledar dogodkov',
+            onClick: () => navigate('/events/create'),
+            leftSection: (
+              <IconCalendarPlus
                 style={{ width: rem(24), height: rem(24) }}
                 stroke={1.5}
               />

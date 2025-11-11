@@ -6,7 +6,8 @@ INSERT INTO public.permission_types (name, display_name) VALUES
   ('ENROLL_RESIDENT', 'Enroll Residents'),
   ('MANAGE_ITEMS', 'Manage Items'),
   ('MANAGE_TRANSACTIONS', 'Manage Transactions'),
-  ('CAN_WASH', 'Can Wash');
+  ('CAN_WASH', 'Can Wash'),
+  ('MANAGE_EVENTS', 'Manage Events');
 
 -- Insert default washing machines
 INSERT INTO public.washing_machines (name, description) VALUES

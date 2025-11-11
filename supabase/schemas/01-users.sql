@@ -333,6 +333,8 @@ ALTER TABLE ONLY "public"."base_users"
     ADD CONSTRAINT "base_user_pkey" PRIMARY KEY ("id");
 ALTER TABLE ONLY "public"."permission_types"
     ADD CONSTRAINT "permission_types_pkey" PRIMARY KEY ("id");
+ALTER TABLE ONLY "public"."permission_types"
+    ADD CONSTRAINT "permission_types_name_key" UNIQUE ("name");
 ALTER TABLE ONLY "public"."permissions"
     ADD CONSTRAINT "permissions_pkey" PRIMARY KEY ("id");
 ALTER TABLE ONLY "public"."permissions"

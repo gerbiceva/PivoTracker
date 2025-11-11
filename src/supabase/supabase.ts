@@ -7,11 +7,6 @@ export type Json =
   | Json[]
 
 export type Database = {
-  // Allows to automatically instantiate createClient with right options
-  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
-  __InternalSupabase: {
-    PostgrestVersion: "13.0.4"
-  }
   graphql_public: {
     Tables: {
       [_ in never]: never
@@ -109,6 +104,65 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "user_view"
             referencedColumns: ["resident_id"]
+          },
+        ]
+      }
+      events: {
+        Row: {
+          body: string
+          created_at: string
+          created_by: number | null
+          event_date: string
+          id: number
+          subtitle: string
+          title: string
+        }
+        Insert: {
+          body: string
+          created_at?: string
+          created_by?: number | null
+          event_date: string
+          id?: number
+          subtitle: string
+          title: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          created_by?: number | null
+          event_date?: string
+          id?: number
+          subtitle?: string
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "events_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "base_users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "events_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "everything"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "events_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "everything_sum"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "events_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "user_view"
+            referencedColumns: ["base_user_id"]
           },
         ]
       }
@@ -931,3 +985,4 @@ export const Constants = {
     Enums: {},
   },
 } as const
+
