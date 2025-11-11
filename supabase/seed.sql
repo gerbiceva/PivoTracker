@@ -7,6 +7,7 @@ INSERT INTO public.permission_types (name, display_name) VALUES
   ('MANAGE_ITEMS', 'Manage Items'),
   ('MANAGE_TRANSACTIONS', 'Manage Transactions'),
   ('CAN_WASH', 'Can Wash'),
+  ('ADD_OBLJUBA', 'Add Obljube');
   ('MANAGE_EVENTS', 'Manage Events');
 
 -- Insert default washing machines
@@ -132,5 +133,4 @@ FROM
     public.permission_types pt
 WHERE 
     bu.auth = (SELECT id FROM auth.users WHERE email = 'enei.sluga@gmail.com')
-    AND pt.name IN ('MANAGE_USERS', 'ENROLL', 'MANAGE_PERMISSIONS', 'ENROLL_RESIDENT', 'MANAGE_ITEMS', 'MANAGE_TRANSACTIONS', 'CAN_WASH');
-
+    AND pt.name IN ('MANAGE_USERS', 'ENROLL', 'MANAGE_PERMISSIONS', 'ENROLL_RESIDENT', 'MANAGE_ITEMS', 'MANAGE_TRANSACTIONS', 'CAN_WASH', 'ADD_OBLJUBA');
