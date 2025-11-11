@@ -220,6 +220,90 @@ export type Database = {
         }
         Relationships: []
       }
+      obljube: {
+        Row: {
+          amount: number
+          created_at: string
+          id: number
+          minister: number
+          reason: string
+          who: number
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          id?: number
+          minister: number
+          reason: string
+          who: number
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          id?: number
+          minister?: number
+          reason?: string
+          who?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "obljube_minister_fkey"
+            columns: ["minister"]
+            isOneToOne: false
+            referencedRelation: "base_users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "obljube_minister_fkey"
+            columns: ["minister"]
+            isOneToOne: false
+            referencedRelation: "everything"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "obljube_minister_fkey"
+            columns: ["minister"]
+            isOneToOne: false
+            referencedRelation: "everything_sum"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "obljube_minister_fkey"
+            columns: ["minister"]
+            isOneToOne: false
+            referencedRelation: "user_view"
+            referencedColumns: ["base_user_id"]
+          },
+          {
+            foreignKeyName: "obljube_who_fkey"
+            columns: ["who"]
+            isOneToOne: false
+            referencedRelation: "base_users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "obljube_who_fkey"
+            columns: ["who"]
+            isOneToOne: false
+            referencedRelation: "everything"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "obljube_who_fkey"
+            columns: ["who"]
+            isOneToOne: false
+            referencedRelation: "everything_sum"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "obljube_who_fkey"
+            columns: ["who"]
+            isOneToOne: false
+            referencedRelation: "user_view"
+            referencedColumns: ["base_user_id"]
+          },
+        ]
+      }
       permission_types: {
         Row: {
           display_name: string

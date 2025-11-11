@@ -21,6 +21,7 @@ import { DisplayEvents } from '../components/views/events/DisplayEvents';
 import { EventView } from '../components/views/events/EventView';
 import { Items } from '../components/views/Pivo/Transactions/Items';
 import { AddPromise } from '../components/views/Promises/AddPromise';
+import { ManagePromises } from '../components/views/Promises/ManagePromises';
 
 export const router = createBrowserRouter([
   {
@@ -161,6 +162,14 @@ export const router = createBrowserRouter([
             element: (
               // <PermissionPath permission="ADD_OBLJUBE">
               <AddPromise />
+              // </PermissionPath>
+            ),
+          },
+          {
+            path: '/promises/manage',
+            element: (
+              // <PermissionPath permission="MANAGE_OBLJUBE">
+              <ManagePromises />
               // </PermissionPath>
             ),
           },

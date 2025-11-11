@@ -42,7 +42,7 @@ ALTER TABLE "public"."obljube" ADD CONSTRAINT "obljube_who_fkey" FOREIGN KEY (wh
 
 ALTER TABLE "public"."obljube" VALIDATE CONSTRAINT "obljube_who_fkey";
 
-CREATE UNIQUE INDEX CONCURRENTLY obljube_pkey ON public.obljube USING btree (id);
+CREATE UNIQUE INDEX  obljube_pkey ON public.obljube USING btree (id);
 
 ALTER TABLE "public"."obljube" ADD CONSTRAINT "obljube_pkey" PRIMARY KEY USING INDEX "obljube_pkey";
 

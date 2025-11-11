@@ -14,25 +14,26 @@ import { useState } from 'react';
 import { notifications } from '@mantine/notifications';
 import { useNavigate } from 'react-router-dom';
 import { NameCombobox } from '../Pivo/Adder/NameCombobox';
-import { useUser } from '../../../supabase/loader';
 import { Database } from '../../../supabase/supabase';
 import { supabaseClient } from '../../../supabase/supabaseClient';
+import { useStore } from '@nanostores/react';
+import { $currUser } from '../../../global-state/user';
 
 interface PromiseFormValues {
   user: Database['public']['Views']['user_view']['Row'] | null;
   amount: number;
-  description: string;
+  reason: string;
 }
 
 export const AddPromise = () => {
-  const { loading: loadingMinister, user: minister } = useUser();
+  const user = useStore($currUser);
   const navigate = useNavigate();
 
   const form = useForm<PromiseFormValues>({
     initialValues: {
       user: null,
       amount: 1,
-      description: '',
+      reason: '',
     },
     validate: {
       user: (value) => (value ? null : 'Please select a user'),
@@ -44,7 +45,7 @@ export const AddPromise = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (values: PromiseFormValues) => {
-    if (!values.user || !minister || !values.user.base_user_id) {
+    if (!values.user || !user || !values.user.base_user_id) {
       notifications.show({
         title: 'Error',
         color: 'red',
@@ -56,12 +57,12 @@ export const AddPromise = () => {
     setIsLoading(true);
     try {
       const { error } = await supabaseClient
-        .from('promises') // Assuming a 'promises' table exists in your database
+        .from('obljube') // Using 'obljube' table
         .insert({
-          user_id: values.user.base_user_id,
-          minister_id: minister.id,
+          who: values.user.base_user_id,
+          minister: user.base_user_id,
           amount: values.amount,
-          description: values.description,
+          reason: values.reason,
         });
 
       if (error) {
@@ -76,10 +77,10 @@ export const AddPromise = () => {
             <Text>Promise successfully added!</Text>
             <Button
               onClick={() => {
-                navigate(`/promises/user/${values.user?.base_user_id}`); // Assuming a route for viewing user promises
+                navigate(`/promises/manage`); // Navigate to the manage promises page
               }}
             >
-              View User Promises
+              Manage Promises
             </Button>
           </Stack>
         ),
@@ -115,10 +116,10 @@ export const AddPromise = () => {
           />
 
           <Textarea
-            label="Description/Notes"
+            label="Reason/Notes"
             placeholder="e.g., Promised 5 beers for helping with the event."
             minRows={3}
-            {...form.getInputProps('description')}
+            {...form.getInputProps('reason')}
           />
 
           <Box ml="auto">
@@ -134,7 +135,7 @@ export const AddPromise = () => {
           </Box>
         </Stack>
         <LoadingOverlay
-          visible={isLoading || loadingMinister}
+          visible={isLoading}
           overlayProps={{ radius: 'sm', blur: 2 }}
         />
       </Center>

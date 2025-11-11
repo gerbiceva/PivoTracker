@@ -20,13 +20,17 @@ import { notifications } from '@mantine/notifications';
 import { useEffect, useState } from 'react';
 import { IconEdit, IconTrash } from '@tabler/icons-react';
 import { UserTag } from '../../users/UserTag';
-import { NameCombobox } from '../Pivo/Adder/NameCombobox';
 import { getSupaWR } from '../../../supabase/supa-utils/supaSWR';
 import { refetchTables } from '../../../supabase/supa-utils/supaSWRCache';
 import { Database } from '../../../supabase/supabase';
 import { supabaseClient } from '../../../supabase/supabaseClient';
 
-type PromiseElement = Database['public']['Tables']['promises']['Row']; // Assuming a 'promises' table
+type PromiseElement = Database['public']['Tables']['obljube']['Row'] & {
+  base_users: {
+    name: string;
+    surname: string | null;
+  };
+};
 
 export const ManagePromises = () => {
   const {
@@ -36,10 +40,15 @@ export const ManagePromises = () => {
   } = getSupaWR({
     query: () =>
       supabaseClient
-        .from('promises')
-        .select('*, base_users(name, surname)') // Select all columns from promises and name/surname from base_users
+        .from('obljube')
+        .select(
+          `
+          *,
+          base_users!who(name, surname)
+        `,
+        ) // Select all columns from obljube and name/surname from base_users, disambiguating with 'who'
         .order('created_at', { ascending: false }),
-    table: 'promises',
+    table: 'obljube',
   });
 
   const [editModalOpened, { open: openEditModal, close: closeEditModal }] =
@@ -48,54 +57,46 @@ export const ManagePromises = () => {
     deleteModalOpened,
     { open: openDeleteModal, close: closeDeleteModal },
   ] = useDisclosure(false);
-  const [selectedPromise, setSelectedPromise] = useState<PromiseElement | null>(
-    null,
-  );
+  const [selectedObljuba, setSelectedObljuba] = useState<PromiseElement>();
 
-  const form = useForm<
-    Partial<
-      PromiseElement & {
-        user: Database['public']['Views']['user_view']['Row'] | null;
-      }
-    >
-  >({
+  const form = useForm<Partial<PromiseElement>>({
     initialValues: {
       amount: 0,
-      description: '',
-      user: null,
+      reason: '',
+      base_users: {
+        name: '',
+        surname: '',
+      },
     },
   });
 
   useEffect(() => {
-    if (selectedPromise) {
+    if (selectedObljuba) {
       form.setInitialValues({
-        amount: selectedPromise.amount,
-        description: selectedPromise.description || '',
-        user: {
-          base_user_id: selectedPromise.user_id,
-          fullname:
-            (selectedPromise.base_users as any)?.name +
-            ' ' +
-            (selectedPromise.base_users as any)?.surname,
-          // Add other user_view properties if necessary, though for display, fullname might be enough
-        } as Database['public']['Views']['user_view']['Row'],
+        amount: selectedObljuba.amount,
+        reason: selectedObljuba.reason || '',
+        base_users: {
+          name: selectedObljuba.base_users.name,
+          surname: selectedObljuba.base_users.surname,
+        },
       });
       form.reset();
     }
-  }, [selectedPromise]);
+  }, [selectedObljuba]);
 
   const handleEditSubmit = async (values: typeof form.values) => {
-    if (!selectedPromise) return;
+    if (!selectedObljuba) return;
+
+    console.log({ values });
 
     try {
       const { error } = await supabaseClient
-        .from('promises')
+        .from('obljube')
         .update({
           amount: values.amount,
-          description: values.description,
-          user_id: values.user?.base_user_id,
+          reason: values.reason,
         })
-        .eq('id', selectedPromise.id);
+        .eq('id', selectedObljuba.id);
 
       if (error) {
         throw error;
@@ -106,7 +107,7 @@ export const ManagePromises = () => {
         color: 'green',
       });
       form.resetDirty();
-      refetchTables('promises');
+      refetchTables('obljube');
       closeEditModal();
     } catch (error: any) {
       notifications.show({
@@ -118,13 +119,13 @@ export const ManagePromises = () => {
   };
 
   const handleDeletePromise = async () => {
-    if (!selectedPromise) return;
+    if (!selectedObljuba) return;
 
     try {
       const { error } = await supabaseClient
-        .from('promises')
+        .from('obljube')
         .delete()
-        .eq('id', selectedPromise.id);
+        .eq('id', selectedObljuba.id);
 
       if (error) {
         throw error;
@@ -134,7 +135,7 @@ export const ManagePromises = () => {
         message: 'Promise deleted successfully',
         color: 'green',
       });
-      refetchTables('promises');
+      refetchTables('obljube');
       closeDeleteModal();
     } catch (error: any) {
       notifications.show({
@@ -155,19 +156,18 @@ export const ManagePromises = () => {
 
   const rows = promises?.map((element) => {
     const userFullName =
-      (element.base_users as any)?.name +
-      ' ' +
-      (element.base_users as any)?.surname;
+      element.base_users.name + ' ' + element.base_users.name;
+
     return (
       <TableTr key={element.id}>
         <TableTd>
           <UserTag
             fullname={userFullName || 'N/A'}
-            id={element.user_id?.toString() || ''}
+            id={element.who?.toString() || ''}
           />
         </TableTd>
         <TableTd>{element.amount}</TableTd>
-        <TableTd>{element.description}</TableTd>
+        <TableTd>{element.reason}</TableTd>
         <TableTd>{new Date(element.created_at).toLocaleDateString()}</TableTd>
         <TableTd>
           <Group wrap="nowrap">
@@ -175,7 +175,7 @@ export const ManagePromises = () => {
               variant="light"
               size="xs"
               onClick={() => {
-                setSelectedPromise(element);
+                setSelectedObljuba(element);
                 openEditModal();
               }}
             >
@@ -186,7 +186,7 @@ export const ManagePromises = () => {
               color="red"
               size="xs"
               onClick={() => {
-                setSelectedPromise(element);
+                setSelectedObljuba(element);
                 openDeleteModal();
               }}
             >
@@ -212,11 +212,6 @@ export const ManagePromises = () => {
       >
         <form onSubmit={form.onSubmit(handleEditSubmit)}>
           <Stack>
-            <NameCombobox
-              value={form.getInputProps('user').value}
-              onChange={form.getInputProps('user').onChange}
-              label="User"
-            />
             <NumberInput
               label="Beer Amount"
               placeholder="e.g., 5"
@@ -224,12 +219,16 @@ export const ManagePromises = () => {
               {...form.getInputProps('amount')}
             />
             <Textarea
-              label="Description/Notes"
+              label="Reason/Notes"
               placeholder="e.g., Promised 5 beers for helping with the event."
               minRows={3}
-              {...form.getInputProps('description')}
+              {...form.getInputProps('reason')}
             />
-            <Button type="submit" size="xs" disabled={!form.isDirty()}>
+            <Button
+              type="submit"
+              size="xs"
+              disabled={!form.isDirty() || form.values.base_users === null}
+            >
               Confirm Changes
             </Button>
           </Stack>
@@ -261,7 +260,7 @@ export const ManagePromises = () => {
           <TableTr>
             <TableTh>User</TableTh>
             <TableTh>Amount</TableTh>
-            <TableTh>Description</TableTh>
+            <TableTh>Reason</TableTh>
             <TableTh>Created At</TableTh>
             <TableTh>Actions</TableTh>
           </TableTr>
@@ -270,7 +269,7 @@ export const ManagePromises = () => {
           {isLoading ? (
             <TableTr>
               <TableTd colSpan={5}>
-                <Text align="center">Loading promises...</Text>
+                <Text ta="center">Loading promises...</Text>
               </TableTd>
             </TableTr>
           ) : (

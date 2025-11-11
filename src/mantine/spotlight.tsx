@@ -280,6 +280,37 @@ export const CustomSpotlight = () => {
           },
         ],
       },
+      {
+        group: 'Obljube',
+        actions: [
+          {
+            permission: 'ADD_OBLJUBA',
+            id: 'add-promise',
+            label: 'Dodaj Obljubo',
+            description: 'Dodaj novo obljubo',
+            onClick: () => navigate('/promises/create'),
+            leftSection: (
+              <IconBeer
+                style={{ width: rem(24), height: rem(24) }}
+                stroke={1.5}
+              />
+            ),
+          },
+          {
+            permission: 'ADD_OBLJUBA', // Assuming a permission for managing promises
+            id: 'manage-promises',
+            label: 'Upravljaj Obljube',
+            description: 'Preglej in uredi obljube',
+            onClick: () => navigate('/promises/manage'),
+            leftSection: (
+              <IconList
+                style={{ width: rem(24), height: rem(24) }}
+                stroke={1.5}
+              />
+            ),
+          },
+        ],
+      },
     ] as CustomSpotlightGroupData[]
   ).map((group) => ({
     ...group,
