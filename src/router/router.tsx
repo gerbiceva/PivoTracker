@@ -19,6 +19,7 @@ import { HomePage } from '../components/views/Homepage';
 import { ManageEvent } from '../components/views/events/ManageEvent';
 import { DisplayEvents } from '../components/views/events/DisplayEvents';
 import { EventView } from '../components/views/events/EventView';
+import { Items } from '../components/views/Pivo/Transactions/Items';
 
 export const router = createBrowserRouter([
   {
@@ -83,6 +84,14 @@ export const router = createBrowserRouter([
             element: (
               <PermissionPath permission="MANAGE_TRANSACTIONS">
                 <PivoByUser />
+              </PermissionPath>
+            ),
+          },
+          {
+            path: '/pivo/items',
+            element: (
+              <PermissionPath permission="MANAGE_TRANSACTIONS">
+                <Items />
               </PermissionPath>
             ),
           },

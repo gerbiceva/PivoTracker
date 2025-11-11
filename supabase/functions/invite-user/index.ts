@@ -1,13 +1,31 @@
 import { createClient } from "@supabase/supabase-js";
 
 Deno.serve(async (req) => {
+  // Define CORS headers
+  const corsHeaders = {
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Methods": "POST, OPTIONS",
+    "Access-Control-Allow-Headers": "Authorization, Content-Type, apikey, x-client-info",
+  };
+
+  // Handle preflight requests
+  if (req.method === "OPTIONS") {
+    return new Response(null, {
+      status: 204,
+      headers: corsHeaders,
+    });
+  }
+
   // Get the Authorization header
   const authHeader = req.headers.get("Authorization");
 
   if (!authHeader) {
     return new Response(JSON.stringify({ error: "Unauthorized - no authorization header" }), {
       status: 401,
-      headers: { "Content-Type": "application/json" },
+      headers: { 
+        "Content-Type": "application/json",
+        ...corsHeaders,
+      },
     });
   }
 
@@ -30,14 +48,20 @@ Deno.serve(async (req) => {
     console.error("Error checking permission:", permissionError);
     return new Response(JSON.stringify({ error: "Internal server error" }), {
       status: 500,
-      headers: { "Content-Type": "application/json" },
+      headers: { 
+        "Content-Type": "application/json",
+        ...corsHeaders,
+      },
     });
   }
 
   if (!permissionCheck) {
     return new Response(JSON.stringify({ error: "Insufficient permissions" }), {
       status: 403,
-      headers: { "Content-Type": "application/json" },
+      headers: { 
+        "Content-Type": "application/json",
+        ...corsHeaders,
+      },
     });
   }
 
@@ -47,7 +71,10 @@ Deno.serve(async (req) => {
   if (!email) {
     return new Response(JSON.stringify({ error: "Email is required" }), {
       status: 400,
-      headers: { "Content-Type": "application/json" },
+      headers: { 
+        "Content-Type": "application/json",
+        ...corsHeaders,
+      },
     });
   }
 
@@ -56,7 +83,10 @@ Deno.serve(async (req) => {
   if (!emailRegex.test(email)) {
     return new Response(JSON.stringify({ error: "Invalid email format" }), {
       status: 400,
-      headers: { "Content-Type": "application/json" },
+      headers: { 
+        "Content-Type": "application/json",
+        ...corsHeaders,
+      },
     });
   }
 
@@ -68,14 +98,20 @@ Deno.serve(async (req) => {
     console.error("Error getting inviter base_user id:", inviterError);
     return new Response(JSON.stringify({ error: "Internal server error" }), {
       status: 500,
-      headers: { "Content-Type": "application/json" },
+      headers: { 
+        "Content-Type": "application/json",
+        ...corsHeaders,
+      },
     });
   }
 
   if (!inviterBaseUserId) {
     return new Response(JSON.stringify({ error: "Inviter base_user id not found" }), {
       status: 400,
-      headers: { "Content-Type": "application/json" },
+      headers: { 
+        "Content-Type": "application/json",
+        ...corsHeaders,
+      },
     });
   }
 
@@ -100,7 +136,10 @@ Deno.serve(async (req) => {
       }),
       {
         status: 400,
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+          "Content-Type": "application/json",
+          ...corsHeaders,
+        },
       },
     );
   }
@@ -169,7 +208,10 @@ Deno.serve(async (req) => {
     }),
     {
       status: 200,
-      headers: { "Content-Type": "application/json" },
+      headers: { 
+        "Content-Type": "application/json",
+        ...corsHeaders,
+      },
     },
   );
 });
