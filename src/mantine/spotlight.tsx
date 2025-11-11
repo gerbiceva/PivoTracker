@@ -1,5 +1,6 @@
 import { rem } from '@mantine/core';
 import {
+  IconBasket,
   IconBeer,
   IconHome,
   IconList,
@@ -102,6 +103,19 @@ export const CustomSpotlight = () => {
             onClick: () => navigate('/pivo/transactions'),
             leftSection: (
               <IconTransactionEuro
+                style={{ width: rem(24), height: rem(24) }}
+                stroke={1.5}
+              />
+            ),
+          },
+          {
+            permission: 'MANAGE_TRANSACTIONS',
+            id: 'items',
+            label: 'Ponudba',
+            description: 'Urejanje ponudbe piva',
+            onClick: () => navigate('/pivo/items'),
+            leftSection: (
+              <IconBasket
                 style={{ width: rem(24), height: rem(24) }}
                 stroke={1.5}
               />

@@ -16,6 +16,7 @@ import { PranjeInfo } from '../components/views/Washing/Info/PranjeInfo';
 import { UserEditing } from '../components/views/UserManagement/UserEditing/UserEditing';
 import { EditUserPage } from '../components/views/UserManagement/UserEditing/EditUserPage';
 import { HomePage } from '../components/views/Homepage';
+import { Items } from '../components/views/Pivo/Transactions/Items';
 
 export const router = createBrowserRouter([
   {
@@ -76,6 +77,14 @@ export const router = createBrowserRouter([
             element: (
               <PermissionPath permission="MANAGE_TRANSACTIONS">
                 <PivoByUser />
+              </PermissionPath>
+            ),
+          },
+          {
+            path: '/pivo/items',
+            element: (
+              <PermissionPath permission="MANAGE_TRANSACTIONS">
+                <Items />
               </PermissionPath>
             ),
           },
