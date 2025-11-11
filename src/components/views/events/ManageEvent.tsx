@@ -1,26 +1,23 @@
-import { useEffect, useState } from 'react';
 import {
-  TextInput,
   Button,
-  Stack,
-  Title,
-  Container,
   Group,
   LoadingOverlay,
-  Alert,
+  Stack,
+  TextInput,
+  Title,
 } from '@mantine/core';
 import { DateTimePicker } from '@mantine/dates';
-import { RichTextEditor } from './RichTextEditor';
-import { supabaseClient } from '../../../supabase/supabaseClient';
-import { useNavigate, useParams } from 'react-router-dom';
-import { useStore } from '@nanostores/react';
-import { $currUser } from '../../../global-state/user';
 import { useForm } from '@mantine/form';
+import { notifications } from '@mantine/notifications';
+import { useStore } from '@nanostores/react';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
+import { useEffect } from 'react';
+import { useParams } from 'react-router-dom';
+import { $currUser } from '../../../global-state/user';
 import { getSupaWR } from '../../../supabase/supa-utils/supaSWR';
-import { IconAlertCircle } from '@tabler/icons-react';
-import { notifications } from '@mantine/notifications';
+import { supabaseClient } from '../../../supabase/supabaseClient';
+import { RichTextEditor } from './RichTextEditor';
 
 dayjs.extend(utc);
 
@@ -45,7 +42,7 @@ export const ManageEvent = () => {
     },
   });
 
-  const { data, error, isLoading } = getSupaWR({
+  const { data, isLoading } = getSupaWR({
     query: () =>
       supabaseClient.from('events').select('*').eq('id', eventId).maybeSingle(),
     table: 'events',

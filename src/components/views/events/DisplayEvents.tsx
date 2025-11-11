@@ -1,8 +1,8 @@
-import { Alert, Skeleton, Stack, Title, Text } from '@mantine/core';
-import { getSupaWR } from '../../../supabase/supa-utils/supaSWR';
-import { supabaseClient } from '../../../supabase/supabaseClient';
+import { Alert, Skeleton, Stack, Title } from '@mantine/core';
 import { IconAlertCircle, IconCalendarEvent } from '@tabler/icons-react';
 import dayjs from 'dayjs';
+import { getSupaWR } from '../../../supabase/supa-utils/supaSWR';
+import { supabaseClient } from '../../../supabase/supabaseClient';
 import { EventDisplayRow } from './EventDisplayRow'; // Import the new component
 
 export const DisplayEvents = () => {
