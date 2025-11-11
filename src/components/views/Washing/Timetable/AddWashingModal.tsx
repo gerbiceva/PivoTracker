@@ -27,9 +27,10 @@ import { ReservationItemInfo } from './ReservationItem';
 
 export interface WashingModalProps {
   day: dayjs.Dayjs;
+  enabled: boolean;
 }
 
-export const AddWashingModal = ({ day }: WashingModalProps) => {
+export const AddWashingModal = ({ day, enabled = true }: WashingModalProps) => {
   const [opened, { open, close }] = useDisclosure(false);
   const { data, isLoading, error } = useGetDailySlots(opened ? day : null);
 
@@ -71,7 +72,7 @@ export const AddWashingModal = ({ day }: WashingModalProps) => {
 
   return (
     <>
-      <Modal opened={opened} onClose={close} size="xl" centered>
+      <Modal opened={opened} onClose={close} size="xl" centered fullScreen>
         <LoadingOverlay visible={isLoading} />
         {error ? (
           <Alert title="napaka">{error.message}</Alert>
@@ -132,6 +133,7 @@ export const AddWashingModal = ({ day }: WashingModalProps) => {
       </Modal>
 
       <Button
+        disabled={!enabled}
         mt="xl"
         fullWidth
         variant="filled"

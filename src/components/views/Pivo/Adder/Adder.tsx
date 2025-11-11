@@ -17,14 +17,15 @@ import {
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { useFocusTrap } from '@mantine/hooks';
-import { notifications } from '@mantine/notifications';
 import { useState } from 'react';
 import { Database, Tables } from '../../../../supabase/supabase';
-import { supabaseClient } from '../../../../supabase/supabaseClient';
 import { NameCombobox } from './NameCombobox';
-import { useNavigate } from 'react-router-dom';
 import { IconCalculator } from '@tabler/icons-react';
 import { ItemSelect } from './ItemSelect';
+import { notifications } from '@mantine/notifications';
+import { supabaseClient } from '../../../../supabase/supabaseClient';
+import { useNavigate } from 'react-router-dom';
+import { useUser } from '../../../../supabase/loader';
 
 interface Order {
   user: Database['public']['Views']['user_view']['Row'] | null;
@@ -33,69 +34,68 @@ interface Order {
   paid: number;
 }
 
-const addOrder = (
-  { user, order, paid, item }: Order,
-  navigate: (url: string) => void,
-) => {
-  const ordered = order;
-  return new Promise<void>((resolve, reject) => {
-    console.log('add order', item?.id);
-    if (!user || !item) {
-      console.error('No user or item');
-      return;
-    }
+export const BeerAdder = () => {
+  const { loading: loadingMinister, user: minister } = useUser();
 
-    supabaseClient
-      .from('transactions')
-      .insert({
-        customer_id: user.base_user_id!,
-        ordered,
-        paid,
-        item: item.id,
-      })
-      .then((res) => {
-        if (res.error) {
-          console.log(res.error);
+  const addOrder = ({ user, item, order, paid }: Order) => {
+    // const ordered = order;
+    return new Promise<void>((resolve, reject) => {
+      // console.log('add order', item?.id);
+      if (!user || !item || !minister || !user.base_user_id) {
+        console.error('No user or item');
+        return;
+      }
+
+      supabaseClient
+        .from('transactions')
+        .insert({
+          customer_id: user.base_user_id,
+          minister: minister.id,
+          paid,
+          ordered: order,
+          item: item.id,
+        })
+        .then((res) => {
+          if (res.error) {
+            // console.log(res.error);
+            notifications.show({
+              title: 'Error',
+              color: 'red',
+              autoClose: 1000,
+              message: <Text>Ni uspelo dodati piva + {res.error.message}</Text>,
+            });
+            return reject();
+          }
+
           notifications.show({
-            title: 'Error',
-            color: 'red',
-            autoClose: 1000,
-            message: <Text>Ni uspelo dodati piva + {res.error.message}</Text>,
+            title: 'Success',
+            color: 'green',
+            autoClose: 3000,
+
+            message: (
+              <Stack>
+                <Text>Uspešno dodano pivo</Text>
+                <Button
+                  onClick={() => {
+                    navigate(`/pivo/user/${user.base_user_id}`);
+                  }}
+                >
+                  Preglej uporabnika
+                </Button>
+              </Stack>
+            ),
           });
-          return reject();
-        }
-
-        notifications.show({
-          title: 'Success',
-          color: 'green',
-          autoClose: 4000,
-
-          message: (
-            <Stack>
-              <Text>Uspešno dodano pivo</Text>
-              <Button
-                onClick={() => {
-                  navigate(`/user/${user.base_user_id}`);
-                }}
-              >
-                Preglej uporabnika
-              </Button>
-            </Stack>
-          ),
+          resolve();
         });
-        resolve();
-      });
-  });
-};
-
-export const BeerAdded = () => {
-  const navigate = useNavigate();
+    });
+  };
 
   const cols = useMatches({
     base: 1,
     md: 3,
   });
-  console.log({ cols });
+
+  const navigate = useNavigate();
 
   const form = useForm<Order>({
     initialValues: {
@@ -123,7 +123,7 @@ export const BeerAdded = () => {
 
   function order(order: Order) {
     setIsLoading(true);
-    addOrder(order, navigate).finally(() => {
+    addOrder(order).finally(() => {
       setIsLoading(false);
       form.reset();
       form.setValues({
@@ -161,6 +161,7 @@ export const BeerAdded = () => {
                     <NumberInput
                       // label="Število piv"
                       placeholder="3"
+                      min={0}
                       {...form.getInputProps('order')}
                     />
                   </Fieldset>
@@ -243,7 +244,7 @@ export const BeerAdded = () => {
           </Grid>
 
           <LoadingOverlay
-            visible={isLoading}
+            visible={isLoading || loadingMinister}
             overlayProps={{ radius: 'sm', blur: 2 }}
           />
         </Stack>

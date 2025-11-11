@@ -6,6 +6,7 @@ import {
   Alert,
   Group,
   Text,
+  SimpleGrid,
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { getSupaWR } from '../../../../supabase/supa-utils/supaSWR';
@@ -13,14 +14,14 @@ import { supabaseClient } from '../../../../supabase/supabaseClient';
 import { useEffect, useState } from 'react';
 import { IconAlertCircle } from '@tabler/icons-react';
 import { DateInput } from '@mantine/dates';
-import { useSWRConfig } from 'swr';
+import { notifications } from '@mantine/notifications';
+import { refetchTables } from '../../../../supabase/supa-utils/supaSWRCache';
 
 interface ResidentInfoFormProps {
   baseUserId: number;
 }
 
 export const ResidentInfoForm = ({ baseUserId }: ResidentInfoFormProps) => {
-  const { mutate } = useSWRConfig();
   const [showCreateForm, setShowCreateForm] = useState(false);
   const {
     data: resident,
@@ -33,7 +34,7 @@ export const ResidentInfoForm = ({ baseUserId }: ResidentInfoFormProps) => {
         .select('*')
         .filter('base_user_id', 'eq', baseUserId)
         .single(),
-    table: 'residents',
+    table: ['residents'],
     params: [baseUserId],
   });
 
@@ -73,18 +74,23 @@ export const ResidentInfoForm = ({ baseUserId }: ResidentInfoFormProps) => {
         ...values,
       });
       form.resetDirty();
+      refetchTables('residents');
     } else {
-      // Create new resident entry
-      await supabaseClient.from('residents').insert({
-        base_user_id: baseUserId,
-        room: Number(values.room),
-        phone_number: values.phone_number,
-        birth_date: new Date(values.birth_date).toISOString(),
+      // Create new resident entry using rpc function
+      await supabaseClient.rpc('create_and_link_resident', {
+        p_base_user_id: baseUserId,
+        p_room: Number(values.room),
+        p_phone_number: values.phone_number,
+        p_birth_date: new Date(values.birth_date).toISOString(),
       });
-      mutate(
-        (key) =>
-          typeof key === 'string' && key.startsWith('/api/supabase/residents'),
-      );
+      notifications.show({
+        title: 'Podatki dodani',
+        message: 'Uporabnik ima podatke o stanovalcu',
+      });
+      refetchTables('residents');
+      form.setInitialValues({
+        ...values,
+      });
       form.reset();
     }
   };
@@ -95,10 +101,7 @@ export const ResidentInfoForm = ({ baseUserId }: ResidentInfoFormProps) => {
         .from('residents')
         .delete()
         .eq('id', resident.resident_id);
-      mutate(
-        (key) =>
-          typeof key === 'string' && key.startsWith('/api/supabase/residents'),
-      );
+      refetchTables('residents');
     }
   };
 
@@ -135,34 +138,23 @@ export const ResidentInfoForm = ({ baseUserId }: ResidentInfoFormProps) => {
     );
   }
 
-  // If resident exists or showCreateForm is true, render the form
-  // The form's submit button will handle creation or update based on resident?.resident_id
-
   return (
     <form onSubmit={form.onSubmit(handleSubmit)}>
       <Stack style={{ position: 'relative' }} w="100%">
         <Text size="xs" fw="bold" c="dimmed" mt="xl">
           INFORMACIJE PREBIVALCA
         </Text>
-        <Group w="100%">
+        <SimpleGrid cols={{ base: 1, sm: 2 }}>
+          <TextInput description="Room" {...form.getInputProps('room')} />
           <TextInput
-            flex={1}
-            description="Room"
-            {...form.getInputProps('room')}
-          />
-          <TextInput
-            flex={1}
             description="Phone Number"
             {...form.getInputProps('phone_number')}
           />
-        </Group>
-        <Group>
           <DateInput
-            flex={1}
             description="Birth Date"
             {...form.getInputProps('birth_date')}
           />
-        </Group>
+        </SimpleGrid>
         <LoadingOverlay visible={isLoading} />
 
         <Group justify="flex-end">
@@ -171,7 +163,9 @@ export const ResidentInfoForm = ({ baseUserId }: ResidentInfoFormProps) => {
               size="xs"
               variant="outline"
               color="red"
-              onClick={handleDelete}
+              onClick={() => {
+                confirm('Ali ste prepričani?') && handleDelete();
+              }}
             >
               Izbriši prebivalca
             </Button>

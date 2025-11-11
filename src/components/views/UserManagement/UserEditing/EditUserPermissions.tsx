@@ -70,8 +70,6 @@ export const EditUserPermissions = ({ userId }: { userId: number }) => {
     );
   }, [allPermissions]);
 
-  console.log({ allPermissions });
-
   useEffect(() => {
     if (userPermissions) {
       const initial =

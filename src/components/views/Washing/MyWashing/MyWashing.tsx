@@ -1,33 +1,22 @@
 import {
+  ActionIcon,
+  Alert,
+  Button,
   Stack,
   Title,
   Text,
   LoadingOverlay,
   Group,
   SimpleGrid,
-  ActionIcon,
-  Alert,
-  Badge,
-  Button,
-  ThemeIcon,
 } from '@mantine/core';
 import { useGetReservationsForUser } from './UserReservations';
 import { useGetUserExpandedFromAuth } from './GetExpandedUserFromAuth';
-import {
-  FormatLocalDateCustom,
-  ReadTimeFromUTCString,
-} from '../../../../utils/timeUtils';
-import {
-  IconHelp,
-  IconHelpCircleFilled,
-  IconPlus,
-  IconQuestionMark,
-  IconTrash,
-} from '@tabler/icons-react';
+import { FormatLocalDateCustom } from '../../../../utils/timeUtils';
+import { IconHelpCircleFilled, IconPlus } from '@tabler/icons-react';
 import { groupReservationsByMonth } from './reservationUtils';
-import dayjs from 'dayjs';
 import { removeReservation } from '../RemoveReservation';
 import { Link } from 'react-router-dom';
+import { ReservationAlert } from './ReservationAlert';
 
 export const MyWashing = () => {
   const { data } = useGetUserExpandedFromAuth();
@@ -98,67 +87,11 @@ export const MyWashing = () => {
 
           <SimpleGrid cols={{ xs: 2, md: 2, lg: 3 }} mt="0" mb="lg">
             {entries.map((reservation) => (
-              <Alert
-                p="md"
-                variant={
-                  ReadTimeFromUTCString(reservation.slot_end_utc) <
-                  dayjs().utc()
-                    ? 'outline'
-                    : 'default'
-                }
-                color={reservation.machine_id == 1 ? 'indigo' : 'orange'}
-              >
-                <Stack justify="space-between" w="100%">
-                  <Group w="100%" justify="space-between">
-                    <Group gap="xs">
-                      <ThemeIcon variant="light" color="gray">
-                        {FormatLocalDateCustom(
-                          ReadTimeFromUTCString(reservation.slot_start_utc),
-                          'DD',
-                        )}
-                      </ThemeIcon>
-                      <Text fw="" c="gray">
-                        {FormatLocalDateCustom(
-                          ReadTimeFromUTCString(reservation.slot_start_utc),
-                          'ddd',
-                        )}
-                      </Text>
-                    </Group>
-                    <ActionIcon
-                      size="sm"
-                      color="grayish"
-                      variant="light"
-                      onClick={() => {
-                        removeReservation(reservation.reservation_id);
-                      }}
-                    >
-                      <IconTrash />
-                    </ActionIcon>
-                  </Group>
-
-                  <Group>
-                    <Text>
-                      {FormatLocalDateCustom(
-                        ReadTimeFromUTCString(reservation.slot_start_utc),
-                        'HH',
-                      ) +
-                        'h' +
-                        ' - ' +
-                        FormatLocalDateCustom(
-                          ReadTimeFromUTCString(reservation.slot_end_utc),
-                          'HH',
-                        ) +
-                        'h'}
-                    </Text>
-                    <Badge
-                      variant="light"
-                      color={reservation.machine_id == 1 ? 'indigo' : 'orange'}
-                    >
-                      {reservation.machine_name}
-                    </Badge>
-                  </Group>
-                </Stack>
-              </Alert>
+              <ReservationAlert
+                key={reservation.reservation_id}
+                reservation={reservation}
+                onRemove={removeReservation}
+              />
             ))}
           </SimpleGrid>
         </>

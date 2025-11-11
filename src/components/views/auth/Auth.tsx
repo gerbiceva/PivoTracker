@@ -1,28 +1,29 @@
 import {
-  Alert,
-  Avatar,
-  Box,
   Button,
-  Center,
-  Container,
-  Group,
   Paper,
-  Stack,
+  Text,
   TextInput,
   Title,
+  Box,
+  SimpleGrid,
+  Alert,
+  Stack,
+  LoadingOverlay,
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
-import { IconCircleKey } from '@tabler/icons-react';
 import { supabaseClient } from '../../../supabase/supabaseClient';
 import { useUser } from '../../../supabase/loader';
 import { Navigate } from 'react-router-dom';
 import { useState } from 'react';
 import { AuthError } from '@supabase/supabase-js';
+import { notifications } from '@mantine/notifications';
+import { IconSparkles } from '@tabler/icons-react';
 
 export function Authentication() {
-  const { user } = useUser();
+  const { user, loading: loadginUser } = useUser();
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState<AuthError>();
+  const [otpSent, setOtpSent] = useState(false); // New state to track if OTP is sent
 
   const form = useForm({
     initialValues: {
@@ -32,133 +33,201 @@ export function Authentication() {
 
     validate: {
       email: (value) => (/^\S+@\S+$/.test(value) ? null : 'Invalid email'),
-      otp: (value) => (value && value.length > 0 ? (value.length === 6 ? null : 'OTP must be 6 digits') : null),
+      otp: (value) =>
+        value && value.length > 0
+          ? value.length === 6
+            ? null
+            : 'OTP must be 6 digits'
+          : null,
     },
   });
 
+  if (loadginUser) {
+    return <LoadingOverlay visible></LoadingOverlay>;
+  }
   if (user) {
     return <Navigate to="/"></Navigate>;
   }
 
   return (
-    <Box h="100vh" w="100vw">
-      <img
-        src="/GerbaLogo.svg"
-        alt=""
+    <SimpleGrid cols={{ base: 1, sm: 2 }} spacing={0} h="100vh">
+      <Paper
+        p={30}
+        shadow="xl"
+        radius={0}
         style={{
-          position: 'absolute',
-          zIndex: -100,
-          opacity: 0.04,
-          maxHeight: '100vh',
+          minHeight: '100vh',
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center',
+          alignItems: 'center',
         }}
-      />
-      <Center h="100vh" w="100%">
-        <Container size={820} miw={540}>
-          <Stack align="center" w="100%">
-            <Group align="center">
-              <Avatar variant="outline" size="md">
-                G59
-              </Avatar>
-              <Title>Gerba unified interface</Title>
-            </Group>
+      >
+        <Box style={{ maxWidth: 450, width: '100%' }}>
+          <Stack>
+            <Title order={2} ta="center">
+              Dobrodošli na G59.si!
+            </Title>
+            <Text ta="center" mb={50} c="dimmed">
+              Najbolši website pod ljubljanskim soncem.
+            </Text>
+          </Stack>
 
-            <Paper withBorder shadow="md" p={30} mt={30} radius="md" miw={350}>
-              <Stack>
-                <form
-                  onSubmit={form.onSubmit(async (values) => {
-                    setLoading(true);
-                    setErr(undefined);
+          <form
+            onSubmit={form.onSubmit(async (values) => {
+              setLoading(true);
+              setErr(undefined);
 
-                    // Send OTP
-                    await supabaseClient.auth
-                      .signInWithOtp({
-                        email: values.email,
-                        options: {
-                          shouldCreateUser: false,
-                          emailRedirectTo: window.location.origin
-                        }
-                      })
-                      .then((res) => {
-                        if (res.error) {
-                          setErr(res.error);
-                        } else {
-                          // Show success message to user to check their email
-                          alert('Please check your email for the OTP code');
-                        }
-                      })
-                      .finally(() => {
-                        setLoading(false);
-                      });
-                  })}
-                >
-                  <TextInput
-                    label="Email"
-                    placeholder="bruc@brucmail.dev"
-                    required
-                    {...form.getInputProps('email')}
-                  />
+              // Send OTP
+              await supabaseClient.auth
+                .signInWithOtp({
+                  email: values.email,
+                  options: {
+                    shouldCreateUser: false,
+                  },
+                })
+                .then((res) => {
+                  if (res.error) {
+                    setErr(res.error);
+                  } else {
+                    setOtpSent(true); // Set OTP sent to true
+                    notifications.show({
+                      title: 'link za prijavo poslan',
+                      message:
+                        'Čarobni link je bil poslan na vaš e-poštni naslov. Preverite svoj nabiralnik za prijavo.',
+                    });
+                  }
+                })
+                .finally(() => {
+                  setLoading(false);
+                });
+            })}
+          >
+            <TextInput
+              label="Email"
+              placeholder="gerbicevc@gmail.com"
+              size="md"
+              radius="md"
+              required
+              autoComplete="email"
+              {...form.getInputProps('email')}
+            />
 
-                  {err && (
-                    <Alert mt="lg" color="red" title="Napaka">
-                      {err.message}
-                    </Alert>
-                  )}
-                  <Button fullWidth mt="xl" type="submit" loading={loading}>
-                    Send OTP
-                  </Button>
-                </form>
-                
-                <form
-                  onSubmit={form.onSubmit(async (values) => {
-                    if (!values.otp) {
-                      setErr({ message: 'Please enter an OTP code to verify', status: 400 } as AuthError);
+            {!otpSent && (
+              <Button
+                fullWidth
+                mt="xl"
+                size="md"
+                radius="md"
+                type="submit"
+                loading={loading}
+                leftSection={<IconSparkles opacity={0.7} />}
+              >
+                Pošlji čarobni link
+              </Button>
+            )}
+
+            {otpSent && (
+              <>
+                <Text ta="center" mt="md" color="dimmed">
+                  Čarobni link je bil poslan na vaš e-poštni naslov. Preverite
+                  svoj nabiralnik za prijavo.
+                </Text>
+                <TextInput
+                  label="OTP koda"
+                  placeholder="Vnesite 6-mestno kodo"
+                  mt="md"
+                  maxLength={6}
+                  {...form.getInputProps('otp')}
+                />
+                <Button
+                  fullWidth
+                  mt="md"
+                  size="md"
+                  radius="md"
+                  onClick={async () => {
+                    if (!form.values.otp) {
+                      setErr({
+                        message: 'Prosimo, vnesite OTP kodo za preverjanje',
+                        status: 400,
+                      } as AuthError);
                       return;
                     }
-                    
+
                     setLoading(true);
                     setErr(undefined);
 
                     // Verify OTP
                     await supabaseClient.auth
                       .verifyOtp({
-                        email: values.email,
-                        token: values.otp,
-                        type: 'email'
+                        email: form.values.email,
+                        token: form.values.otp,
+                        type: 'email',
                       })
                       .then((res) => {
                         if (res.error) {
                           setErr(res.error);
+                        } else {
+                          notifications.show({
+                            title: 'Prijavljen',
+                            message: 'Uspešno ste prijavljeni v sistem.',
+                          });
+                          // window.location.href = '/';
                         }
                       })
                       .finally(() => {
                         setLoading(false);
                       });
-                  })}
+                  }}
+                  loading={loading}
+                  disabled={form.values.otp.length == 0}
                 >
-                  <TextInput
-                    label="OTP Code"
-                    placeholder="Enter 6-digit code (optional)"
-                    mt="md"
-                    maxLength={6}
-                    {...form.getInputProps('otp')}
-                  />
-                  <Button fullWidth mt="md" type="submit" loading={loading}>
-                    Verify OTP
-                  </Button>
-                </form>
-              </Stack>
-            </Paper>
-            <Alert
-              mt="xl"
-              variant="outline"
-              icon={<IconCircleKey> </IconCircleKey>}
-              maw="350px"
-            >
-              Uporabniški račun ustvari pri pristojnem vladniku.
-            </Alert>
-          </Stack>
-        </Container>
-      </Center>
-    </Box>
+                  Preveri OTP
+                </Button>
+              </>
+            )}
+
+            {err && (
+              <Alert color="red" ta="center" mt="md">
+                {err.message}
+              </Alert>
+            )}
+          </form>
+        </Box>
+      </Paper>
+
+      <Box
+        style={{
+          minHeight: '100vh',
+          position: 'relative',
+        }}
+      >
+        <Box
+          style={{
+            backgroundImage:
+              'url(https://www.sdl.si/fileadmin/user_upload/Slike/Domovi/Dom_G59/G59-DSC_6338-Vic-Gerb1.jpg)',
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            filter: 'grayscale(1) brightness(1.3)',
+            position: 'absolute',
+            height: '100%',
+            width: '100%',
+            zIndex: 0,
+          }}
+        />
+        <Box
+          style={{
+            backgroundImage: 'url(/gerba_cutout.webp)',
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            position: 'absolute',
+            height: '100%',
+            width: '100%',
+            filter: 'contrast(1.2)',
+            zIndex: 10,
+          }}
+        />
+      </Box>
+    </SimpleGrid>
   );
 }

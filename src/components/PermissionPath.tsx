@@ -1,6 +1,8 @@
 import { PropsWithChildren } from 'react';
-import { Navigate } from 'react-router-dom';
 import { $currUser } from '../global-state/user';
+import { Unauthorized } from './views/Unauthorized';
+import { useStore } from '@nanostores/react';
+import { LoadingOverlay } from '@mantine/core';
 
 interface PermissionPathProps extends PropsWithChildren {
   permission: string;
@@ -10,10 +12,14 @@ export const PermissionPath = ({
   children,
   permission,
 }: PermissionPathProps) => {
-  const permissions = $currUser.get()?.permissions || [];
+  const user = useStore($currUser);
 
-  if (!permissions.includes(permission)) {
-    return <Navigate to="/unauthorized" />;
+  if (!user) {
+    return <LoadingOverlay visible></LoadingOverlay>;
+  }
+
+  if (!user.permissions.includes(permission)) {
+    return <Unauthorized />;
   }
 
   return children;

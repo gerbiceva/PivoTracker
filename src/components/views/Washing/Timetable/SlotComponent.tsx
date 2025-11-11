@@ -1,7 +1,6 @@
 import {
   alpha,
   darken,
-  defaultVariantColorsResolver,
   lighten,
   MantineColor,
   parseThemeColor,

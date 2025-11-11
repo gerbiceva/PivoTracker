@@ -6,7 +6,7 @@ import {
   Alert,
   Box,
   Stack,
-  Group,
+  SimpleGrid,
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { getSupaWR } from '../../../../supabase/supa-utils/supaSWR';
@@ -93,18 +93,13 @@ export const EditUserBaseInfo = ({ userId }: { userId: number }) => {
           <Text size="xs" fw="bold" c="dimmed" mt="xl">
             OSEBNE INFORMACIJE
           </Text>
-          <Group wrap="wrap">
+          <SimpleGrid cols={{ base: 1, sm: 2 }}>
+            <TextInput description="Name" {...form.getInputProps('name')} />
             <TextInput
-              flex={1}
-              description="Name"
-              {...form.getInputProps('name')}
-            />
-            <TextInput
-              flex={1}
               description="Surname"
               {...form.getInputProps('surname')}
             />
-          </Group>
+          </SimpleGrid>
 
           <div>
             <Button type="submit" size="xs" disabled={!form.isDirty()}>

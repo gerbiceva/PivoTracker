@@ -7,14 +7,21 @@ import {
   Title,
   Text,
   Alert,
+  TextInput,
+  Group,
+  ActionIcon,
 } from '@mantine/core';
-import { IconAlertCircle } from '@tabler/icons-react';
+import { IconAlertCircle, IconSearch, IconUserPlus } from '@tabler/icons-react';
 import { useUserEditing } from './useUserEditing';
 import { useNavigate } from 'react-router-dom';
+import { useState } from 'react';
+import { useDebouncedValue } from '@mantine/hooks';
 
 export const UserEditing = () => {
+  const [inputValue, setInputValue] = useState('');
+  const [debouncedSearchQuery] = useDebouncedValue(inputValue, 200);
   const { users, error, isLoading, totalPages, activePage, setPage } =
-    useUserEditing();
+    useUserEditing(debouncedSearchQuery);
 
   const navigate = useNavigate();
 
@@ -43,8 +50,28 @@ export const UserEditing = () => {
   return (
     <Container>
       <Stack>
-        <Title>User Management</Title>
-        <Text c="dimmed">Edit user information and permissions.</Text>
+        <Group w="100%" justify="space-between">
+          <Stack>
+            <Title>User Management</Title>
+            <Text c="dimmed">Edit user information and permissions.</Text>
+          </Stack>
+          <ActionIcon
+            variant="light"
+            size="xl"
+            onClick={() => {
+              navigate('/admin/enroll');
+            }}
+          >
+            <IconUserPlus />
+          </ActionIcon>
+        </Group>
+        <TextInput
+          placeholder="Search by name or surname"
+          value={inputValue}
+          onChange={(event) => setInputValue(event.currentTarget.value)}
+          leftSection={<IconSearch size={16} />}
+          mb="md"
+        />
         <div style={{ position: 'relative' }}>
           <LoadingOverlay visible={isLoading} />
           <Table>

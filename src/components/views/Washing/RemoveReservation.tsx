@@ -24,8 +24,6 @@ export const removeReservation = (reservationId: number) => {
     labels: { confirm: 'Confirm', cancel: 'Cancel' },
     onCancel: () => console.log('Cancel'),
     onConfirm: () => {
-      console.log('aa');
-
       supabaseClient
         .from('reservations')
         .delete()

@@ -11,27 +11,42 @@ import { useDebouncedState } from '@mantine/hooks';
 import { supabaseClient } from '../../../../supabase/supabaseClient';
 import { notifications } from '@mantine/notifications';
 import { userType } from '../../../users/userType';
+import { baseUserToString } from '../../../../utils/userUtils';
 
 type customer = userType;
 
 function getAsyncData(search: string): Promise<customer[]> {
   return new Promise<customer[]>((resolve) => {
-    supabaseClient
-      .from('user_view')
-      .select('*')
-      .ilike('name', `%${search.toLowerCase()}%`)
-      .then((res) => {
-        if (!res.error) {
-          resolve(res.data);
-        } else {
-          notifications.show({
-            title: 'Error',
-            color: 'red',
-            message: res.error.message,
-          });
-          resolve([]);
-        }
+    const searchTerms = search
+      .toLowerCase()
+      .split(' ')
+      .filter((term) => term.trim() !== '');
+
+    let query = supabaseClient.from('user_view').select('*');
+
+    if (searchTerms.length > 0) {
+      searchTerms.forEach((term) => {
+        query = query
+          .or(`name.ilike.%${term}%,surname.ilike.%${term}%`)
+          .limit(6);
       });
+    } else {
+      resolve([]);
+      return;
+    }
+
+    query.then((res) => {
+      if (!res.error) {
+        resolve(res.data);
+      } else {
+        notifications.show({
+          title: 'Error',
+          color: 'red',
+          message: res.error.message,
+        });
+        resolve([]);
+      }
+    });
   });
 }
 
@@ -74,10 +89,10 @@ export const NameCombobox = ({ onChange, value }: Props) => {
 
   const options = filteredOptions.map((item) => (
     <Combobox.Option
-      value={item.base_user_id!.toString()}
+      value={(item.base_user_id || 1).toString()}
       key={item.base_user_id}
     >
-      {item.name + ' ' + item.surname}
+      {baseUserToString(item)}
     </Combobox.Option>
   ));
 
@@ -90,7 +105,7 @@ export const NameCombobox = ({ onChange, value }: Props) => {
         // setValue(customerFromId(val, filteredOptions) || null);
         const newValue = customerFromId(val, filteredOptions);
         onChange(newValue);
-        setSearch(newValue?.name || '');
+        setSearch(baseUserToString(newValue as customer));
         combobox.closeDropdown();
       }}
     >
@@ -110,7 +125,7 @@ export const NameCombobox = ({ onChange, value }: Props) => {
           onFocus={() => combobox.openDropdown()}
           onBlur={() => {
             combobox.closeDropdown();
-            setSearch((value?.name || '') + ' ' + value?.surname);
+            setSearch(baseUserToString(value as customer));
           }}
           placeholder="Ime priimek"
           rightSectionPointerEvents="none"

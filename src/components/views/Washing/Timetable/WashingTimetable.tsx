@@ -3,7 +3,6 @@ import {
   Alert,
   Badge,
   Button,
-  ColorSwatch,
   Text,
   Group,
   LoadingOverlay,
@@ -14,14 +13,13 @@ import {
   IconChevronCompactLeft,
   IconChevronCompactRight,
   IconHelpCircleFilled,
-  IconQuestionMark,
 } from '@tabler/icons-react';
 import { useCallback, useState } from 'react';
 import dayjs from 'dayjs';
 import weekday from 'dayjs/plugin/weekday';
 import weekOfYear from 'dayjs/plugin/weekOfYear';
 import { useGetWeeklyWashing, weeklyWashingData } from './GetWashingByWeek';
-import { DayItem } from './DayItem';
+import { WashingDayItem } from './DayItem';
 import { ReadTimeFromUTCString } from '../../../../utils/timeUtils';
 import { Unpacked } from '../../../../utils/objectSplit';
 import { Link } from 'react-router-dom';
@@ -138,7 +136,7 @@ export const WashingTimetable = () => {
 
       <Stack gap="sm" py="xl" pb="4rem">
         {days.map((day, index) => (
-          <DayItem day={day} key={day.date.toString() + index} />
+          <WashingDayItem day={day} key={day.date.toString() + index} />
         ))}
       </Stack>
     </Stack>

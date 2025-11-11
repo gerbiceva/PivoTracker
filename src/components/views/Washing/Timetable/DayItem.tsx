@@ -7,7 +7,7 @@ import {
   Alert,
   Stack,
   ThemeIcon,
-  Box,
+  Flex,
 } from '@mantine/core';
 import { CalendarDay } from './WashingTimetable';
 import { SlotComponent } from './SlotComponent';
@@ -17,7 +17,13 @@ import { ReservationItemInfo } from './ReservationItem';
 import dayjs from 'dayjs';
 import { IconMoodEmpty } from '@tabler/icons-react';
 
-export const DayItem = ({ day }: { day: CalendarDay }) => {
+export const WashingDayItem = ({
+  day,
+  enabled,
+}: {
+  day: CalendarDay;
+  enabled?: boolean;
+}) => {
   return (
     <Paper
       withBorder
@@ -30,7 +36,7 @@ export const DayItem = ({ day }: { day: CalendarDay }) => {
       }}
     >
       {/* {day.date.toISOString()} {FormatLocalDateCustom(day.date, 'MM.DD HH:mm')} */}
-      <Group align="center">
+      <Flex direction={{ base: 'column', sm: 'row' }} gap="sm">
         <Stack align="center" gap="xs">
           <ThemeIcon size="xl" variant={day.isToday ? 'filled' : 'light'}>
             {FormatLocalDateCustom(day.date, 'D')}
@@ -53,10 +59,10 @@ export const DayItem = ({ day }: { day: CalendarDay }) => {
             }}
           >
             <Accordion.Control>
-              <Group>
+              <SimpleGrid cols={{ base: 1, sm: 2 }}>
                 <SlotComponent day={day} machine={1} color="indigo" />
                 <SlotComponent day={day} machine={2} color="orange" />
-              </Group>
+              </SimpleGrid>
             </Accordion.Control>
 
             <Accordion.Panel>
@@ -104,13 +110,13 @@ export const DayItem = ({ day }: { day: CalendarDay }) => {
 
               {day.date.endOf('day') >= dayjs().utc() && (
                 <div style={{ width: 'fit-content', marginLeft: 'auto' }}>
-                  <AddWashingModal day={day.date} />
+                  <AddWashingModal day={day.date} enabled={!enabled} />
                 </div>
               )}
             </Accordion.Panel>
           </Accordion.Item>
         </Accordion>
-      </Group>
+      </Flex>
     </Paper>
   );
 };

@@ -60,7 +60,7 @@ export const CustomSpotlight = () => {
             id: 'home',
             label: 'Domov',
             description: 'Prva stran',
-            onClick: () => navigate('/'),
+            onClick: () => navigate('/pivo'),
             leftSection: (
               <IconHome
                 style={{ width: rem(24), height: rem(24) }}
@@ -73,7 +73,7 @@ export const CustomSpotlight = () => {
             id: 'add',
             label: 'Dodajanje piva',
             description: 'Prodaj pivo stranki',
-            onClick: () => navigate('/add'),
+            onClick: () => navigate('/pivo/add'),
             leftSection: (
               <IconBeer
                 style={{ width: rem(24), height: rem(24) }}
@@ -86,7 +86,7 @@ export const CustomSpotlight = () => {
             id: 'list',
             label: 'Seznam pufov',
             description: 'Prikaži seznam pufov',
-            onClick: () => navigate('/puff'),
+            onClick: () => navigate('/pivo/puf'),
             leftSection: (
               <IconList
                 style={{ width: rem(24), height: rem(24) }}
@@ -99,7 +99,7 @@ export const CustomSpotlight = () => {
             id: 'transactions',
             label: 'Transakcije',
             description: 'Prikaži vse transakcije',
-            onClick: () => navigate('/transactions'),
+            onClick: () => navigate('/pivo/transactions'),
             leftSection: (
               <IconTransactionEuro
                 style={{ width: rem(24), height: rem(24) }}
