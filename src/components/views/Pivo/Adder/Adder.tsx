@@ -40,7 +40,6 @@ export const BeerAdder = () => {
   const addOrder = ({ user, item, order, paid }: Order) => {
     // const ordered = order;
     return new Promise<void>((resolve, reject) => {
-      // console.log('add order', item?.id);
       if (!user || !item || !minister || !user.base_user_id) {
         console.error('No user or item');
         return;

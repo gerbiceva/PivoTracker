@@ -20,6 +20,7 @@ import { ManageEvent } from '../components/views/events/ManageEvent';
 import { DisplayEvents } from '../components/views/events/DisplayEvents';
 import { EventView } from '../components/views/events/EventView';
 import { Items } from '../components/views/Pivo/Transactions/Items';
+import { AddPromise } from '../components/views/Promises/AddPromise';
 
 export const router = createBrowserRouter([
   {
@@ -141,6 +142,26 @@ export const router = createBrowserRouter([
               <PermissionPath permission="MANAGE_USERS">
                 <EditUserPage />
               </PermissionPath>
+            ),
+          },
+        ],
+      },
+
+      // EVENTS
+      {
+        path: '/promises',
+        element: (
+          <ProtectedPath redirectUrl="/auth">
+            <Outlet />
+          </ProtectedPath>
+        ),
+        children: [
+          {
+            path: '/promises/create',
+            element: (
+              // <PermissionPath permission="ADD_OBLJUBE">
+              <AddPromise />
+              // </PermissionPath>
             ),
           },
         ],

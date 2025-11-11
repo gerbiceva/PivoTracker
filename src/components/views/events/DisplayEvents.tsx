@@ -37,7 +37,7 @@ export const DisplayEvents = () => {
       {/* data */}
       {groupedEvents && Object.keys(groupedEvents).length > 0
         ? Object.entries(groupedEvents).map(([month, events]) => (
-            <Stack key={month} gap="md">
+            <Stack key={month} gap="lg">
               <Title order={2} c="dimmed" my="lg">
                 {month}
               </Title>
