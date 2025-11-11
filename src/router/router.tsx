@@ -16,6 +16,10 @@ import { PranjeInfo } from '../components/views/Washing/Info/PranjeInfo';
 import { UserEditing } from '../components/views/UserManagement/UserEditing/UserEditing';
 import { EditUserPage } from '../components/views/UserManagement/UserEditing/EditUserPage';
 import { HomePage } from '../components/views/Homepage';
+import { ManageEvent } from '../components/views/events/ManageEvent';
+import { DisplayEvents } from '../components/views/events/DisplayEvents';
+import { EventView } from '../components/views/events/EventView';
+import { Items } from '../components/views/Pivo/Transactions/Items';
 
 export const router = createBrowserRouter([
   {
@@ -26,7 +30,11 @@ export const router = createBrowserRouter([
       // HOME
       {
         path: '/',
-        element: <HomePage />,
+        element: (
+          <ProtectedPath redirectUrl="/auth">
+            <HomePage />
+          </ProtectedPath>
+        ),
       },
 
       // PIVO
@@ -79,6 +87,14 @@ export const router = createBrowserRouter([
               </PermissionPath>
             ),
           },
+          {
+            path: '/pivo/items',
+            element: (
+              <PermissionPath permission="MANAGE_TRANSACTIONS">
+                <Items />
+              </PermissionPath>
+            ),
+          },
           // {
           //   path: '/nabava',
           //   element: <Nabava />,
@@ -126,6 +142,42 @@ export const router = createBrowserRouter([
                 <EditUserPage />
               </PermissionPath>
             ),
+          },
+        ],
+      },
+
+      // EVENTS
+      {
+        path: '/events',
+        element: (
+          <ProtectedPath redirectUrl="/auth">
+            <Outlet />
+          </ProtectedPath>
+        ),
+        children: [
+          {
+            path: '/events/create',
+            element: (
+              <PermissionPath permission="MANAGE_EVENTS">
+                <ManageEvent />
+              </PermissionPath>
+            ),
+          },
+          {
+            path: '/events/edit/:id',
+            element: (
+              <PermissionPath permission="MANAGE_EVENTS">
+                <ManageEvent />
+              </PermissionPath>
+            ),
+          },
+          {
+            index: true,
+            element: <DisplayEvents />,
+          },
+          {
+            path: '/events/:id',
+            element: <EventView />,
           },
         ],
       },

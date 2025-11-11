@@ -8,6 +8,7 @@ INSERT INTO public.permission_types (name, display_name) VALUES
   ('MANAGE_TRANSACTIONS', 'Manage Transactions'),
   ('CAN_WASH', 'Can Wash'),
   ('ADD_OBLJUBA', 'Add Obljube');
+  ('MANAGE_EVENTS', 'Manage Events');
 
 -- Insert default washing machines
 INSERT INTO public.washing_machines (name, description) VALUES

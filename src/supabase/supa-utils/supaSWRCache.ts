@@ -17,7 +17,11 @@ export function refetchTables(tables: TableName | TableName[]) {
       (key: string) => {
         try {
           const parsed = JSON.parse(key);
-          return parsed && parsed.table === table;
+          return (
+            parsed &&
+            Array.isArray(parsed.tables) &&
+            parsed.tables.includes(table)
+          );
         } catch {
           return false;
         }
