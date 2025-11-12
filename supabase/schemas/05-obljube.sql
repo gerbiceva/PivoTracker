@@ -55,6 +55,7 @@ ALTER TABLE "public"."obljube" ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY "obljube_select_authenticated" ON "public"."obljube" FOR SELECT TO "authenticated" USING (true);
 CREATE POLICY "obljube_insert_add_obljuba" ON "public"."obljube" FOR INSERT TO "authenticated" WITH CHECK (public.current_user_has_permission('ADD_OBLJUBA'::text));
+CREATE POLICY "obljube_update_add_obljuba" ON "public"."obljube" FOR UPDATE TO "authenticated" WITH CHECK (public.current_user_has_permission('ADD_OBLJUBA'::text));
 CREATE POLICY "obljube_delete_add_obljuba" ON "public"."obljube" FOR DELETE TO "authenticated" USING (public.current_user_has_permission('ADD_OBLJUBA'::text));
 
 GRANT ALL ON TABLE "public"."obljube" TO "anon";

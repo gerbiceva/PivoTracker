@@ -32,6 +32,12 @@ CREATE POLICY "obljube_select_authenticated" ON "public"."obljube"
 	TO authenticated
 	USING (true);
 
+CREATE POLICY "obljube_update_add_obljuba" ON "public"."obljube"
+	AS PERMISSIVE
+	FOR UPDATE
+	TO authenticated
+	WITH CHECK (current_user_has_permission('ADD_OBLJUBA'::text));
+
 ALTER TABLE "public"."obljube" ENABLE ROW LEVEL SECURITY;
 
 ALTER TABLE "public"."obljube" ADD CONSTRAINT "obljube_minister_fkey" FOREIGN KEY (minister) REFERENCES base_users(id) ON UPDATE CASCADE ON DELETE CASCADE NOT VALID;
