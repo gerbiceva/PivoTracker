@@ -45,6 +45,14 @@ export const HomePage = () => {
                 Washing Machine
               </Button>
             </PermissionPath>
+            <Button
+              component={Link}
+              to="/promises/view"
+              variant="gradient"
+              gradient={{ from: 'red', to: 'orange' }}
+            >
+              Top Obljube Users
+            </Button>
           </>
         )}
       </Group>

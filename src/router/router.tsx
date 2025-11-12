@@ -9,7 +9,6 @@ import { PuffTable } from '../components/views/Pivo/Pufi/PufiTabela';
 import { Transactions } from '../components/views/Pivo/Transactions/Transactions';
 import { PivoByUser } from '../components/views/Pivo/User/PivoByUser';
 import { WashingTimetable } from '../components/views/Washing/Timetable/WashingTimetable';
-import { MyWashing } from '../components/views/Washing/MyWashing/MyWashing';
 import { EnrollUser } from '../components/views/Admin/Users/Enroll';
 import { EditSelf } from '../components/views/UserManagement/ViewSelf';
 import { PranjeInfo } from '../components/views/Washing/Info/PranjeInfo';
@@ -22,6 +21,8 @@ import { EventView } from '../components/views/events/EventView';
 import { Items } from '../components/views/Pivo/Transactions/Items';
 import { AddPromise } from '../components/views/Promises/AddPromise';
 import { ManagePromises } from '../components/views/Promises/ManagePromises';
+import { TopObljubeUsers } from '../components/views/Promises/TopObljubeUsers';
+import { MyWashing } from '../components/views/Washing/MyWashing/MyWashing';
 
 export const router = createBrowserRouter([
   {
@@ -148,7 +149,7 @@ export const router = createBrowserRouter([
         ],
       },
 
-      // EVENTS
+      // PROMISES
       {
         path: '/promises',
         element: (
@@ -171,6 +172,12 @@ export const router = createBrowserRouter([
               // <PermissionPath permission="MANAGE_OBLJUBE">
               <ManagePromises />
               // </PermissionPath>
+            ),
+          },
+          {
+            path: '/promises/view',
+            element: (
+              <TopObljubeUsers />
             ),
           },
         ],
@@ -259,7 +266,7 @@ export const router = createBrowserRouter([
   },
 
   // OTHER
-  {
+ {
     path: '/*',
     element: '404',
   },
