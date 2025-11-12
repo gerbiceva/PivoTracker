@@ -69,6 +69,7 @@ export const ManageEvent = () => {
     }
 
     let error = null;
+    console.log(error);
 
     const eventData = {
       title: values.title,

@@ -18,7 +18,6 @@ import { useState } from 'react';
 import { AuthError } from '@supabase/supabase-js';
 import { notifications } from '@mantine/notifications';
 import { IconSparkles } from '@tabler/icons-react';
-import { useMediaQuery } from '@mantine/hooks';
 
 export function Authentication() {
   const { user, loading: loadginUser } = useUser();

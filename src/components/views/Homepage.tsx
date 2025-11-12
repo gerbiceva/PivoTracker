@@ -1,4 +1,4 @@
-import { Alert, Stack, Title, Button, Group } from '@mantine/core';
+import { Stack, Title, Button, Group } from '@mantine/core';
 import { Link } from 'react-router-dom';
 import { PermissionPath } from '../PermissionPath';
 import { useStore } from '@nanostores/react';
@@ -14,7 +14,7 @@ export const HomePage = () => {
         Your personal PivoTracker and Washing Machine Manager
       </Title>
 
-      <Alert
+      {/* <Alert
         title="Under Construction"
         color="blue"
         variant="filled"
@@ -22,7 +22,7 @@ export const HomePage = () => {
       >
         This website is still under development. More exciting features are
         coming soon!
-      </Alert>
+      </Alert> */}
 
       <Group mt="xl">
         {user && (
