@@ -8,7 +8,7 @@ import { Dashboard } from '../components/views/Pivo/Dash/Dash';
 import { PuffTable } from '../components/views/Pivo/Pufi/PufiTabela';
 import { Transactions } from '../components/views/Pivo/Transactions/Transactions';
 import { PivoByUser } from '../components/views/Pivo/User/PivoByUser';
-import { WashingTimetable } from '../components/views/Washing/Timetable/WashingTimetable';
+import { AddWashingTimetable } from '../components/views/Washing/AddTimetable/AddWashingTimetable';
 import { EnrollUser } from '../components/views/Admin/Users/Enroll';
 import { EditSelf } from '../components/views/UserManagement/ViewSelf';
 import { PranjeInfo } from '../components/views/Washing/Info/PranjeInfo';
@@ -230,7 +230,7 @@ export const router = createBrowserRouter([
             path: '/pranje/novo',
             element: (
               <PermissionPath permission="CAN_WASH">
-                <WashingTimetable />
+                <AddWashingTimetable />
               </PermissionPath>
             ),
           },

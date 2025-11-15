@@ -16,7 +16,7 @@ import {
 } from '../../../../utils/timeUtils';
 import { useGetAuthUser } from '../../../../utils/UseGetAuthUser';
 import { getZodiacSign, zodiacToIcon } from '../../../../utils/zodiac';
-import { dayType } from './WashingTimetable';
+import { dayType } from './AddWashingTimetable';
 import { removeReservation } from '../RemoveReservation';
 
 export interface ReservationItemProps {

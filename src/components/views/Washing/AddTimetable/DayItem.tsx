@@ -9,7 +9,7 @@ import {
   ThemeIcon,
   Flex,
 } from '@mantine/core';
-import { CalendarDay } from './WashingTimetable';
+import { CalendarDay } from './AddWashingTimetable';
 import { SlotComponent } from './SlotComponent';
 import { AddWashingModal } from './AddWashingModal';
 import { FormatLocalDateCustom } from '../../../../utils/timeUtils';
@@ -92,7 +92,7 @@ export const WashingDayItem = ({
                   {day.events
                     .filter((ev) => ev.machine_id == 1)
                     .map((event) => (
-                      <div>
+                      <div key={event.slot_index_local}>
                         <ReservationItemInfo reservation={event} />
                       </div>
                     ))}
@@ -101,7 +101,7 @@ export const WashingDayItem = ({
                   {day.events
                     .filter((ev) => ev.machine_id == 2)
                     .map((event) => (
-                      <div>
+                      <div key={event.slot_index_local}>
                         <ReservationItemInfo reservation={event} />
                       </div>
                     ))}

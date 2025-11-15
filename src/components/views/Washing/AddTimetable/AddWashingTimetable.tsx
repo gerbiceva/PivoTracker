@@ -1,18 +1,17 @@
 import {
   ActionIcon,
   Alert,
-  Badge,
   Button,
   Text,
   Group,
   LoadingOverlay,
   Stack,
-  ThemeIcon,
   Center,
   SimpleGrid,
   Box,
 } from '@mantine/core';
 import {
+  IconAlertHexagonFilled,
   IconChevronCompactLeft,
   IconChevronCompactRight,
   IconChevronLeft,
@@ -28,6 +27,10 @@ import { WashingDayItem } from './DayItem';
 import { ReadTimeFromUTCString } from '../../../../utils/timeUtils';
 import { Unpacked } from '../../../../utils/objectSplit';
 import { Link } from 'react-router-dom';
+import { getSupaWR } from '../../../../supabase/supa-utils/supaSWR';
+import { supabaseClient } from '../../../../supabase/supabaseClient';
+import { useStore } from '@nanostores/react';
+import { $currUser } from '../../../../global-state/user';
 
 // Extend dayjs with plugins
 dayjs.extend(weekday);
@@ -41,8 +44,28 @@ export interface CalendarDay {
   events: dayType[];
 }
 
-export const WashingTimetable = () => {
+export const AddWashingTimetable = () => {
   const [currentDate, setCurrentDate] = useState<dayjs.Dayjs>(dayjs().utc());
+
+  const user = useStore($currUser);
+
+  const { data: userReservations } = getSupaWR({
+    query: () =>
+      supabaseClient
+        .from('reservations')
+        .select('*user_id')
+        .eq('user_id', user?.base_user_id || 0)
+        // .filter('slot', 'gt', dayjs().utc().endOf('day').toISOString())
+        .rangeGte(
+          'slot',
+          `[${currentDate.utc().startOf('week').toISOString()}, ${currentDate
+            .utc()
+            .startOf('week')
+            .toISOString()}]`,
+        )
+        .limit(3),
+    table: 'reservations',
+  });
 
   const { fromDate, toDate } = useMemo(() => {
     return {
@@ -117,6 +140,23 @@ export const WashingTimetable = () => {
         </p>
       </Alert>
 
+      {userReservations && userReservations.length >= 3 && (
+        <Alert
+          color="orange"
+          icon={<IconAlertHexagonFilled />}
+          title="Bodi prijazen!"
+        >
+          <p>
+            V tem tednu imaš registriranih terminov že:{' '}
+            <b>{userReservations.length}</b>
+          </p>
+          <p>
+            Če v enem tednu registriraš več kot 3 termine, pazi da nisi kreten
+            in jih ostane dovolj tudi za druge.
+          </p>
+        </Alert>
+      )}
+
       {/* Date select */}
       <Center>
         <Group p="md" gap="md" justify="end">
@@ -124,11 +164,11 @@ export const WashingTimetable = () => {
             <IconChevronCompactLeft />
           </ActionIcon>
           <Group>
-            <Text fw="bold" size="xl">
+            <Text fw="bold" size="xl" c="cyan">
               {fromDate.format('MMM DD')}
             </Text>
             -
-            <Text fw="bold" size="xl">
+            <Text fw="bold" size="xl" c="cyan">
               {toDate.format('MMM DD')}
             </Text>
           </Group>

@@ -14,7 +14,6 @@ import { UserTag } from '../../../users/UserTag';
 import { formatCurrency } from '../../../../utils/Converter';
 import { sumOrdersOptions, useGetSummedDebt } from './GetEverythingSum';
 import { UserModal } from './UserModal';
-import { baseUserToString } from '../../../../utils/userUtils';
 
 export function PuffTable() {
   const [ord, stOrd] = useState<sumOrdersOptions>('total_difference');

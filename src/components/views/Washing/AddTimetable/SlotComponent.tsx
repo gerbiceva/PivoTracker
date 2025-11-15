@@ -7,7 +7,7 @@ import {
   Progress,
   useMantineTheme,
 } from '@mantine/core';
-import { CalendarDay, dayType } from './WashingTimetable';
+import { CalendarDay, dayType } from './AddWashingTimetable';
 import { useMemo } from 'react';
 
 import {
@@ -73,12 +73,17 @@ export const SlotComponent = ({
   }, [day, machine]);
 
   return (
-    <Progress.Root size="1.5rem" style={{ flex: 1 }} mx="lg">
-      {sections.map((section) =>
+    <Progress.Root size="1.5rem" style={{ flex: 1 }} mx="xs">
+      {sections.map((section, i) =>
         section.isSpacer ? (
-          <Progress.Section value={2} style={{ opacity: 0 }}></Progress.Section>
+          <Progress.Section
+            key={'sp' + i}
+            value={2}
+            style={{ opacity: 0 }}
+          ></Progress.Section>
         ) : (
           <Progress.Section
+            key={'sect' + i}
             value={100 / 8} // 24h , 3hour long section -> 8
             color={
               section.present
@@ -86,13 +91,32 @@ export const SlotComponent = ({
                 : alpha(parsedColor.value, 0.05)
             }
           >
-            <Progress.Label c={lighten(parsedColor.value, 0.8)}>
+            <Progress.Label
+              visibleFrom="md"
+              c={lighten(parsedColor.value, 0.8)}
+            >
               {section.present &&
                 section.dayEvent &&
                 `${FormatLocalDateCustom(
                   ReadTimeFromUTCString(section.dayEvent.slot_start_utc!),
                   'HH',
                 )}h`}
+            </Progress.Label>
+
+            <Progress.Label
+              hiddenFrom="md"
+              c={lighten(parsedColor.value, 0.8)}
+              style={{
+                fontSize: '70%',
+                marginTop: '1px',
+              }}
+            >
+              {section.present &&
+                section.dayEvent &&
+                `${FormatLocalDateCustom(
+                  ReadTimeFromUTCString(section.dayEvent.slot_start_utc!),
+                  'HH',
+                )}`}
             </Progress.Label>
           </Progress.Section>
         ),

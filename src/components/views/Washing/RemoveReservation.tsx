@@ -4,8 +4,8 @@ import { Database } from '../../../supabase/supabase';
 import { supabaseClient } from '../../../supabase/supabaseClient';
 import { Unpacked } from '../../../utils/objectSplit';
 import { invalidateUserReservations } from './MyWashing/UserReservations';
-import { invalidateDailyWashing } from './Timetable/GetSlotsByDay';
-import { invalidateWeeklyWashing } from './Timetable/GetWashingByWeek';
+import { invalidateDailyWashing } from './AddTimetable/GetSlotsByDay';
+import { invalidateWeeklyWashing } from './AddTimetable/GetWashingByWeek';
 import { modals } from '@mantine/modals';
 
 export type ReservationType = Unpacked<

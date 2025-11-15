@@ -11,7 +11,7 @@ import {
   Box,
 } from '@mantine/core';
 import { Link } from 'react-router-dom';
-import { WashingDayItem } from '../Timetable/DayItem';
+import { WashingDayItem } from '../AddTimetable/DayItem';
 import dayjs from 'dayjs';
 import { ReservationAlert } from '../MyWashing/ReservationAlert';
 

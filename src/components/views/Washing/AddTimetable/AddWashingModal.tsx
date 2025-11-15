@@ -24,6 +24,7 @@ import { invalidateDailyWashing, useGetDailySlots } from './GetSlotsByDay';
 import { groupBy } from '../../../../utils/objectSplit';
 import { invalidateWeeklyWashing } from './GetWashingByWeek';
 import { ReservationItemInfo } from './ReservationItem';
+import { refetchTables } from '../../../../supabase/supa-utils/supaSWRCache';
 
 export interface WashingModalProps {
   day: dayjs.Dayjs;
@@ -63,6 +64,7 @@ export const AddWashingModal = ({ day, enabled = true }: WashingModalProps) => {
           });
           invalidateWeeklyWashing();
           invalidateDailyWashing();
+          refetchTables('reservations');
           close();
         }
       });
