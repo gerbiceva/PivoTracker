@@ -20,7 +20,7 @@ import { DisplayEvents } from '../components/views/events/DisplayEvents';
 import { EventView } from '../components/views/events/EventView';
 import { Items } from '../components/views/Pivo/Transactions/Items';
 import { AddPromise } from '../components/views/Promises/AddPromise';
-import { ManagePromises } from '../components/views/Promises/ManagePromises';
+import { ManagePromises } from '../components/views/Promises/ManageObljube';
 import { TopObljubeUsers } from '../components/views/Promises/TopObljubeUsers';
 import { MyWashing } from '../components/views/Washing/MyWashing/MyWashing';
 
@@ -176,9 +176,7 @@ export const router = createBrowserRouter([
           },
           {
             path: '/promises/view',
-            element: (
-              <TopObljubeUsers />
-            ),
+            element: <TopObljubeUsers />,
           },
         ],
       },
@@ -266,7 +264,7 @@ export const router = createBrowserRouter([
   },
 
   // OTHER
- {
+  {
     path: '/*',
     element: '404',
   },

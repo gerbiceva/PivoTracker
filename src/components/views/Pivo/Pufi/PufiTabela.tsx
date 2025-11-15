@@ -14,6 +14,7 @@ import { UserTag } from '../../../users/UserTag';
 import { formatCurrency } from '../../../../utils/Converter';
 import { sumOrdersOptions, useGetSummedDebt } from './GetEverythingSum';
 import { UserModal } from './UserModal';
+import { baseUserToString } from '../../../../utils/userUtils';
 
 export function PuffTable() {
   const [ord, stOrd] = useState<sumOrdersOptions>('total_difference');
@@ -53,7 +54,7 @@ export function PuffTable() {
       <Table.Tr key={element.name} p="xs">
         <Table.Td align="left">
           <UserTag
-            fullname={element.name || ''}
+            fullname={'' + element.name + ' ' + element.surname}
             id={element.id?.toString() || ''}
           />
         </Table.Td>

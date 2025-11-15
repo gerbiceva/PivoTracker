@@ -14,7 +14,7 @@ import {
 import { IconAlertCircle, IconSearch, IconUserPlus } from '@tabler/icons-react';
 import { useUserEditing } from './useUserEditing';
 import { useNavigate } from 'react-router-dom';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useDebouncedValue } from '@mantine/hooks';
 
 export const UserEditing = () => {
@@ -24,6 +24,10 @@ export const UserEditing = () => {
     useUserEditing(debouncedSearchQuery);
 
   const navigate = useNavigate();
+
+  useEffect(() => {
+    setPage(1);
+  }, [debouncedSearchQuery]);
 
   if (error) {
     return (

@@ -13,17 +13,19 @@ import {
   Title,
   Alert,
   Group,
+  TextInput,
+  Pagination,
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
-import { useDisclosure } from '@mantine/hooks';
+import { useDebouncedValue, useDisclosure } from '@mantine/hooks';
 import { notifications } from '@mantine/notifications';
 import { useEffect, useState } from 'react';
-import { IconEdit, IconTrash } from '@tabler/icons-react';
+import { IconEdit, IconSearch, IconTrash } from '@tabler/icons-react';
 import { UserTag } from '../../users/UserTag';
-import { getSupaWR } from '../../../supabase/supa-utils/supaSWR';
 import { refetchTables } from '../../../supabase/supa-utils/supaSWRCache';
 import { Database } from '../../../supabase/supabase';
 import { supabaseClient } from '../../../supabase/supabaseClient';
+import { useObljubeEditing } from './useObljubeEditing';
 
 type PromiseElement = Database['public']['Tables']['obljube']['Row'] & {
   base_users: {
@@ -33,23 +35,15 @@ type PromiseElement = Database['public']['Tables']['obljube']['Row'] & {
 };
 
 export const ManagePromises = () => {
-  const {
-    data: promises,
-    error,
-    isLoading,
-  } = getSupaWR({
-    query: () =>
-      supabaseClient
-        .from('obljube')
-        .select(
-          `
-          *,
-          base_users!who(name, surname)
-        `,
-        ) // Select all columns from obljube and name/surname from base_users, disambiguating with 'who'
-        .order('created_at', { ascending: false }),
-    table: 'obljube',
-  });
+  const [inputValue, setInputValue] = useState('');
+  const [debouncedSearchQuery] = useDebouncedValue(inputValue, 200);
+
+  const { activePage, setPage, totalPages, obljube, error, isLoading } =
+    useObljubeEditing(debouncedSearchQuery);
+
+  useEffect(() => {
+    setPage(1);
+  }, [debouncedSearchQuery]);
 
   const [editModalOpened, { open: openEditModal, close: closeEditModal }] =
     useDisclosure(false);
@@ -86,8 +80,6 @@ export const ManagePromises = () => {
 
   const handleEditSubmit = async (values: typeof form.values) => {
     if (!selectedObljuba) return;
-
-    console.log({ values });
 
     try {
       const { error } = await supabaseClient
@@ -154,9 +146,9 @@ export const ManagePromises = () => {
     );
   }
 
-  const rows = promises?.map((element) => {
+  const rows = obljube?.map((element) => {
     const userFullName =
-      element.base_users.name + ' ' + element.base_users.name;
+      element.base_users.name + ' ' + element.base_users.surname;
 
     return (
       <TableTr key={element.id}>
@@ -200,83 +192,99 @@ export const ManagePromises = () => {
 
   return (
     <Container>
-      <Title order={1} mb="md">
-        Manage Promises
-      </Title>
+      <Stack>
+        <Title order={1} mb="md">
+          Manage Promises
+        </Title>
 
-      {/* Edit Promise Modal */}
-      <Modal
-        opened={editModalOpened}
-        onClose={closeEditModal}
-        title="Edit Promise"
-      >
-        <form onSubmit={form.onSubmit(handleEditSubmit)}>
+        <TextInput
+          placeholder="Search by name or surname"
+          value={inputValue}
+          onChange={(event) => setInputValue(event.currentTarget.value)}
+          leftSection={<IconSearch size={16} />}
+          mb="md"
+        />
+
+        {/* Edit Promise Modal */}
+        <Modal
+          opened={editModalOpened}
+          onClose={closeEditModal}
+          title="Edit Promise"
+        >
+          <form onSubmit={form.onSubmit(handleEditSubmit)}>
+            <Stack>
+              <NumberInput
+                label="Beer Amount"
+                placeholder="e.g., 5"
+                min={1}
+                {...form.getInputProps('amount')}
+              />
+              <Textarea
+                label="Reason/Notes"
+                placeholder="e.g., Promised 5 beers for helping with the event."
+                minRows={3}
+                {...form.getInputProps('reason')}
+              />
+              <Button
+                type="submit"
+                size="xs"
+                disabled={!form.isDirty() || form.values.base_users === null}
+              >
+                Confirm Changes
+              </Button>
+            </Stack>
+          </form>
+        </Modal>
+
+        {/* Delete Promise Modal */}
+        <Modal
+          opened={deleteModalOpened}
+          onClose={closeDeleteModal}
+          title="Delete Promise"
+          centered
+        >
           <Stack>
-            <NumberInput
-              label="Beer Amount"
-              placeholder="e.g., 5"
-              min={1}
-              {...form.getInputProps('amount')}
-            />
-            <Textarea
-              label="Reason/Notes"
-              placeholder="e.g., Promised 5 beers for helping with the event."
-              minRows={3}
-              {...form.getInputProps('reason')}
-            />
-            <Button
-              type="submit"
-              size="xs"
-              disabled={!form.isDirty() || form.values.base_users === null}
-            >
-              Confirm Changes
-            </Button>
+            <Text>Are you sure you want to delete this promise?</Text>
+            <Group justify="flex-end">
+              <Button variant="default" onClick={closeDeleteModal}>
+                Cancel
+              </Button>
+              <Button color="red" onClick={handleDeletePromise}>
+                Delete
+              </Button>
+            </Group>
           </Stack>
-        </form>
-      </Modal>
+        </Modal>
 
-      {/* Delete Promise Modal */}
-      <Modal
-        opened={deleteModalOpened}
-        onClose={closeDeleteModal}
-        title="Delete Promise"
-        centered
-      >
-        <Stack>
-          <Text>Are you sure you want to delete this promise?</Text>
-          <Group justify="flex-end">
-            <Button variant="default" onClick={closeDeleteModal}>
-              Cancel
-            </Button>
-            <Button color="red" onClick={handleDeletePromise}>
-              Delete
-            </Button>
-          </Group>
-        </Stack>
-      </Modal>
-
-      <Table striped highlightOnHover withColumnBorders>
-        <Table.Thead>
-          <TableTr>
-            <TableTh>User</TableTh>
-            <TableTh>Amount</TableTh>
-            <TableTh>Reason</TableTh>
-            <TableTh>Created At</TableTh>
-            <TableTh>Actions</TableTh>
-          </TableTr>
-        </Table.Thead>
-        <Table.Tbody>
-          {isLoading ? (
+        <Table striped highlightOnHover withColumnBorders>
+          <Table.Thead>
             <TableTr>
-              <TableTd colSpan={5}>
-                <Text ta="center">Loading promises...</Text>
-              </TableTd>
+              <TableTh>User</TableTh>
+              <TableTh>Amount</TableTh>
+              <TableTh>Reason</TableTh>
+              <TableTh>Created At</TableTh>
+              <TableTh>Actions</TableTh>
             </TableTr>
-          ) : (
-            rows
-          )}
-        </Table.Tbody>
-      </Table>
+          </Table.Thead>
+          <Table.Tbody>
+            {isLoading ? (
+              <TableTr>
+                <TableTd colSpan={5}>
+                  <Text ta="center">Loading promises...</Text>
+                </TableTd>
+              </TableTr>
+            ) : (
+              rows
+            )}
+          </Table.Tbody>
+        </Table>
+        <Pagination
+          total={totalPages}
+          value={activePage}
+          onChange={setPage}
+          mt="sm"
+        />
+      </Stack>
     </Container>
   );
 };

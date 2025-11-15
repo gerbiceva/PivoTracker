@@ -8,13 +8,18 @@ import {
   LoadingOverlay,
   Stack,
   ThemeIcon,
+  Center,
+  SimpleGrid,
+  Box,
 } from '@mantine/core';
 import {
   IconChevronCompactLeft,
   IconChevronCompactRight,
+  IconChevronLeft,
+  IconChevronRight,
   IconHelpCircleFilled,
 } from '@tabler/icons-react';
-import { useCallback, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import dayjs from 'dayjs';
 import weekday from 'dayjs/plugin/weekday';
 import weekOfYear from 'dayjs/plugin/weekOfYear';
@@ -39,18 +44,20 @@ export interface CalendarDay {
 export const WashingTimetable = () => {
   const [currentDate, setCurrentDate] = useState<dayjs.Dayjs>(dayjs().utc());
 
-  const nextWeek = useCallback(() => {
-    setCurrentDate(currentDate.add(1, 'week'));
+  const { fromDate, toDate } = useMemo(() => {
+    return {
+      fromDate: currentDate.startOf('week'),
+      toDate: currentDate.endOf('week'),
+    };
   }, [currentDate]);
+
+  const nextWeek = useCallback(() => {
+    setCurrentDate((prevDate) => prevDate.add(1, 'week'));
+  }, []);
 
   const previousWeek = useCallback(() => {
-    const newWeek = currentDate.subtract(1, 'week');
-    // if (newWeek.startOf('week') <= dayjs().startOf('week')) {
-    //   return;
-    // }
-
-    setCurrentDate(newWeek);
-  }, [currentDate]);
+    setCurrentDate((prevDate) => prevDate.subtract(1, 'week'));
+  }, []);
 
   const generateWeekDays = (data: weeklyWashingData = []): CalendarDay[] => {
     const startOfWeek = currentDate.startOf('week');
@@ -111,33 +118,61 @@ export const WashingTimetable = () => {
       </Alert>
 
       {/* Date select */}
-      <Group p="md" gap="md" justify="end">
-        <ActionIcon size="md" variant="subtle" onClick={previousWeek}>
-          <IconChevronCompactLeft />
-        </ActionIcon>
-        <Badge size="lg" variant="light" radius="sm">
-          {currentDate.format('MMMM YYYY')}
-        </Badge>
-        <ActionIcon size="md" variant="subtle" onClick={nextWeek}>
-          <IconChevronCompactRight />
-        </ActionIcon>
-      </Group>
-
-      <Group gap="xl">
-        <Group gap="xs">
-          <ThemeIcon color="indigo" />
-          <Text>Stroj 1 (levi)</Text>
+      <Center>
+        <Group p="md" gap="md" justify="end">
+          <ActionIcon size="lg" variant="subtle" onClick={previousWeek}>
+            <IconChevronCompactLeft />
+          </ActionIcon>
+          <Group>
+            <Text fw="bold" size="xl">
+              {fromDate.format('MMM DD')}
+            </Text>
+            -
+            <Text fw="bold" size="xl">
+              {toDate.format('MMM DD')}
+            </Text>
+          </Group>
+          <ActionIcon size="lg" variant="subtle" onClick={nextWeek}>
+            <IconChevronCompactRight />
+          </ActionIcon>
         </Group>
-        <Group gap="xs">
-          <ThemeIcon color="orange" />
-          <Text>Stroj 2 (desni)</Text>
-        </Group>
-      </Group>
+      </Center>
 
-      <Stack gap="sm" py="xl" pb="4rem">
+      <SimpleGrid cols={2} visibleFrom="sm">
+        <Center>
+          <Text fw="bold">Stroj 1</Text>
+        </Center>
+        <Center>
+          <Text fw="bold">Stroj 2</Text>
+        </Center>
+      </SimpleGrid>
+
+      <Stack gap="sm" py="lg" pb="4rem">
+        <Box>
+          <Button
+            mb="lg"
+            variant="subtle"
+            leftSection={<IconChevronLeft />}
+            onClick={previousWeek}
+          >
+            Prikaži prejšnji teden
+          </Button>
+        </Box>
+
         {days.map((day, index) => (
           <WashingDayItem day={day} key={day.date.toString() + index} />
         ))}
+
+        <Box ml="auto">
+          <Button
+            mt="lg"
+            variant="subtle"
+            rightSection={<IconChevronRight />}
+            onClick={nextWeek}
+          >
+            Prikaži naslednji teden
+          </Button>
+        </Box>
       </Stack>
     </Stack>
   );
