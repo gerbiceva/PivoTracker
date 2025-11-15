@@ -50,21 +50,19 @@ export const AddWashingTimetable = () => {
   const user = useStore($currUser);
 
   const { data: userReservations } = getSupaWR({
-    query: () =>
-      supabaseClient
+    query: () => {
+      const startOfWeek = currentDate.utc().startOf('week').toISOString();
+      const endOfWeek = currentDate.utc().endOf('week').toISOString();
+
+      return supabaseClient
         .from('reservations')
         .select('*user_id')
         .eq('user_id', user?.base_user_id || 0)
-        // .filter('slot', 'gt', dayjs().utc().endOf('day').toISOString())
-        .rangeGte(
-          'slot',
-          `[${currentDate.utc().startOf('week').toISOString()}, ${currentDate
-            .utc()
-            .startOf('week')
-            .toISOString()}]`,
-        )
-        .limit(3),
+        .containedBy('slot', `[${startOfWeek}, ${endOfWeek})`) // Use containedBy
+        .limit(3);
+    },
     table: 'reservations',
+    params: [currentDate.toISOString()],
   });
 
   const { fromDate, toDate } = useMemo(() => {
