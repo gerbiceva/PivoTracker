@@ -19,7 +19,7 @@ export type ReservationType =
   Database['public']['Functions']['get_reservations_for_user']['Returns'][0];
 interface ReservationAlertProps {
   reservation: ReservationType; // TODO: Define a proper type for reservation
-  onRemove: (id: number) => void;
+  onRemove?: (id: number) => void;
 }
 
 export const ReservationAlert = ({
@@ -52,16 +52,19 @@ export const ReservationAlert = ({
               )}
             </Text>
           </Group>
-          <ActionIcon
-            size="sm"
-            color="grayish"
-            variant="light"
-            onClick={() => {
-              onRemove(reservation.reservation_id);
-            }}
-          >
-            <IconTrash />
-          </ActionIcon>
+
+          {onRemove && (
+            <ActionIcon
+              size="sm"
+              color="grayish"
+              variant="light"
+              onClick={() => {
+                onRemove(reservation.reservation_id);
+              }}
+            >
+              <IconTrash />
+            </ActionIcon>
+          )}
         </Group>
 
         <Group>
