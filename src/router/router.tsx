@@ -118,10 +118,10 @@ export const router = createBrowserRouter([
           </ProtectedPath>
         ),
         children: [
-          {
-            path: '/user',
-            element: <EditSelf />,
-          },
+          // {
+          //   path: '/user',
+          //   element: <EditSelf />,
+          // },
           {
             path: '/user/:id',
             element: (
