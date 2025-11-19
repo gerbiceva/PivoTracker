@@ -3,15 +3,18 @@ import {
   Badge,
   Card,
   Container,
+  Group,
   Paper,
   SimpleGrid,
   Stack,
   Text,
+  ThemeIcon,
   Title,
 } from '@mantine/core';
 import { getSupaWR } from '../../../supabase/supa-utils/supaSWR';
 import { supabaseClient } from '../../../supabase/supabaseClient';
 import { UserTag } from '../../users/UserTag';
+import { IconBeer } from '@tabler/icons-react';
 
 interface Obljuba {
   who: number;
@@ -30,7 +33,7 @@ interface TopUser {
 }
 
 export const TopObljubeUsers = () => {
-  const { data: obljuve, error } = getSupaWR({
+  const { data: obljube, error } = getSupaWR({
     query: () =>
       supabaseClient
         .from('obljube')
@@ -41,12 +44,13 @@ export const TopObljubeUsers = () => {
           base_users!who(name, surname)
         `,
         )
+        .limit(15)
         .order('created_at', { ascending: false }),
     table: 'obljube',
   });
 
   // Process the data to get top 5 users with highest sum of amounts
-  const topUsers: TopUser[] = obljuve
+  const topUsers: TopUser[] = obljube
     ? (() => {
         // Group by user and sum the amounts
         const userAmountsMap: Record<
@@ -54,7 +58,7 @@ export const TopObljubeUsers = () => {
           { total: number; name: string; surname: string | null }
         > = {};
 
-        obljuve.forEach((obljuba: Obljuba) => {
+        obljube.forEach((obljuba: Obljuba) => {
           if (!userAmountsMap[obljuba.who]) {
             userAmountsMap[obljuba.who] = {
               total: 0,
@@ -136,94 +140,109 @@ export const TopObljubeUsers = () => {
       <Stack gap="xl">
         <Title order={1}>Komu tezit za pivo:</Title>
 
-        {/* <Paper shadow="sm" p="md" withBorder>
-          <Text size="lg" mb="md">
-            The top 5 users with the biggest sum of obligations (obljube)
-          </Text>
-          
-          <LoadingOverlay visible={isLoading} />
-          
-          <Table striped highlightOnHover withColumnBorders>
-            <Table.Thead>
-              <TableTr>
-                <TableTh>Position</TableTh>
-                <TableTh>User</TableTh>
-                <TableTh>Total Amount</TableTh>
-              </TableTr>
-            </Table.Thead>
-            <Table.Tbody>
-              {topUsers.length > 0 ? (
-                rows
-              ) : (
-                <TableTr>
-                  <TableTd colSpan={3}>
-                    <Text ta="center">No obljuve data available</Text>
-                  </TableTd>
-                </TableTr>
-              )}
-            </Table.Tbody>
-          </Table>
-        </Paper> */}
+        <Title order={3} mb="md">
+          Leaderboard
+        </Title>
 
-        <Paper shadow="sm" p="md" withBorder>
-          <Title order={3} mb="md">
-            Leaderboard
-          </Title>
-          <SimpleGrid cols={{ base: 1, sm: 2, md: 3, lg: 5 }} spacing="md">
-            {topUsers.map((user, index) => {
-              const userFullName =
-                user.user_name +
-                (user.user_surname ? ' ' + user.user_surname : '');
-              const position = index + 1;
+        <Group w="100%" justify="space-around" my="4rem">
+          {topUsers && topUsers[1] && (
+            <Alert p="xl" mt="-2rem" variant="outline" color="gray">
+              <Stack justify="center" align="center">
+                <ThemeIcon color="gray" size="xl" variant="light">
+                  2
+                </ThemeIcon>
+                <Group align="center" justify="center">
+                  <Text p="0" size="xl" c="dimmed">
+                    {topUsers[1].total_amount}
+                  </Text>
+                  <IconBeer opacity={0.3} />
+                </Group>
+                <UserTag
+                  fullname={
+                    topUsers[1].user_name + ' ' + topUsers[1].user_surname
+                  }
+                  id={topUsers[1].who.toString()}
+                />
+              </Stack>
+            </Alert>
+          )}
 
-              return (
-                <Card
-                  key={user.who}
-                  shadow="sm"
-                  padding="lg"
-                  radius="md"
-                  withBorder
-                  style={{
-                    border:
-                      position === 1
-                        ? '2px solid gold'
-                        : position === 2
-                        ? '2px solid silver'
-                        : position === 3
-                        ? '2px solid #cd7f32'
-                        : '1px solid #e9ecef',
-                  }}
-                >
-                  <Stack align="center">
-                    <Badge
-                      size="xl"
-                      variant="filled"
-                      color={
-                        position === 1
-                          ? 'yellow'
-                          : position === 2
-                          ? 'gray'
-                          : position === 3
-                          ? 'orange'
-                          : 'blue'
-                      }
-                      style={{ fontSize: '1.5rem' }}
-                    >
-                      {position}
-                    </Badge>
-                    <UserTag
-                      fullname={userFullName || 'N/A'}
-                      id={user.who?.toString() || ''}
-                    />
-                    <Text fw={700} size="lg" color="red">
-                      {user.total_amount} beers
-                    </Text>
-                  </Stack>
-                </Card>
-              );
-            })}
-          </SimpleGrid>
-        </Paper>
+          {topUsers && topUsers[0] && (
+            <Alert p="xl" mt="-6rem" variant="outline" color="yellow">
+              <Stack justify="center" align="center">
+                <ThemeIcon color="yellow" size="xl" variant="light">
+                  1
+                </ThemeIcon>
+                <Group align="center" justify="center">
+                  <Text p="0" size="xl" c="dimmed">
+                    {topUsers[0].total_amount}
+                  </Text>
+                  <IconBeer opacity={0.3} />
+                </Group>
+                <UserTag
+                  fullname={
+                    topUsers[0].user_name + ' ' + topUsers[0].user_surname
+                  }
+                  id={topUsers[0].who.toString()}
+                />
+              </Stack>
+            </Alert>
+          )}
+
+          {topUsers && topUsers[2] && (
+            <Alert p="xl" variant="outline" color="orange">
+              <Stack justify="center" align="center">
+                <ThemeIcon color="orange" size="xl" variant="light">
+                  1
+                </ThemeIcon>
+                <Group align="center" justify="center">
+                  <Text p="0" size="xl" c="dimmed">
+                    {topUsers[2].total_amount}
+                  </Text>
+                  <IconBeer opacity={0.3} />
+                </Group>
+                <UserTag
+                  fullname={
+                    topUsers[2].user_name + ' ' + topUsers[2].user_surname
+                  }
+                  id={topUsers[2].who.toString()}
+                />
+              </Stack>
+            </Alert>
+          )}
+        </Group>
+
+        <SimpleGrid cols={{ base: 1, sm: 2, md: 3, lg: 5 }} spacing="md">
+          {topUsers.slice(3).map((user, index) => {
+            const userFullName =
+              user.user_name +
+              (user.user_surname ? ' ' + user.user_surname : '');
+            const position = index + 1;
+
+            return (
+              <Card
+                key={user.who}
+                shadow="sm"
+                padding="lg"
+                radius="md"
+                withBorder
+              >
+                <Stack align="center">
+                  <Badge size="lg" variant="light" color="gray">
+                    {position}
+                  </Badge>
+                  <Text fw={700} size="lg" c="gray">
+                    {user.total_amount}
+                  </Text>
+                  <UserTag
+                    fullname={userFullName || 'N/A'}
+                    id={user.who?.toString() || ''}
+                  />
+                </Stack>
+              </Card>
+            );
+          })}
+        </SimpleGrid>
       </Stack>
     </Container>
   );
