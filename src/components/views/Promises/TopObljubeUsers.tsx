@@ -211,7 +211,7 @@ export const TopObljubeUsers = () => {
         </Group>
 
         <SimpleGrid cols={{ base: 1, sm: 2, md: 3, lg: 5 }} spacing="md">
-          {topUsers.slice(3).map((user, index) => {
+          {topUsers.slice(3, -1).map((user, index) => {
             const userFullName =
               user.user_name +
               (user.user_surname ? ' ' + user.user_surname : '');
