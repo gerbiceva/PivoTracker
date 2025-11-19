@@ -10,7 +10,6 @@ import { Transactions } from '../components/views/Pivo/Transactions/Transactions
 import { PivoByUser } from '../components/views/Pivo/User/PivoByUser';
 import { AddWashingTimetable } from '../components/views/Washing/AddTimetable/AddWashingTimetable';
 import { EnrollUser } from '../components/views/Admin/Users/Enroll';
-import { EditSelf } from '../components/views/UserManagement/ViewSelf';
 import { PranjeInfo } from '../components/views/Washing/Info/PranjeInfo';
 import { UserEditing } from '../components/views/UserManagement/UserEditing/UserEditing';
 import { EditUserPage } from '../components/views/UserManagement/UserEditing/EditUserPage';
