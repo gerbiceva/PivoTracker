@@ -43,7 +43,6 @@ export const TopObljubeUsers = () => {
           base_users!who(name, surname)
         `,
         )
-        .limit(15)
         .order('created_at', { ascending: false }),
     table: 'obljube',
   });
