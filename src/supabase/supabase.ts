@@ -668,6 +668,44 @@ export type Database = {
           },
         ]
       }
+      top_obljube_users_sum: {
+        Row: {
+          total_amount: number | null
+          user_name: string | null
+          user_surname: string | null
+          who: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "obljube_who_fkey"
+            columns: ["who"]
+            isOneToOne: false
+            referencedRelation: "base_users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "obljube_who_fkey"
+            columns: ["who"]
+            isOneToOne: false
+            referencedRelation: "everything"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "obljube_who_fkey"
+            columns: ["who"]
+            isOneToOne: false
+            referencedRelation: "everything_sum"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "obljube_who_fkey"
+            columns: ["who"]
+            isOneToOne: false
+            referencedRelation: "user_view"
+            referencedColumns: ["base_user_id"]
+          },
+        ]
+      }
       total_summary: {
         Row: {
           total_beer_count: number | null
