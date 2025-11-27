@@ -19,7 +19,8 @@ import { EventDisplayRow } from './events/EventDisplayRow';
 import { useGetUserExpandedFromAuth } from './Washing/MyWashing/GetExpandedUserFromAuth';
 import { useGetReservationsForUser } from './Washing/MyWashing/UserReservations';
 import { ReservationAlert } from './Washing/MyWashing/ReservationAlert';
-import { IconBeer, IconWash } from '@tabler/icons-react';
+import { IconBeer, IconMedal, IconWash } from '@tabler/icons-react';
+import dayjs from 'dayjs';
 
 export const HomePage = () => {
   const user = useStore($currUser);
@@ -32,6 +33,8 @@ export const HomePage = () => {
         .from('events')
         .select('*')
         .limit(3)
+        // filtriraj pretekle dogodke
+        .filter('event_date', 'gte', dayjs().endOf('day').toISOString())
         .order('event_date', { ascending: true }),
     table: 'events',
   });
@@ -139,8 +142,20 @@ export const HomePage = () => {
             Moje PIVO!
           </Title>
 
+          <div>
+            <Button
+              color="orange"
+              component={Link}
+              to="/promises/view"
+              variant="light"
+              rightSection={<IconMedal></IconMedal>}
+            >
+              Prešimfaj največje dolžnike
+            </Button>
+          </div>
+
           {/* obljube tracker */}
-          {obljube && obljube.length != 0 && (
+          {obljube && obljube.length != 0 ? (
             <Alert
               title="Obljube"
               icon={<IconBeer></IconBeer>}
@@ -151,6 +166,15 @@ export const HomePage = () => {
                 {obljube?.reduce((prev, curr) => prev + curr.amount, 0)} piv!
               </Text>
             </Alert>
+          ) : (
+            <Alert
+              title="Obljube"
+              icon={<IconBeer></IconBeer>}
+              variant="outline"
+              color="green"
+            >
+              <Text>Nobenih dolgov nimaš. super!</Text>
+            </Alert>
           )}
 
           {isLoadingObljube && (
@@ -160,22 +184,26 @@ export const HomePage = () => {
             </>
           )}
 
-          <Text c="dimmed" my="sm">
-            Seznam obljub:
-          </Text>
+          {obljube && obljube.length != 0 && (
+            <>
+              <Text c="dimmed" my="sm">
+                Seznam obljub:
+              </Text>
 
-          {obljube &&
-            obljube.map((obljuba) => (
-              <Group key={obljuba.id} gap="xl">
-                <Group>
-                  <Text fw="bold" miw="3ch">
-                    {obljuba.amount}
-                  </Text>
-                  <IconBeer />
-                </Group>
-                <Text opacity={0.9}>{obljuba.reason}</Text>
-              </Group>
-            ))}
+              {obljube &&
+                obljube.map((obljuba) => (
+                  <Group key={obljuba.id} gap="xl">
+                    <Group>
+                      <Text fw="bold" miw="3ch">
+                        {obljuba.amount}
+                      </Text>
+                      <IconBeer />
+                    </Group>
+                    <Text opacity={0.9}>{obljuba.reason}</Text>
+                  </Group>
+                ))}
+            </>
+          )}
         </Stack>
       </Stack>
     </Container>

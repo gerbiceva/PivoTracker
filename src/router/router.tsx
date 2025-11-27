@@ -22,6 +22,7 @@ import { AddPromise } from '../components/views/Promises/AddPromise';
 import { ManagePromises } from '../components/views/Promises/ManageObljube';
 import { TopObljubeUsers } from '../components/views/Promises/TopObljubeUsers';
 import { MyWashing } from '../components/views/Washing/MyWashing/MyWashing';
+import { Alert, Stack } from '@mantine/core';
 
 export const router = createBrowserRouter([
   {
@@ -44,7 +45,13 @@ export const router = createBrowserRouter([
         path: '/pivo',
         element: (
           <ProtectedPath redirectUrl="/auth">
-            <Outlet />
+            <Stack>
+              <Alert>
+                Vse reči v zvezi z pivom so še malo tko tko. Dodajanje piva
+                lahko uporabljas ampak te pregledi niso še super.
+              </Alert>
+              <Outlet />
+            </Stack>
           </ProtectedPath>
         ),
         children: [
@@ -56,14 +63,14 @@ export const router = createBrowserRouter([
               </PermissionPath>
             ),
           },
-          {
-            path: '/pivo/',
-            element: (
-              <PermissionPath permission="MANAGE_TRANSACTIONS">
-                <Dashboard />
-              </PermissionPath>
-            ),
-          },
+          // {
+          //   index: true,
+          //   element: (
+          //     <PermissionPath permission="MANAGE_TRANSACTIONS">
+          //       <Dashboard />
+          //     </PermissionPath>
+          //   ),
+          // },
 
           {
             path: '/pivo/add',
@@ -160,17 +167,17 @@ export const router = createBrowserRouter([
           {
             path: '/promises/create',
             element: (
-              // <PermissionPath permission="ADD_OBLJUBE">
-              <AddPromise />
-              // </PermissionPath>
+              <PermissionPath permission="ADD_OBLJUBA">
+                <AddPromise />
+              </PermissionPath>
             ),
           },
           {
             path: '/promises/manage',
             element: (
-              // <PermissionPath permission="MANAGE_OBLJUBE">
-              <ManagePromises />
-              // </PermissionPath>
+              <PermissionPath permission="ADD_OBLJUBA">
+                <ManagePromises />
+              </PermissionPath>
             ),
           },
           {

@@ -88,19 +88,19 @@ export const CustomSpotlight = () => {
       {
         group: 'Pivo',
         actions: [
-          {
-            permission: 'MANAGE_TRANSACTIONS',
-            id: 'home',
-            label: 'Domov',
-            description: 'Prva stran',
-            onClick: () => navigate('/pivo'),
-            leftSection: (
-              <IconHome
-                style={{ width: rem(24), height: rem(24) }}
-                stroke={1.5}
-              />
-            ),
-          },
+          // {
+          //   permission: 'MANAGE_TRANSACTIONS',
+          //   id: 'home',
+          //   label: 'Domov',
+          //   description: 'Prva stran',
+          //   onClick: () => navigate('/pivo'),
+          //   leftSection: (
+          //     <IconHome
+          //       style={{ width: rem(24), height: rem(24) }}
+          //       stroke={1.5}
+          //     />
+          //   ),
+          // },
           {
             permission: 'MANAGE_TRANSACTIONS',
             id: 'add',

@@ -12,7 +12,6 @@ import {
 } from '@mantine/core';
 import { getSupaWR } from '../../../supabase/supa-utils/supaSWR';
 import { supabaseClient } from '../../../supabase/supabaseClient';
-import { UserTag } from '../../users/UserTag';
 import { IconBeer } from '@tabler/icons-react';
 
 export const TopObljubeUsers = () => {
@@ -39,7 +38,7 @@ export const TopObljubeUsers = () => {
   return (
     <Container size="md">
       <Stack gap="xl">
-        <Title order={1}>Komu tezit za pivo:</Title>
+        <Title order={1}>Komu težit za pivo?</Title>
 
         <Title order={3} mb="md">
           Leaderboard
@@ -58,12 +57,15 @@ export const TopObljubeUsers = () => {
                   </Text>
                   <IconBeer opacity={0.3} />
                 </Group>
-                <UserTag
+                {/* <UserTag
                   fullname={
                     topUsers[1].user_name + ' ' + topUsers[1].user_surname
                   }
                   id={(topUsers[1].who || 0).toString()}
-                />
+                /> */}
+                <Text>
+                  {topUsers[1].user_name + ' ' + topUsers[1].user_surname}
+                </Text>
               </Stack>
             </Alert>
           )}
@@ -80,12 +82,15 @@ export const TopObljubeUsers = () => {
                   </Text>
                   <IconBeer opacity={0.3} />
                 </Group>
-                <UserTag
+                {/* <UserTag
                   fullname={
                     topUsers[0].user_name + ' ' + topUsers[0].user_surname
                   }
                   id={(topUsers[0].who || 0).toString()}
-                />
+                /> */}
+                <Text>
+                  {topUsers[0].user_name + ' ' + topUsers[0].user_surname}
+                </Text>
               </Stack>
             </Alert>
           )}
@@ -94,7 +99,7 @@ export const TopObljubeUsers = () => {
             <Alert p="xl" variant="outline" color="orange">
               <Stack justify="center" align="center">
                 <ThemeIcon color="orange" size="xl" variant="light">
-                  1
+                  3
                 </ThemeIcon>
                 <Group align="center" justify="center">
                   <Text p="0" size="xl" c="dimmed">
@@ -102,12 +107,16 @@ export const TopObljubeUsers = () => {
                   </Text>
                   <IconBeer opacity={0.3} />
                 </Group>
-                <UserTag
+
+                {/* <UserTag
                   fullname={
                     topUsers[2].user_name + ' ' + topUsers[2].user_surname
                   }
                   id={(topUsers[0].who || 0).toString()}
-                />
+                /> */}
+                <Text>
+                  {topUsers[2].user_name + ' ' + topUsers[2].user_surname}
+                </Text>
               </Stack>
             </Alert>
           )}
@@ -135,10 +144,15 @@ export const TopObljubeUsers = () => {
                   <Text fw={700} size="lg" c="gray">
                     {user.total_amount}
                   </Text>
-                  <UserTag
+
+                  {/* <UserTag
                     fullname={userFullName || 'N/A'}
                     id={user.who?.toString() || ''}
-                  />
+                  /> */}
+
+                  <Text size="md" c="gray">
+                    {userFullName}
+                  </Text>
                 </Stack>
               </Card>
             );
