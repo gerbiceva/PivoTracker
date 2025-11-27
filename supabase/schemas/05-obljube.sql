@@ -80,6 +80,25 @@ ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" GRANT ALL ON TAB
 ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" GRANT ALL ON TABLES TO "authenticated";
 ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" GRANT ALL ON TABLES TO "service_role";
 
+CREATE OR REPLACE VIEW "public"."obljube_with_user_info" AS
+SELECT
+    o.*,
+    bu_who.id AS user_id,
+    bu_who.created_at AS user_created_at,
+    bu_who.name AS user_name,
+    bu_who.surname AS user_surname,
+    bu_who.auth AS user_auth_id,
+    bu_who.resident AS user_resident_id,
+    bu_who.invited_by AS user_invited_by,
+    bu_minister.id AS minister_id,
+    bu_minister.name AS minister_name
+FROM
+    public.obljube o
+    LEFT JOIN public.base_users bu_who ON o.who = bu_who.id
+    LEFT JOIN public.base_users bu_minister ON o.minister = bu_minister.id;
+
+ALTER VIEW "public"."obljube_with_user_info" OWNER TO "postgres";
+
 CREATE OR REPLACE VIEW "public"."top_obljube_users_sum" AS
 WITH "user_totals" AS (
   SELECT
@@ -105,4 +124,3 @@ SELECT
 FROM
   "user_totals";
 ALTER VIEW "public"."top_obljube_users_sum" OWNER TO "postgres";
-

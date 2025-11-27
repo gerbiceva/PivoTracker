@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { PostgrestSingleResponse } from '@supabase/supabase-js';
 import { supabaseClient } from '../../../supabase/supabaseClient';
 import { getSupaWR } from '../../../supabase/supa-utils/supaSWR';
@@ -17,13 +17,11 @@ export const useObljubeEditing = (query_string?: string) => {
     isLoading: areobljubeLoading,
   } = getSupaWR({
     query: () => {
-      let supaQuery = supabaseClient
-        .from('obljube')
-        .select(`*,base_users!who(name, surname)`); // Select all columns from obljube and name/surname from base_users, disambiguating with 'who'
+      let supaQuery = supabaseClient.from('obljube_with_user_info').select(`*`);
 
       if (hasQuery) {
         supaQuery = supaQuery.or(
-          `name.ilike.%${query}%,surname.ilike.%${query}%`,
+          `user_name.ilike.%${query}%,user_surname.ilike.%${query}%`,
         );
       }
       return supaQuery.range(
@@ -31,9 +29,13 @@ export const useObljubeEditing = (query_string?: string) => {
         activePage * PAGE_SIZE - 1,
       );
     },
-    table: 'user_view',
+    table: ['user_view', 'obljube_with_user_info', 'obljube'],
     params: ['users', activePage, query],
   });
+
+  useEffect(() => {
+    setPage(1);
+  }, [query]);
 
   const {
     data: count,
@@ -43,14 +45,14 @@ export const useObljubeEditing = (query_string?: string) => {
     query: () =>
       new Promise<PostgrestSingleResponse<number | null>>((resolve, reject) => {
         let supaQuery = supabaseClient
-          .from('obljube')
-          .select(`*,base_users!who(name, surname)`, {
+          .from('obljube_with_user_info')
+          .select(`user_name,user_surname`, {
             count: 'exact',
             head: true,
-          }); // Select all columns from obljube and name/surname from base_users, disambiguating with 'who'
+          });
         if (hasQuery) {
           supaQuery = supaQuery.or(
-            `name.ilike.%${query}%,surname.ilike.%${query}%`,
+            `user_name.ilike.%${query}%,user_surname.ilike.%${query}%`,
           );
         }
         supaQuery.then((response) => {
@@ -68,7 +70,7 @@ export const useObljubeEditing = (query_string?: string) => {
           }
         });
       }),
-    table: 'user_view',
+    table: ['user_view', 'obljube_with_user_info', 'obljube'],
     params: ['count', query],
   });
 

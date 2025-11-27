@@ -88,6 +88,20 @@ export type Database = {
             foreignKeyName: "base_users_invited_by_fkey"
             columns: ["invited_by"]
             isOneToOne: false
+            referencedRelation: "obljube_with_user_info"
+            referencedColumns: ["minister_id"]
+          },
+          {
+            foreignKeyName: "base_users_invited_by_fkey"
+            columns: ["invited_by"]
+            isOneToOne: false
+            referencedRelation: "obljube_with_user_info"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "base_users_invited_by_fkey"
+            columns: ["invited_by"]
+            isOneToOne: false
             referencedRelation: "user_view"
             referencedColumns: ["base_user_id"]
           },
@@ -156,6 +170,20 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "everything_sum"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "events_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "obljube_with_user_info"
+            referencedColumns: ["minister_id"]
+          },
+          {
+            foreignKeyName: "events_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "obljube_with_user_info"
+            referencedColumns: ["user_id"]
           },
           {
             foreignKeyName: "events_created_by_fkey"
@@ -271,6 +299,20 @@ export type Database = {
             foreignKeyName: "obljube_minister_fkey"
             columns: ["minister"]
             isOneToOne: false
+            referencedRelation: "obljube_with_user_info"
+            referencedColumns: ["minister_id"]
+          },
+          {
+            foreignKeyName: "obljube_minister_fkey"
+            columns: ["minister"]
+            isOneToOne: false
+            referencedRelation: "obljube_with_user_info"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "obljube_minister_fkey"
+            columns: ["minister"]
+            isOneToOne: false
             referencedRelation: "user_view"
             referencedColumns: ["base_user_id"]
           },
@@ -294,6 +336,20 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "everything_sum"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "obljube_who_fkey"
+            columns: ["who"]
+            isOneToOne: false
+            referencedRelation: "obljube_with_user_info"
+            referencedColumns: ["minister_id"]
+          },
+          {
+            foreignKeyName: "obljube_who_fkey"
+            columns: ["who"]
+            isOneToOne: false
+            referencedRelation: "obljube_with_user_info"
+            referencedColumns: ["user_id"]
           },
           {
             foreignKeyName: "obljube_who_fkey"
@@ -370,6 +426,20 @@ export type Database = {
             foreignKeyName: "permissions_permission_creator_fkey"
             columns: ["permission_creator"]
             isOneToOne: false
+            referencedRelation: "obljube_with_user_info"
+            referencedColumns: ["minister_id"]
+          },
+          {
+            foreignKeyName: "permissions_permission_creator_fkey"
+            columns: ["permission_creator"]
+            isOneToOne: false
+            referencedRelation: "obljube_with_user_info"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "permissions_permission_creator_fkey"
+            columns: ["permission_creator"]
+            isOneToOne: false
             referencedRelation: "user_view"
             referencedColumns: ["base_user_id"]
           },
@@ -407,6 +477,20 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "everything_sum"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "permissions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "obljube_with_user_info"
+            referencedColumns: ["minister_id"]
+          },
+          {
+            foreignKeyName: "permissions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "obljube_with_user_info"
+            referencedColumns: ["user_id"]
           },
           {
             foreignKeyName: "permissions_user_id_fkey"
@@ -470,6 +554,20 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "everything_sum"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reservations_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "obljube_with_user_info"
+            referencedColumns: ["minister_id"]
+          },
+          {
+            foreignKeyName: "reservations_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "obljube_with_user_info"
+            referencedColumns: ["user_id"]
           },
           {
             foreignKeyName: "reservations_user_id_fkey"
@@ -553,6 +651,20 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "everything_sum"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "transactions_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "obljube_with_user_info"
+            referencedColumns: ["minister_id"]
+          },
+          {
+            foreignKeyName: "transactions_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "obljube_with_user_info"
+            referencedColumns: ["user_id"]
           },
           {
             foreignKeyName: "transactions_customer_id_fkey"
@@ -663,6 +775,181 @@ export type Database = {
             foreignKeyName: "transactions_customer_id_fkey"
             columns: ["customer_id"]
             isOneToOne: false
+            referencedRelation: "obljube_with_user_info"
+            referencedColumns: ["minister_id"]
+          },
+          {
+            foreignKeyName: "transactions_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "obljube_with_user_info"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "transactions_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "user_view"
+            referencedColumns: ["base_user_id"]
+          },
+        ]
+      }
+      obljube_with_user_info: {
+        Row: {
+          amount: number | null
+          created_at: string | null
+          id: number | null
+          minister: number | null
+          minister_id: number | null
+          minister_name: string | null
+          reason: string | null
+          user_auth_id: string | null
+          user_created_at: string | null
+          user_id: number | null
+          user_invited_by: number | null
+          user_name: string | null
+          user_resident_id: number | null
+          user_surname: string | null
+          who: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "base_users_invited_by_fkey"
+            columns: ["user_invited_by"]
+            isOneToOne: false
+            referencedRelation: "base_users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "base_users_invited_by_fkey"
+            columns: ["user_invited_by"]
+            isOneToOne: false
+            referencedRelation: "everything"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "base_users_invited_by_fkey"
+            columns: ["user_invited_by"]
+            isOneToOne: false
+            referencedRelation: "everything_sum"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "base_users_invited_by_fkey"
+            columns: ["user_invited_by"]
+            isOneToOne: false
+            referencedRelation: "obljube_with_user_info"
+            referencedColumns: ["minister_id"]
+          },
+          {
+            foreignKeyName: "base_users_invited_by_fkey"
+            columns: ["user_invited_by"]
+            isOneToOne: false
+            referencedRelation: "obljube_with_user_info"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "base_users_invited_by_fkey"
+            columns: ["user_invited_by"]
+            isOneToOne: false
+            referencedRelation: "user_view"
+            referencedColumns: ["base_user_id"]
+          },
+          {
+            foreignKeyName: "base_users_resident_fkey"
+            columns: ["user_resident_id"]
+            isOneToOne: false
+            referencedRelation: "residents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "base_users_resident_fkey"
+            columns: ["user_resident_id"]
+            isOneToOne: false
+            referencedRelation: "user_view"
+            referencedColumns: ["resident_id"]
+          },
+          {
+            foreignKeyName: "obljube_minister_fkey"
+            columns: ["minister"]
+            isOneToOne: false
+            referencedRelation: "base_users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "obljube_minister_fkey"
+            columns: ["minister"]
+            isOneToOne: false
+            referencedRelation: "everything"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "obljube_minister_fkey"
+            columns: ["minister"]
+            isOneToOne: false
+            referencedRelation: "everything_sum"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "obljube_minister_fkey"
+            columns: ["minister"]
+            isOneToOne: false
+            referencedRelation: "obljube_with_user_info"
+            referencedColumns: ["minister_id"]
+          },
+          {
+            foreignKeyName: "obljube_minister_fkey"
+            columns: ["minister"]
+            isOneToOne: false
+            referencedRelation: "obljube_with_user_info"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "obljube_minister_fkey"
+            columns: ["minister"]
+            isOneToOne: false
+            referencedRelation: "user_view"
+            referencedColumns: ["base_user_id"]
+          },
+          {
+            foreignKeyName: "obljube_who_fkey"
+            columns: ["who"]
+            isOneToOne: false
+            referencedRelation: "base_users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "obljube_who_fkey"
+            columns: ["who"]
+            isOneToOne: false
+            referencedRelation: "everything"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "obljube_who_fkey"
+            columns: ["who"]
+            isOneToOne: false
+            referencedRelation: "everything_sum"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "obljube_who_fkey"
+            columns: ["who"]
+            isOneToOne: false
+            referencedRelation: "obljube_with_user_info"
+            referencedColumns: ["minister_id"]
+          },
+          {
+            foreignKeyName: "obljube_who_fkey"
+            columns: ["who"]
+            isOneToOne: false
+            referencedRelation: "obljube_with_user_info"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "obljube_who_fkey"
+            columns: ["who"]
+            isOneToOne: false
             referencedRelation: "user_view"
             referencedColumns: ["base_user_id"]
           },
@@ -696,6 +983,20 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "everything_sum"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "obljube_who_fkey"
+            columns: ["who"]
+            isOneToOne: false
+            referencedRelation: "obljube_with_user_info"
+            referencedColumns: ["minister_id"]
+          },
+          {
+            foreignKeyName: "obljube_who_fkey"
+            columns: ["who"]
+            isOneToOne: false
+            referencedRelation: "obljube_with_user_info"
+            referencedColumns: ["user_id"]
           },
           {
             foreignKeyName: "obljube_who_fkey"
@@ -752,6 +1053,20 @@ export type Database = {
             foreignKeyName: "permissions_permission_creator_fkey"
             columns: ["permission_creator"]
             isOneToOne: false
+            referencedRelation: "obljube_with_user_info"
+            referencedColumns: ["minister_id"]
+          },
+          {
+            foreignKeyName: "permissions_permission_creator_fkey"
+            columns: ["permission_creator"]
+            isOneToOne: false
+            referencedRelation: "obljube_with_user_info"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "permissions_permission_creator_fkey"
+            columns: ["permission_creator"]
+            isOneToOne: false
             referencedRelation: "user_view"
             referencedColumns: ["base_user_id"]
           },
@@ -775,6 +1090,20 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "everything_sum"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "permissions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "obljube_with_user_info"
+            referencedColumns: ["minister_id"]
+          },
+          {
+            foreignKeyName: "permissions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "obljube_with_user_info"
+            referencedColumns: ["user_id"]
           },
           {
             foreignKeyName: "permissions_user_id_fkey"

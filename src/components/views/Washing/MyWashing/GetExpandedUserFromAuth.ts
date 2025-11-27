@@ -12,11 +12,16 @@ export const useGetUserExpandedFromAuth = (config?: SWRConfiguration) => {
     new Promise<UserExpandedType>((resolve, reject) => {
       supabaseClient
         .rpc('get_user_expanded_from_auth')
-        .select()
-        .single()
+        .select('*')
+        .limit(1)
+        .maybeSingle()
         .then((res) => {
           if (!res.error) {
-            resolve(res.data);
+            if (res.data) {
+              resolve(res.data);
+            } else {
+              reject();
+            }
           } else {
             reject(res.error);
           }
