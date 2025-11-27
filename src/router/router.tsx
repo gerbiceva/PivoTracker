@@ -4,7 +4,6 @@ import { PermissionPath } from '../components/PermissionPath';
 import { BeerAdder } from '../components/views/Pivo/Adder/Adder';
 import App from '../components/views/App';
 import { Authentication } from '../components/views/auth/Auth';
-import { Dashboard } from '../components/views/Pivo/Dash/Dash';
 import { PuffTable } from '../components/views/Pivo/Pufi/PufiTabela';
 import { Transactions } from '../components/views/Pivo/Transactions/Transactions';
 import { PivoByUser } from '../components/views/Pivo/User/PivoByUser';
