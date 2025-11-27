@@ -96,30 +96,46 @@ export const AddWashingModal = ({ day, enabled = true }: WashingModalProps) => {
                             />
                           ) : (
                             <>
-                              <Text>
-                                {FormatLocalDateCustom(
-                                  ReadTimeFromUTCString(slot.slot_start_utc),
-                                  'HH:mm',
-                                )}{' '}
-                                -{' '}
-                                {FormatLocalDateCustom(
-                                  ReadTimeFromUTCString(slot.slot_end_utc),
-                                  'HH:mm',
-                                )}
-                              </Text>
-                              {ReadTimeFromUTCString(slot.slot_end_utc) >
-                                dayjs().utc() && (
-                                <ConfirmAdd
-                                  callback={() => {
-                                    AddReservation(
+                              {slot.slot_index_local == 4 &&
+                              ReadTimeFromUTCString(
+                                slot.slot_start_utc,
+                              ).weekday() == 3 &&
+                              slot.machine_id == 2 ? (
+                                <Text size="md" py="6">
+                                  Čistilka
+                                </Text>
+                              ) : (
+                                <>
+                                  <Text>
+                                    {FormatLocalDateCustom(
                                       ReadTimeFromUTCString(
                                         slot.slot_start_utc,
                                       ),
+                                      'HH:mm',
+                                    )}{' '}
+                                    -{' '}
+                                    {FormatLocalDateCustom(
                                       ReadTimeFromUTCString(slot.slot_end_utc),
-                                      slot.machine_id,
-                                    );
-                                  }}
-                                />
+                                      'HH:mm',
+                                    )}
+                                  </Text>
+                                  {ReadTimeFromUTCString(slot.slot_end_utc) >
+                                    dayjs().utc() && (
+                                    <ConfirmAdd
+                                      callback={() => {
+                                        AddReservation(
+                                          ReadTimeFromUTCString(
+                                            slot.slot_start_utc,
+                                          ),
+                                          ReadTimeFromUTCString(
+                                            slot.slot_end_utc,
+                                          ),
+                                          slot.machine_id,
+                                        );
+                                      }}
+                                    />
+                                  )}
+                                </>
                               )}
                             </>
                           )}
