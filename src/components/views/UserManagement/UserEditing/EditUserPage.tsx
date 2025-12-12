@@ -1,6 +1,7 @@
 import { Container, Title, Stack, Alert } from '@mantine/core';
 import { useParams } from 'react-router-dom';
 import { EditUserBaseInfo } from './EditUserBaseInfo';
+import { EditUserEmail } from './EditUserEmail';
 import { ResidentInfoForm } from './ResidentInfoForm';
 import { EditUserPermissions } from './EditUserPermissions';
 import { $currUser } from '../../../../global-state/user';
@@ -16,6 +17,7 @@ export const EditUserPage = () => {
       <Stack gap="md" my="xl">
         <Title>Edit User {userId}</Title>
         <EditUserBaseInfo userId={userId} />
+        <EditUserEmail userId={userId} />
         <ResidentInfoForm baseUserId={userId} />
         {user?.permissions.includes('MANAGE_PERMISSIONS') ? (
           <EditUserPermissions userId={userId} />

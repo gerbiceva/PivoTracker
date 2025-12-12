@@ -22,6 +22,7 @@ import { ManagePromises } from '../components/views/Promises/ManageObljube';
 import { TopObljubeUsers } from '../components/views/Promises/TopObljubeUsers';
 import { MyWashing } from '../components/views/Washing/MyWashing/MyWashing';
 import { Alert, Stack } from '@mantine/core';
+import { EditSelf } from '../components/views/UserManagement/ViewSelf';
 
 export const router = createBrowserRouter([
   {
@@ -123,10 +124,10 @@ export const router = createBrowserRouter([
           </ProtectedPath>
         ),
         children: [
-          // {
-          //   path: '/user',
-          //   element: <EditSelf />,
-          // },
+          {
+            path: '/user',
+            element: <EditSelf />,
+          },
           {
             path: '/user/:id',
             element: (

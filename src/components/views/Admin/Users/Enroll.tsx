@@ -13,12 +13,14 @@ export const EnrollUser = () => {
           my="md"
           icon={<IconAlertCircle></IconAlertCircle>}
         >
+          <p>Ustvarite lahko uporabnika, ki živi na gerbičevi, ali ne.</p>
           <p>
-            Ustvarite novega uporabnika z <b> emialom in geslom.</b>
+            Zunanji uporabniki bodo lahko kupovali pivo ter videli dogodke,
+            nimajo pa dostopa do pranja in podobnih funkcij.
           </p>
           <p>
-            Geslo naj je enostavno da se uporabnik lahko prijavi, ter nujno
-            spremeni geslo ob prvem vpisu.
+            Po uspešno ustvarjenem računu, se uporabnik z emailom in kodo lahko
+            prijavi v sistem.
           </p>
         </Alert>
         <UserRegisterForm />

@@ -100,7 +100,7 @@ export const UserRegisterForm = () => {
     <form onSubmit={form.onSubmit(handleSubmit)} autoComplete="off">
       <Stack mx="auto">
         <SegmentedControl
-          data={['Zunanji', 'Gerbičevc']}
+          data={['Gerbičevc', 'Zunanji']}
           size="md"
           value={userType}
           onChange={setUserType}

@@ -233,18 +233,18 @@ export const CustomSpotlight = () => {
       {
         group: 'Uporabnik',
         actions: [
-          // {
-          //   id: 'preglej-profil',
-          //   label: 'Preglej profil',
-          //   description: 'Preglej svoj profil',
-          //   onClick: () => navigate('/user'),
-          //   leftSection: (
-          //     <IconUser
-          //       style={{ width: rem(24), height: rem(24) }}
-          //       stroke={1.5}
-          //     />
-          //   ),
-          // },
+          {
+            id: 'preglej-profil',
+            label: 'Preglej profil',
+            description: 'Preglej svoj profil',
+            onClick: () => navigate('/user'),
+            leftSection: (
+              <IconUser
+                style={{ width: rem(24), height: rem(24) }}
+                stroke={1.5}
+              />
+            ),
+          },
           {
             permission: 'MANAGE_USERS',
             id: 'urejanje-uporabnikov',

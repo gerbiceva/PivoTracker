@@ -21,6 +21,7 @@ import dayjs from 'dayjs';
 import { Link } from 'react-router-dom';
 import { DisplayPermissions } from '../../permissons/DisplayPermissions';
 import { LogoutBtn } from '../auth/Logout';
+import { EditUserEmail } from './UserEditing/EditUserEmail';
 
 export const EditSelf = () => {
   const cols = useMatches({
@@ -93,13 +94,9 @@ export const EditSelf = () => {
             value={data?.surname || ''}
             variant="filled"
           />
-          <TextInput
-            readOnly
-            value={data?.auth_email || ''}
-            description="Email"
-            variant="filled"
-          />
         </SimpleGrid>
+
+        <EditUserEmail userId={data?.base_user_id || 0} />
 
         <Text size="xs" fw="bold" c="dimmed" mt="xl">
           PODATKI O STANOVALCU
