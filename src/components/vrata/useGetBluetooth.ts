@@ -277,7 +277,7 @@ export const useWebBluetooth = (
         throw new Error('Device does not have GATT server');
       }
 
-      const server = await deviceRef.current.gatt.connect();
+      // const server = await deviceRef.current.gatt.connect();
       console.log('> Connected to GATT server');
       setIsConnecting(false);
       return true;

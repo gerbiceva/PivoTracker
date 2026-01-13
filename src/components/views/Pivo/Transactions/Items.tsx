@@ -25,7 +25,7 @@ import { supabaseClient } from '../../../../supabase/supabaseClient';
 type ItemElement = Database['public']['Tables']['items']['Row'];
 
 export const Items = () => {
-  const { data, error, isLoading } = getSupaWR({
+  const { data } = getSupaWR({
     query: () =>
       supabaseClient
         .from('items')

@@ -7,7 +7,6 @@ const HOLD_CHARACTERISTIC_UUID = '00e158bf-f0b6-45c5-a401-0200966c4fec';
 
 export const Vrata = () => {
   const {
-    error,
     isAvailable,
     isConnecting,
     isSupported,
