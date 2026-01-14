@@ -2,11 +2,7 @@ import { Alert, Box, Button, Center, Stack, Loader, Text } from '@mantine/core';
 import { IconBluetooth, IconDoor, IconLink } from '@tabler/icons-react';
 import { useWebBluetooth } from './useGetBluetooth';
 import { useDevicePolling } from './useDevicePolling';
-import {
-  DOOR_SERVICE_UUID,
-  getVrataDevice,
-  HOLD_CHARACTERISTIC_UUID,
-} from './getDevice';
+import { DOOR_SERVICE_UUID, HOLD_CHARACTERISTIC_UUID } from './getDevice';
 
 export const Vrata = () => {
   const {
@@ -14,7 +10,6 @@ export const Vrata = () => {
     isConnecting,
     isSupported,
     hasPairedBefore,
-    connectToDevice,
     sendUnlockCommand,
   } = useWebBluetooth(DOOR_SERVICE_UUID, HOLD_CHARACTERISTIC_UUID);
 
