@@ -1,9 +1,12 @@
 import { Alert, Box, Button, Center, Stack, Loader, Text } from '@mantine/core';
-import { IconBluetooth, IconLink } from '@tabler/icons-react';
+import { IconBluetooth, IconDoor, IconLink } from '@tabler/icons-react';
 import { useWebBluetooth } from './useGetBluetooth';
-
-const DOOR_SERVICE_UUID = 'a8cbc536-8c2b-4ddc-a3ad-9c1880f27f07';
-const HOLD_CHARACTERISTIC_UUID = '00e158bf-f0b6-45c5-a401-0200966c4fec';
+import { useDevicePolling } from './useDevicePolling';
+import {
+  DOOR_SERVICE_UUID,
+  getVrataDevice,
+  HOLD_CHARACTERISTIC_UUID,
+} from './getDevice';
 
 export const Vrata = () => {
   const {
@@ -11,13 +14,49 @@ export const Vrata = () => {
     isConnecting,
     isSupported,
     hasPairedBefore,
-    isSearching,
     connectToDevice,
     sendUnlockCommand,
   } = useWebBluetooth(DOOR_SERVICE_UUID, HOLD_CHARACTERISTIC_UUID);
 
+  const isOnline = useDevicePolling();
+
+  if (!isSupported)
+    return (
+      <Center mih="80vh">
+        {/* bluetooth sploh ni podprt */}
+        <Alert
+          variant="light"
+          title="Brskalnik ni podprt"
+          color="red"
+          icon={<IconBluetooth></IconBluetooth>}
+        >
+          <Stack gap="xs">
+            <span>
+              Brskalnik ni podprt. Podporo za web bluetooth lahko najdete tukaj.
+            </span>
+            <span>
+              Zloodaš Chrome če si na Androidu in če si na iOS-u si si sam
+              kriv...
+            </span>
+            <Box ml="auto" mt="lg">
+              <Button
+                color="gray"
+                variant="outline"
+                component="a"
+                target="_blank"
+                href="https://developer.mozilla.org/en-US/docs/Web/API/Web_Bluetooth_API#browser_compatibility"
+                rightSection={<IconLink />}
+              >
+                Podprte naprave
+              </Button>
+            </Box>
+          </Stack>
+        </Alert>
+      </Center>
+    );
+
   // Show loading state when searching for previously paired device
-  if (isSearching) {
+  if (!isOnline && hasPairedBefore) {
     return (
       <Center mih="80vh">
         <Stack align="center" gap="md">
@@ -35,38 +74,6 @@ export const Vrata = () => {
 
   return (
     <Center mih="80vh">
-      {/* bluetooth sploh ni podprt */}
-      {!isSupported && (
-        <Alert
-          variant="outline"
-          title="Brskalnik ni podprt"
-          color="red"
-          icon={<IconBluetooth></IconBluetooth>}
-        >
-          <Stack gap="xs">
-            <span>
-              Brskalnik ni podprt. Podporo za web bluetooth lahko najdete tukaj.
-            </span>
-            <span>
-              Zloodaš Chrome če si na Androidu in če si na iOS-u si si sam
-              kriv...
-            </span>
-            <Box ml="auto">
-              <Button
-                color="red"
-                variant="light"
-                component="a"
-                target="_blank"
-                href="https://developer.mozilla.org/en-US/docs/Web/API/Web_Bluetooth_API#browser_compatibility"
-                rightSection={<IconLink />}
-              >
-                Podprte naprave
-              </Button>
-            </Box>
-          </Stack>
-        </Alert>
-      )}
-
       {/* bluetooth ni podprt */}
       {isSupported && !isAvailable && (
         <Alert
@@ -87,34 +94,26 @@ export const Vrata = () => {
           {hasPairedBefore ? (
             // Returning user - show the main button
             <Button
+              radius="xs"
               size="xl"
               variant="gradient"
               loading={isConnecting}
               onClick={() => {
                 sendUnlockCommand();
               }}
+              leftSection={<IconDoor size={17}></IconDoor>}
             >
-              Open sesamy
+              Odpri vrata
             </Button>
           ) : (
             // First-time user - show pairing instructions
             <Stack align="center" gap="md">
               <Text size="lg" fw={500}>
-                Pariranje z napravo
+                Povezovanje z napravo
               </Text>
               <Text size="sm" c="dimmed" ta="center">
-                Kliknite gumb spodaj in poiščite napravo "Vrata" za pariranje.
+                Počakajte da se brskalnik poveže z Vrati
               </Text>
-              <Button
-                size="xl"
-                variant="gradient"
-                loading={isConnecting}
-                onClick={() => {
-                  connectToDevice();
-                }}
-              >
-                Poišči in poveži z "Vrata"
-              </Button>
             </Stack>
           )}
         </>

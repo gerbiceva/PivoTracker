@@ -272,11 +272,9 @@ export const router = createBrowserRouter([
       {
         path: '/vrata',
         element: (
-          <Vrata />
-          // // <ProtectedPath redirectUrl="/auth">
-          //   {/* <PermissionPath permission="ENROLL"> */}
-          //   {/* </PermissionPath> */}
-          // // </ProtectedPath>
+          <ProtectedPath redirectUrl="/auth">
+            <Vrata />
+          </ProtectedPath>
         ),
       },
     ],
