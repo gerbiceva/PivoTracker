@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { getVrataDevice } from './getDevice';
+import { getVrataDevice } from './getVrataDevice';
 
 export const useDevicePolling = () => {
   const [isDeviceInRange, setIsDeviceInRange] = useState<boolean>(false);
@@ -10,6 +10,9 @@ export const useDevicePolling = () => {
 
   useEffect(() => {
     let pollingInterval: NodeJS.Timeout;
+    if (!navigator.bluetooth || !navigator.bluetooth.getDevices) {
+      return;
+    }
 
     const pollDeviceStatus = async () => {
       try {
