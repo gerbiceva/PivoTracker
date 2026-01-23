@@ -1,5 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
-import { useDevicePolling } from './useDevicePolling';
+import { useState, useCallback } from 'react';
 import { getVrataDevice } from './getVrataDevice';
 
 type BluetoothServiceUUID = string | number;
@@ -7,7 +6,7 @@ type BluetoothCharacteristicUUID = string | number;
 
 export interface UseWebBluetoothResult {
   isSupported: boolean;
-  isAvailable: boolean | undefined;
+  // isAvailable: boolean | undefined;
   error: Error | string | null;
   isConnecting: boolean;
   // isDeviceInRange: boolean;
@@ -18,9 +17,9 @@ export const useWebBluetooth = (
   serviceUUID: BluetoothServiceUUID,
   characteristicUUID: BluetoothCharacteristicUUID,
 ): UseWebBluetoothResult => {
-  const [bluetoothAvailability, setBluetoothAvailability] = useState<
-    boolean | undefined
-  >(undefined);
+  // const [bluetoothAvailability, setBluetoothAvailability] = useState<
+  //   boolean | undefined
+  // >(undefined);
   const [error, setError] = useState<Error | string | null>(null);
   const [isConnecting, setIsConnecting] = useState<boolean>(false);
 
@@ -121,13 +120,6 @@ export const useWebBluetooth = (
       return false;
     }
 
-    if (bluetoothAvailability === false) {
-      const errorMsg = 'Bluetooth is not available or enabled on this device.';
-      setError(errorMsg);
-      setIsConnecting(false);
-      return false;
-    }
-
 
     let server: BluetoothRemoteGATTServer | null = null;
     let device: BluetoothDevice | undefined = undefined;
@@ -220,7 +212,6 @@ export const useWebBluetooth = (
 
   return {
     isSupported: 'bluetooth' in navigator,
-    isAvailable: bluetoothAvailability,
     error,
     isConnecting,
     // isDeviceInRange: deviceIsInRange,
