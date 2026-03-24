@@ -15,6 +15,7 @@ import { supabaseClient } from '../../../../supabase/supabaseClient';
 import { useEffect, useState } from 'react';
 import { IconAlertCircle, IconMail } from '@tabler/icons-react';
 import { showNotification } from '@mantine/notifications';
+import { refetchTables } from '../../../../supabase/supa-utils/supaSWRCache';
 
 export const EditUserEmail = ({ userId }: { userId: number; }) => {
   const {
@@ -88,7 +89,7 @@ export const EditUserEmail = ({ userId }: { userId: number; }) => {
 
       if (updateError) {
         const errorMessage = updateError.message?.toLowerCase() || '';
-        
+
         if (errorMessage.includes('already') || errorMessage.includes('exists')) {
           throw new Error('Ta email naslov je že v uporabi.');
         } else if (errorMessage.includes('invalid') || errorMessage.includes('format')) {
@@ -96,7 +97,7 @@ export const EditUserEmail = ({ userId }: { userId: number; }) => {
         } else if (errorMessage.includes('rate') || errorMessage.includes('limit')) {
           throw new Error('Preveč zahtev. Prosimo, počakajte pred ponovnim poskusom.');
         }
-        
+
         throw updateError;
       }
 
@@ -106,6 +107,8 @@ export const EditUserEmail = ({ userId }: { userId: number; }) => {
           'Email za potrditev je uspešno poslan. Prosim preveri email za verifikacijo.',
         color: 'green',
       });
+
+      refetchTables("user_view");
 
       form.reset();
       setChangeEmailModalOpen(false);
