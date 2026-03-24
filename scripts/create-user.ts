@@ -1,3 +1,4 @@
+import 'jsr:@supabase/functions-js/edge-runtime.d.ts';
 import { createClient } from '@supabase/supabase-js';
 
 // Get environment variables
@@ -17,7 +18,7 @@ async function createUser() {
   const password = Deno.args[1];
   const firstName = Deno.args[2] || null;
   const lastName = Deno.args[3] || null;
-  
+
   if (!email || !password) {
     console.log('Usage: deno run -A create-user.ts <email> <password> [first_name] [last_name]');
     console.log('Example: deno run -A create-user.ts test@example.com password123 John Doe');
@@ -26,7 +27,7 @@ async function createUser() {
 
   try {
     console.log(`Creating user with email: ${email}`);
-    
+
     const { data, error } = await supabase.auth.admin.createUser({
       email,
       password,

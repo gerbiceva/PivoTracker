@@ -24,6 +24,8 @@ import { MyWashing } from '../components/views/Washing/MyWashing/MyWashing';
 import { Alert, Stack } from '@mantine/core';
 import { EditSelf } from '../components/views/UserManagement/ViewSelf';
 import { Vrata } from '../components/vrata/vrata';
+import { Zelje } from '../components/zelje/Zelje';
+import { ZeljeAdmin } from '../components/zelje/ZeljeAdmin';
 
 export const router = createBrowserRouter([
   {
@@ -277,6 +279,7 @@ export const router = createBrowserRouter([
           </ProtectedPath>
         ),
       },
+
     ],
   },
 
@@ -285,6 +288,30 @@ export const router = createBrowserRouter([
     path: '/*',
     element: '404',
   },
+
+  // ZELJE
+  {
+    path: '/zelje',
+    children: [
+      {
+        index: true,
+        element: (
+          <Zelje />
+        ),
+      },
+      {
+        path: 'admin',
+        element: (
+          // <PermissionPath permission="MANAGE_EVENTS">
+          <ZeljeAdmin />
+          // </PermissionPath>
+        ),
+      }
+
+    ],
+  },
+
+
 
   // AUTH
   {

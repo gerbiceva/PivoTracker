@@ -16,7 +16,7 @@ import { useEffect, useState } from 'react';
 import { IconAlertCircle, IconMail } from '@tabler/icons-react';
 import { showNotification } from '@mantine/notifications';
 
-export const EditUserEmail = ({ userId }: { userId: number }) => {
+export const EditUserEmail = ({ userId }: { userId: number; }) => {
   const {
     data: user,
     error,
@@ -54,16 +54,49 @@ export const EditUserEmail = ({ userId }: { userId: number }) => {
       });
       form.reset();
     }
-  }, [user]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user, form.reset, form.setInitialValues]);
 
   const handleChangeEmail = async (values: typeof form.values) => {
+    if (!user?.auth_user_id) {
+      showNotification({
+        title: 'Napaka',
+        message: 'Uporabniški račun ni bil najden. Osvežite stran in poskusite znova.',
+        color: 'red',
+      });
+      return;
+    }
+
+    if (values.email === user.auth_email) {
+      showNotification({
+        title: 'Brez sprememb',
+        message: 'Nov email naslov je enak trenutnemu.',
+        color: 'blue',
+      });
+      return;
+    }
+
     try {
-      // Update the email using Supabase auth - this sends a confirmation email
-      const { error: updateError } = await supabaseClient.auth.updateUser({
-        email: values.email,
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 30000);
+
+      const { error: updateError } = await supabaseClient.functions.invoke('update-email', {
+        body: { auth_user_id: user.auth_user_id, email: values.email },
       });
 
+      clearTimeout(timeoutId);
+
       if (updateError) {
+        const errorMessage = updateError.message?.toLowerCase() || '';
+        
+        if (errorMessage.includes('already') || errorMessage.includes('exists')) {
+          throw new Error('Ta email naslov je že v uporabi.');
+        } else if (errorMessage.includes('invalid') || errorMessage.includes('format')) {
+          throw new Error('Neveljaven format email naslova.');
+        } else if (errorMessage.includes('rate') || errorMessage.includes('limit')) {
+          throw new Error('Preveč zahtev. Prosimo, počakajte pred ponovnim poskusom.');
+        }
+        
         throw updateError;
       }
 
@@ -74,16 +107,21 @@ export const EditUserEmail = ({ userId }: { userId: number }) => {
         color: 'green',
       });
 
-      // Reset form and close modal
       form.reset();
       setChangeEmailModalOpen(false);
-
-      // Refresh the user data
-      // window.location.reload(); // Simple way to refresh the page after email change
     } catch (error) {
+      if (error instanceof Error && error.name === 'AbortError') {
+        showNotification({
+          title: 'Časovna omejitev',
+          message: 'Zahteva je potekla. Prosimo, poskusite znova.',
+          color: 'red',
+        });
+        return;
+      }
+
       showNotification({
-        title: 'Error',
-        message: (error as Error).message,
+        title: 'Napaka',
+        message: error instanceof Error ? error.message : 'Prišlo je do napake pri spreminjanju email naslova.',
         color: 'red',
       });
     }
