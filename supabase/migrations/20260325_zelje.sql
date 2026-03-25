@@ -1,6 +1,6 @@
 SET search_path TO public, extensions;
 
-CREATE TYPE "zelje_status" AS ENUM ('queued', 'playing', 'done');
+CREATE TYPE "zelje_status" AS ENUM ('queued', 'playing', 'done', 'voting');
 
 CREATE TABLE IF NOT EXISTS "public"."zelje" (
     "id" "uuid" DEFAULT "gen_random_uuid"() NOT NULL,
@@ -11,7 +11,7 @@ CREATE TABLE IF NOT EXISTS "public"."zelje" (
     "emoji_fire" bigint DEFAULT 0 NOT NULL,
     "emoji_dislike" bigint DEFAULT 0 NOT NULL,
     "emoji_party" bigint DEFAULT 0 NOT NULL,
-    "status" "zelje_status" DEFAULT 'queued' NOT NULL
+    "status" "zelje_status" DEFAULT 'voting' NOT NULL
 );
 
 COMMENT ON TABLE "public"."zelje" IS 'Songs for zelje voting';
@@ -69,3 +69,25 @@ $$;
 GRANT ALL ON FUNCTION "public"."react_to_zelje"("uuid", "text") TO "anon";
 GRANT ALL ON FUNCTION "public"."react_to_zelje"("uuid", "text") TO "authenticated";
 GRANT ALL ON FUNCTION "public"."react_to_zelje"("uuid", "text") TO "service_role";
+
+CREATE OR REPLACE FUNCTION "public"."reset_reactions_on_play"()
+RETURNS TRIGGER AS $$
+BEGIN
+    IF OLD.status IS DISTINCT FROM NEW.status AND NEW.status = 'playing' THEN
+        NEW.emoji_like := 0;
+        NEW.emoji_fire := 0;
+        NEW.emoji_dislike := 0;
+        NEW.emoji_party := 0;
+    END IF;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER "reset_reactions_trigger"
+    BEFORE UPDATE ON "public"."zelje"
+    FOR EACH ROW
+    EXECUTE FUNCTION "public"."reset_reactions_on_play"();
+
+GRANT ALL ON FUNCTION "public"."reset_reactions_on_play"() TO "anon";
+GRANT ALL ON FUNCTION "public"."reset_reactions_on_play"() TO "authenticated";
+GRANT ALL ON FUNCTION "public"."reset_reactions_on_play"() TO "service_role";

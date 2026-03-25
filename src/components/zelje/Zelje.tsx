@@ -30,16 +30,19 @@ type ZeljeSong = {
 
 export const Zelje = () => {
   const [opened, { open, close }] = useDisclosure(false);
-  const [songs, setSongs] = useState<ZeljeSong[]>([]);
+  const [playing, setPlaying] = useState<ZeljeSong | null>(null);
   const [queue, setQueue] = useState<ZeljeSong[]>([]);
+  const [votingSongs, setVotingSongs] = useState<ZeljeSong[]>([]);
 
   const loadSongs = async () => {
     try {
       const supabase = supabaseClient as any;
       const { data } = await supabase.from('zelje').select('*').order('created_at', { ascending: true });
       if (data) {
-        setSongs(data.filter((s: ZeljeSong) => s.status === 'queued'));
-        setQueue(data.filter((s: ZeljeSong) => s.status === 'playing'));
+        const playingSongs = data.filter((s: ZeljeSong) => s.status === 'playing');
+        setPlaying(playingSongs.length > 0 ? playingSongs[0] : null);
+        setQueue(data.filter((s: ZeljeSong) => s.status === 'queued'));
+        setVotingSongs(data.filter((s: ZeljeSong) => s.status === 'voting'));
       }
     } catch (error) {
       console.error('Error loading songs:', error);
@@ -91,16 +94,28 @@ export const Zelje = () => {
   };
 
   return (
-    <Container size="sm" py="xl">
+    <Container size="sm" py="xl" px="sm">
       <Stack gap="xl">
 
-        {queue.length > 0 && (
+        {playing && (
           <Box>
             <Group gap="sm" mb="md">
               <ThemeIcon size="lg" color="yellow" variant="filled">
                 <IconMusic size={18} />
               </ThemeIcon>
               <Title order={2}>Zdaj predvajam</Title>
+            </Group>
+            <SongCard key={playing.id} song={playing} isQueue onReact={() => { }} />
+          </Box>
+        )}
+
+        {queue.length > 0 && (
+          <Box>
+            <Group gap="sm" mb="md">
+              <ThemeIcon size="lg" color="violet" variant="filled">
+                <IconMusic size={18} />
+              </ThemeIcon>
+              <Title order={2}>V vrsti</Title>
             </Group>
             <Stack gap="sm">
               {queue.map((song) => (
@@ -122,11 +137,11 @@ export const Zelje = () => {
         />
 
         <Text c="dimmed" ta="center">
-          Klikni na ❤️ in izberi emoji za glasovanje!
+          Klikni na emoji za glasovanje!
         </Text>
 
-        <Stack gap="3rem">
-          {songs.map((song) => (
+        <Stack gap="5rem">
+          {votingSongs.map((song) => (
             <SongCard key={song.id} song={song} onReact={handleReact} />
           ))}
         </Stack>

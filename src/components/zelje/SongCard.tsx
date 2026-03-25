@@ -6,9 +6,9 @@ import {
   Badge,
   ActionIcon,
   Tooltip,
-  ThemeIcon,
+  Box,
 } from '@mantine/core';
-import { IconMusic, IconHeartFilled } from '@tabler/icons-react';
+import { IconHeartFilled } from '@tabler/icons-react';
 import { useState, useMemo, memo } from 'react';
 import { useDebouncedCallback } from '@mantine/hooks';
 
@@ -45,42 +45,34 @@ const FloatingEmoji = memo(({ emoji, count, index, total, onReact }: FloatingEmo
   const spacing = 100 / (total + 1);
   const leftPos = spacing * (index + 1);
 
-  const position = isTop
-    ? { top: -10 + randomOffset, left: `${leftPos}%` }
-    : { bottom: -(count * 3) / 2 - 5 + randomOffset, right: `${leftPos}%` };
+  const emojiSize = Math.min(Math.max(20, count * 3), 120);
+  const rotation = randomRotate;
+  const clickScale = isClicked ? 1.5 : 1;
 
-  const baseTransform = isTop
-    ? `translateX(-50%) rotate(${randomRotate}deg)`
-    : `translateX(50%) rotate(${randomRotate}deg)`;
-
-  const clickTransform = isClicked
-    ? `${baseTransform} scale(1.5)`
-    : baseTransform;
+  const style: React.CSSProperties = {
+    position: 'absolute',
+    zIndex: 15,
+    cursor: 'pointer',
+    fontSize: emojiSize,
+    lineHeight: 1,
+    textShadow: '0 2px 4px rgba(0,0,0,0.2)',
+    animation: `float${index} ${randomDuration}s ease-in-out ${randomDelay}s infinite`,
+    transform: isTop
+      ? `translate(-50%, 0) rotate(${rotation}deg) scale(${clickScale})`
+      : `translate(50%, 0) rotate(${rotation}deg) scale(${clickScale})`,
+    transition: 'transform 0.15s ease-out',
+    userSelect: 'none',
+    WebkitUserSelect: 'none',
+    ...(isTop
+      ? { top: -10 + randomOffset, left: `calc(${leftPos}% + ${randomOffset}px)` }
+      : { bottom: -(count * 3) / 2 - 5 + randomOffset, right: `calc(${leftPos}% + ${randomOffset}px)` }
+    ),
+  };
 
   return (
-    <div
-      onClick={handleClick}
-    >
-
-      <Text
-
-        style={{
-          cursor: 'pointer',
-          position: 'absolute',
-          ...position,
-          fontSize: Math.min(Math.max(20, count * 7), 140),
-          textShadow: '0 2px 4px rgba(0,0,0,0.2)',
-          zIndex: 1,
-          animation: `float${index} ${randomDuration}s ease-in-out ${randomDelay}s infinite`,
-          transform: clickTransform,
-          transition: 'transform 0.15s ease-out',
-          userSelect: 'none',
-          WebkitUserSelect: 'none',
-        }}
-      >
-        {emoji}
-      </Text>
-    </div>
+    <span style={style} onClick={handleClick}>
+      {emoji}
+    </span>
   );
 });
 
@@ -128,14 +120,15 @@ export const SongCard = ({ song, isQueue = false, onReact }: SongCardProps) => {
   return (
     <Card
       shadow="sm"
-      padding="md"
+      padding="xs"
       radius="md"
       withBorder
 
       variant={isQueue ? 'light' : 'default'}
-      color={isQueue ? 'yellow' : undefined}
-      style={{ position: 'relative', paddingTop: 28, paddingBottom: 28, overflow: "visible" }}
+      color={isQueue ? 'orange' : undefined}
+      style={{ overflow: "visible", position: "relative" }}
     >
+
       {floatingEmojis.map(({ emoji, count, index }) => (
         <FloatingEmoji
           key={emoji}
@@ -146,37 +139,36 @@ export const SongCard = ({ song, isQueue = false, onReact }: SongCardProps) => {
           onReact={debouncedReact}
         />
       ))}
+
       <Group justify="space-between" wrap="nowrap" style={{
-        zIndex: 10
+        zIndex: 10, overflow: "visible"
       }}>
-        <Group gap="md" wrap="nowrap" style={{ flex: 1, minWidth: 0 }}>
-          {song.selfie_ref ? (
-            <img
-              src={song.selfie_ref}
-              alt="Selfie"
-              style={{ width: 40, height: 40, borderRadius: '50%', objectFit: 'cover' }}
-            />
-          ) : (
-            <ThemeIcon
-              size="xl"
-              radius="md"
-              variant="filled"
-              color={isQueue ? 'yellow' : 'violet'}
-              opacity={0.6}
-            >
-              <IconMusic size={20} />
-            </ThemeIcon>
-          )}
-          <Stack gap={2} style={{ minWidth: 0 }}>
-            <Text fw="bold" size="md" truncate>
+        <Group gap="md" wrap="nowrap" style={{ minWidth: 0, zIndex: 100 }}>
+          <Stack gap={2} style={{ minWidth: 0, zIndex: 100, position: "absolute" }}>
+            <Text fw="bold" size="lg" truncate>
               {song.song_name}
             </Text>
           </Stack>
         </Group>
 
+        {song.selfie_ref && (
+          <Box >
+            <img
+              src={song.selfie_ref}
+              alt="Selfie"
+              style={{ width: 160, height: 160, borderRadius: '25%', objectFit: 'cover', zIndex: -10, pointerEvents: "none", marginTop: "-3rem", }}
+            />
+          </Box>
+        )}
+
+
         {!isQueue && (
-          <Group gap="xs" wrap="nowrap">
-            <Group gap={4} pos="relative">
+          <Group gap="xs" wrap="nowrap" style={{
+            overflow: "visible",
+            zIndex: 300,
+            position: "relative",
+          }}>
+            <Group gap={4}>
               <Tooltip label="React" withArrow withinPortal={true}>
                 <ActionIcon
                   variant="filled"
@@ -193,40 +185,54 @@ export const SongCard = ({ song, isQueue = false, onReact }: SongCardProps) => {
               </Tooltip>
 
               {showReactions && (
-                <Group
-                  gap={4}
-                  p="xs"
+                <Card withBorder style={{
+                  zIndex: 30,
+                  position: "relative"
+                }}>
 
-                  onMouseLeave={() => setShowReactions(false)}
-                >
-                  {EMOJI_REACTIONS.map((emoji) => (
-                    <Tooltip key={emoji} label={emoji} withArrow withinPortal={true}>
-                      <ActionIcon
-                        variant="subtle"
-                        size="lg"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          onReact?.(song.id, emoji);
-                          setShowReactions(false);
-                        }}
-                        style={{ fontSize: '20px' }}
-                      >
-                        {emoji}
-                      </ActionIcon>
-                    </Tooltip>
-                  ))}
-                </Group>
+                  <Group
+                    gap={4}
+                    p="xs"
+                    style={{
+                      zIndex: 30,
+                      position: "relative"
+                    }}
+
+                    onMouseLeave={() => setShowReactions(false)}
+                  >
+                    {EMOJI_REACTIONS.map((emoji) => (
+                      <Tooltip key={emoji} label={emoji} withArrow withinPortal={true}>
+                        <ActionIcon
+                          variant="subtle"
+                          size="xl"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onReact?.(song.id, emoji);
+                            setShowReactions(false);
+                          }}
+                          style={{ fontSize: '20px' }}
+                        >
+                          {emoji}
+                        </ActionIcon>
+                      </Tooltip>
+                    ))}
+                  </Group>
+                </Card>
+
               )}
             </Group>
           </Group>
         )}
 
+
         {isQueue && (
-          <Badge color="yellow" variant="filled" size="lg">
-            🎵 Zdaj predvajam
-          </Badge>
+          // <Badge color="yellow" variant="filled" size="lg">
+          //   🎵 Zdaj predvajam
+          // </Badge>
+          <div />
         )}
       </Group>
-    </Card>
+
+    </Card >
   );
 };

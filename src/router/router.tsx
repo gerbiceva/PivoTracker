@@ -26,6 +26,7 @@ import { EditSelf } from '../components/views/UserManagement/ViewSelf';
 import { Vrata } from '../components/vrata/vrata';
 import { Zelje } from '../components/zelje/Zelje';
 import { ZeljeAdmin } from '../components/zelje/ZeljeAdmin';
+import { ZeljeLeaderboard } from '../components/zelje/ZeljeLeaderboard';
 
 export const router = createBrowserRouter([
   {
@@ -306,7 +307,13 @@ export const router = createBrowserRouter([
           <ZeljeAdmin />
           // </PermissionPath>
         ),
-      }
+      },
+      {
+        path: 'leaderboard',
+        element: (
+          <ZeljeLeaderboard />
+        ),
+      },
 
     ],
   },

@@ -17,6 +17,7 @@ interface AddSongModalProps {
 }
 
 export const AddSongModal = ({ opened, onClose, onSongAdded }: AddSongModalProps) => {
+  const [songName, setSongName] = useState('');
   const [selfieUrl, setSelfieUrl] = useState<string | null>(null);
   const [showCamera, setShowCamera] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -37,23 +38,27 @@ export const AddSongModal = ({ opened, onClose, onSongAdded }: AddSongModalProps
   const handleClose = () => {
     setShowCamera(false);
     setSelfieUrl(null);
+    setSongName('');
     onClose();
   };
+
+  const isValid = songName.trim().length > 0 && selfieUrl !== null;
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
     const songName = formData.get('song_name') as string;
 
-    if (!songName.trim()) return;
+    if (!songName.trim() || !selfieUrl) return;
 
     setLoading(true);
     try {
-      await addZeljeSong(songName.trim(), selfieUrl || undefined);
+      await addZeljeSong(songName.trim(), selfieUrl);
       onSongAdded();
       (e.target as HTMLFormElement).reset();
       setSelfieUrl(null);
-      handleClose();
+      setSongName('');
+      onClose();
     } catch (error) {
       console.error('Error adding song:', error);
     } finally {
@@ -62,7 +67,7 @@ export const AddSongModal = ({ opened, onClose, onSongAdded }: AddSongModalProps
   };
 
   return (
-    <Modal opened={opened} onClose={handleClose} title="Dodaj novo pesem" centered radius="lg">
+    <Modal opened={opened} onClose={handleClose} title="Dodaj novo pesem" centered radius="lg" size="xl">
       <form onSubmit={handleSubmit}>
         <Stack>
           <TextInput
@@ -70,6 +75,9 @@ export const AddSongModal = ({ opened, onClose, onSongAdded }: AddSongModalProps
             label="Ime pesmi"
             placeholder="npr. Bohemian Rhapsody"
             required
+            size='xl'
+            value={songName}
+            onChange={(e) => setSongName(e.target.value)}
           />
           <Group justify="center">
             {selfieUrl ? (
@@ -100,7 +108,7 @@ export const AddSongModal = ({ opened, onClose, onSongAdded }: AddSongModalProps
                   mirrored
                   screenshotFormat="image/png"
                   videoConstraints={videoConstraints}
-                  style={{ width: 160, height: 160, borderRadius: 16 }}
+                  style={{ width: "100%", height: "100%", borderRadius: 16 }}
                 />
                 <Group gap="xs">
                   <Button variant="light" color="red" size="xs" onClick={() => setShowCamera(false)}>
@@ -121,7 +129,7 @@ export const AddSongModal = ({ opened, onClose, onSongAdded }: AddSongModalProps
             <Button variant="subtle" onClick={handleClose} type="button">
               Prekliči
             </Button>
-            <Button type="submit" loading={loading}>
+            <Button type="submit" loading={loading} disabled={!isValid}>
               Dodaj
             </Button>
           </Group>

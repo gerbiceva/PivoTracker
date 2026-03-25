@@ -1361,7 +1361,7 @@ export type Database = {
       }
     }
     Enums: {
-      zelje_status: "queued" | "playing" | "done"
+      zelje_status: "queued" | "playing" | "done" | "voting"
     }
     CompositeTypes: {
       machine_info: {
@@ -1510,7 +1510,7 @@ export const Constants = {
   },
   public: {
     Enums: {
-      zelje_status: ["queued", "playing", "done"],
+      zelje_status: ["queued", "playing", "done", "voting"],
     },
   },
 } as const
