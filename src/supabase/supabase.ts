@@ -700,6 +700,42 @@ export type Database = {
         }
         Relationships: []
       }
+      zelje: {
+        Row: {
+          created_at: string
+          emoji_dislike: number
+          emoji_fire: number
+          emoji_like: number
+          emoji_party: number
+          id: string
+          selfie_ref: string | null
+          song_name: string
+          status: Database["public"]["Enums"]["zelje_status"]
+        }
+        Insert: {
+          created_at?: string
+          emoji_dislike?: number
+          emoji_fire?: number
+          emoji_like?: number
+          emoji_party?: number
+          id?: string
+          selfie_ref?: string | null
+          song_name: string
+          status?: Database["public"]["Enums"]["zelje_status"]
+        }
+        Update: {
+          created_at?: string
+          emoji_dislike?: number
+          emoji_fire?: number
+          emoji_like?: number
+          emoji_party?: number
+          id?: string
+          selfie_ref?: string | null
+          song_name?: string
+          status?: Database["public"]["Enums"]["zelje_status"]
+        }
+        Relationships: []
+      }
     }
     Views: {
       everything: {
@@ -1149,6 +1185,26 @@ export type Database = {
         }
         Returns: number
       }
+      add_zelje_song: {
+        Args: { selfie_ref: string; song_name: string }
+        Returns: {
+          created_at: string
+          emoji_dislike: number
+          emoji_fire: number
+          emoji_like: number
+          emoji_party: number
+          id: string
+          selfie_ref: string | null
+          song_name: string
+          status: Database["public"]["Enums"]["zelje_status"]
+        }
+        SetofOptions: {
+          from: "*"
+          to: "zelje"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       create_and_link_resident: {
         Args: {
           p_base_user_id: number
@@ -1275,6 +1331,26 @@ export type Database = {
           surname: string
         }[]
       }
+      react_to_zelje: {
+        Args: { emoji_type: string; song_id: string }
+        Returns: {
+          created_at: string
+          emoji_dislike: number
+          emoji_fire: number
+          emoji_like: number
+          emoji_party: number
+          id: string
+          selfie_ref: string | null
+          song_name: string
+          status: Database["public"]["Enums"]["zelje_status"]
+        }
+        SetofOptions: {
+          from: "*"
+          to: "zelje"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       set_user_permissions: {
         Args: { p_base_user_id: number; p_permission_type_ids: number[] }
         Returns: undefined
@@ -1285,7 +1361,7 @@ export type Database = {
       }
     }
     Enums: {
-      [_ in never]: never
+      zelje_status: "queued" | "playing" | "done"
     }
     CompositeTypes: {
       machine_info: {
@@ -1433,7 +1509,9 @@ export const Constants = {
     Enums: {},
   },
   public: {
-    Enums: {},
+    Enums: {
+      zelje_status: ["queued", "playing", "done"],
+    },
   },
 } as const
 

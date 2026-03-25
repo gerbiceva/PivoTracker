@@ -4,127 +4,90 @@ import {
   Text,
   Group,
   Button,
-  Modal,
-  TextInput,
   Divider,
-  Paper,
   ThemeIcon,
   Container,
   Box,
 } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { IconPlus, IconMusic, IconFlame } from '@tabler/icons-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { SongCard } from './SongCard';
+import { AddSongModal } from './AddSongModal';
+import { supabaseClient } from '../../supabase/supabaseClient';
 
-interface Song {
+type ZeljeSong = {
   id: string;
-  title: string;
-  artist: string;
-  url?: string;
-  likes: number;
-  reactions: Record<string, number>;
-  addedBy?: string;
-}
-
-const MOCK_QUEUE: Song[] = [
-  {
-    id: '1',
-    title: 'Bohemian Rhapsody',
-    artist: 'Queen',
-    likes: 42,
-    reactions: { '🔥': 15, '❤️': 12, '🎉': 8, '👏': 7 },
-    addedBy: 'Janez',
-  },
-];
-
-const MOCK_SONGS: Song[] = [
-  {
-    id: '2',
-    title: 'Take On Me',
-    artist: 'a-ha',
-    likes: 28,
-    reactions: { '🔥': 10, '❤️': 8, '🤘': 6, '😎': 4 },
-    addedBy: 'Marko',
-  },
-  {
-    id: '3',
-    title: 'Livin\' on a Prayer',
-    artist: 'Bon Jovi',
-    likes: 25,
-    reactions: { '🔥': 12, '❤️': 7, '👏': 6 },
-    addedBy: 'Ana',
-  },
-  {
-    id: '4',
-    title: 'Sweet Child O\' Mine',
-    artist: 'Guns N\' Roses',
-    likes: 22,
-    reactions: { '🤘': 10, '🔥': 8, '❤️': 4 },
-    addedBy: 'Peter',
-  },
-  {
-    id: '5',
-    title: 'Dancing Queen',
-    artist: 'ABBA',
-    likes: 18,
-    reactions: { '🎉': 10, '❤️': 8 },
-    addedBy: 'Maja',
-  },
-  {
-    id: '6',
-    title: 'Wonderwall',
-    artist: 'Oasis',
-    likes: 15,
-    reactions: { '❤️': 6, '😎': 5, '👏': 4 },
-    addedBy: 'Luka',
-  },
-];
+  song_name: string;
+  selfie_ref: string | null;
+  created_at: string;
+  emoji_like: number;
+  emoji_fire: number;
+  emoji_dislike: number;
+  emoji_party: number;
+  status: 'queued' | 'playing' | 'done';
+};
 
 export const Zelje = () => {
   const [opened, { open, close }] = useDisclosure(false);
-  const [songs, setSongs] = useState(MOCK_SONGS);
-  const [queue] = useState(MOCK_QUEUE);
-  const [newSongTitle, setNewSongTitle] = useState('');
-  const [newSongArtist, setNewSongArtist] = useState('');
-  const [newSongUrl, setNewSongUrl] = useState('');
+  const [songs, setSongs] = useState<ZeljeSong[]>([]);
+  const [queue, setQueue] = useState<ZeljeSong[]>([]);
 
-  const handleReact = (songId: string, emoji: string) => {
-    setSongs((prev) =>
-      prev.map((song) =>
-        song.id === songId
-          ? {
-            ...song,
-            likes: song.likes + 1,
-            reactions: {
-              ...song.reactions,
-              [emoji]: (song.reactions[emoji] || 0) + 1,
-            },
-          }
-          : song
-      )
-    );
-    setSongs((prev) => [...prev].sort((a, b) => b.likes - a.likes));
+  const loadSongs = async () => {
+    try {
+      const supabase = supabaseClient as any;
+      const { data } = await supabase.from('zelje').select('*').order('created_at', { ascending: true });
+      if (data) {
+        setSongs(data.filter((s: ZeljeSong) => s.status === 'queued'));
+        setQueue(data.filter((s: ZeljeSong) => s.status === 'playing'));
+      }
+    } catch (error) {
+      console.error('Error loading songs:', error);
+    }
   };
 
-  const handleAddSong = () => {
-    if (!newSongTitle.trim() || !newSongArtist.trim()) return;
+  useEffect(() => {
+    loadSongs();
 
-    const newSong: Song = {
-      id: Date.now().toString(),
-      title: newSongTitle.trim(),
-      artist: newSongArtist.trim(),
-      url: newSongUrl.trim() || undefined,
-      likes: 1,
-      reactions: { '❤️': 1 },
-      addedBy: 'Ti',
+    const supabase = supabaseClient as any;
+    const channel = supabase.channel('schema-db-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'zelje',
+        },
+        () => {
+          loadSongs();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      channel.unsubscribe();
+    };
+  }, []);
+
+  const handleReact = async (songId: string, emoji: string) => {
+    const emojiMap: Record<string, 'like' | 'fire' | 'dislike' | 'party'> = {
+      '❤️': 'like',
+      '🔥': 'fire',
+      '👎': 'dislike',
+      '🎉': 'party',
     };
 
-    setSongs((prev) => [...prev, newSong].sort((a, b) => b.likes - a.likes));
-    setNewSongTitle('');
-    setNewSongArtist('');
-    setNewSongUrl('');
-    close();
+    const emojiType = emojiMap[emoji];
+    if (!emojiType) return;
+
+    try {
+      await (supabaseClient.rpc as any)('react_to_zelje', {
+        song_id: songId,
+        emoji_type: emojiType,
+      });
+    } catch (error) {
+      console.error('Error reacting to song:', error);
+    }
   };
 
   return (
@@ -162,7 +125,7 @@ export const Zelje = () => {
           Klikni na ❤️ in izberi emoji za glasovanje!
         </Text>
 
-        <Stack gap="md">
+        <Stack gap="3rem">
           {songs.map((song) => (
             <SongCard key={song.id} song={song} onReact={handleReact} />
           ))}
@@ -180,38 +143,7 @@ export const Zelje = () => {
           Dodaj pesem
         </Button>
 
-        <Modal opened={opened} onClose={close} title="Dodaj novo pesem" centered radius="lg">
-          <Stack>
-            <TextInput
-              label="Naslov pesmi"
-              placeholder="npr. Wonderwall"
-              value={newSongTitle}
-              onChange={(e) => setNewSongTitle(e.target.value)}
-              required
-            />
-            <TextInput
-              label="Izvajalec"
-              placeholder="npr. Oasis"
-              value={newSongArtist}
-              onChange={(e) => setNewSongArtist(e.target.value)}
-              required
-            />
-            <TextInput
-              label="URL (YouTube/Spotify)"
-              placeholder="https://..."
-              value={newSongUrl}
-              onChange={(e) => setNewSongUrl(e.target.value)}
-            />
-            <Group justify="flex-end" mt="md">
-              <Button variant="subtle" onClick={close}>
-                Prekliči
-              </Button>
-              <Button onClick={handleAddSong} disabled={!newSongTitle.trim() || !newSongArtist.trim()}>
-                Dodaj
-              </Button>
-            </Group>
-          </Stack>
-        </Modal>
+        <AddSongModal opened={opened} onClose={close} onSongAdded={() => { }} />
       </Stack>
     </Container>
   );
