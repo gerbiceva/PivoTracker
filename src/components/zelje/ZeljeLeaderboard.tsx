@@ -5,12 +5,10 @@ import {
   Group,
   Badge,
   Paper,
-  ThemeIcon,
   Container,
   Box,
-  Divider,
 } from '@mantine/core';
-import { IconTrophy, IconMusic } from '@tabler/icons-react';
+import { IconTrophy } from '@tabler/icons-react';
 import { useState, useEffect } from 'react';
 import { supabaseClient } from '../../supabase/supabaseClient';
 

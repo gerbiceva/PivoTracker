@@ -99,11 +99,11 @@ export const Zelje = () => {
 
         {playing && (
           <Box>
-            <Group gap="sm" mb="md">
+            <Group gap="sm" mb="md" pb="3rem">
               <ThemeIcon size="lg" color="yellow" variant="filled">
                 <IconMusic size={18} />
               </ThemeIcon>
-              <Title order={2}>Zdaj predvajam</Title>
+              <Title order={2} >Zdaj predvajam</Title>
             </Group>
             <SongCard key={playing.id} song={playing} isQueue onReact={() => { }} />
           </Box>
@@ -136,7 +136,7 @@ export const Zelje = () => {
           size="lg"
         />
 
-        <Text c="dimmed" ta="center">
+        <Text c="dimmed" ta="center" pb="3rem">
           Klikni na emoji za glasovanje!
         </Text>
 
