@@ -10,17 +10,19 @@ import {
 } from '@mantine/core';
 import { IconMusic, IconHeartFilled } from '@tabler/icons-react';
 import { useState, useMemo, memo } from 'react';
+import { useDebouncedCallback } from '@mantine/hooks';
 
-const EMOJI_REACTIONS = ['🔥', '❤️', '🎉', '👏', '🤘', '😎'];
+const EMOJI_REACTIONS = ['🔥', '❤️', '🎉', '👎'];
 
 interface FloatingEmojiProps {
   emoji: string;
   count: number;
   index: number;
   total: number;
+  onReact?: (emoji: string) => void;
 }
 
-const FloatingEmoji = memo(({ emoji, count, index, total }: FloatingEmojiProps) => {
+const FloatingEmoji = memo(({ emoji, count, index, total, onReact }: FloatingEmojiProps) => {
   const { randomOffset, randomDelay, randomDuration, randomRotate } = useMemo(
     () => ({
       randomOffset: Math.random() * 10 - 5,
@@ -31,30 +33,54 @@ const FloatingEmoji = memo(({ emoji, count, index, total }: FloatingEmojiProps) 
     []
   );
 
+  const [isClicked, setIsClicked] = useState(false);
+
+  const handleClick = () => {
+    setIsClicked(true);
+    onReact?.(emoji);
+    setTimeout(() => setIsClicked(false), 150);
+  };
+
   const isTop = index % 2 === 0;
   const spacing = 100 / (total + 1);
   const leftPos = spacing * (index + 1);
 
   const position = isTop
-    ? { top: -10 + randomOffset, left: `${leftPos}%`, transform: `translateX(-50%) rotate(${randomRotate}deg)` }
-    : { bottom: -(count * 3) / 2 - 5 + randomOffset, right: `${leftPos}%`, transform: `translateX(50%) rotate(${randomRotate}deg)` };
+    ? { top: -10 + randomOffset, left: `${leftPos}%` }
+    : { bottom: -(count * 3) / 2 - 5 + randomOffset, right: `${leftPos}%` };
+
+  const baseTransform = isTop
+    ? `translateX(-50%) rotate(${randomRotate}deg)`
+    : `translateX(50%) rotate(${randomRotate}deg)`;
+
+  const clickTransform = isClicked
+    ? `${baseTransform} scale(1.5)`
+    : baseTransform;
 
   return (
-    <Text
-      key={emoji}
-      style={{
-        pointerEvents: 'none',
-        position: 'absolute',
-        ...position,
-        fontSize: count * 5,
-        textShadow: '0 2px 4px rgba(0,0,0,0.2)',
-        zIndex: 1,
-        animation: `float${index} ${randomDuration}s ease-in-out ${randomDelay}s infinite`,
-        transition: 'transform 0.2s ease-in-out',
-      }}
+    <div
+      onClick={handleClick}
     >
-      {emoji}
-    </Text>
+
+      <Text
+
+        style={{
+          cursor: 'pointer',
+          position: 'absolute',
+          ...position,
+          fontSize: Math.min(Math.max(20, count * 7), 140),
+          textShadow: '0 2px 4px rgba(0,0,0,0.2)',
+          zIndex: 1,
+          animation: `float${index} ${randomDuration}s ease-in-out ${randomDelay}s infinite`,
+          transform: clickTransform,
+          transition: 'transform 0.15s ease-out',
+          userSelect: 'none',
+          WebkitUserSelect: 'none',
+        }}
+      >
+        {emoji}
+      </Text>
+    </div>
   );
 });
 
@@ -76,6 +102,10 @@ interface SongCardProps {
 
 export const SongCard = ({ song, isQueue = false, onReact }: SongCardProps) => {
   const [showReactions, setShowReactions] = useState(false);
+
+  const debouncedReact = useDebouncedCallback((emoji: string) => {
+    onReact?.(song.id, emoji);
+  }, 100);
 
   const emojiMap: Record<string, number> = {
     '❤️': song.emoji_like,
@@ -107,7 +137,14 @@ export const SongCard = ({ song, isQueue = false, onReact }: SongCardProps) => {
       style={{ position: 'relative', paddingTop: 28, paddingBottom: 28, overflow: "visible" }}
     >
       {floatingEmojis.map(({ emoji, count, index }) => (
-        <FloatingEmoji key={emoji} emoji={emoji} count={count} index={index} total={total} />
+        <FloatingEmoji
+          key={emoji}
+          emoji={emoji}
+          count={count}
+          index={index}
+          total={total}
+          onReact={debouncedReact}
+        />
       ))}
       <Group justify="space-between" wrap="nowrap" style={{
         zIndex: 10
