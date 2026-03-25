@@ -84,8 +84,8 @@ export const AddSongModal = ({ opened, onClose, onSongAdded }: AddSongModalProps
               <Stack align="center" gap="xs">
                 <Box
                   style={{
-                    width: 160,
-                    height: 160,
+                    width: "100%",
+                    height: "100%",
                     borderRadius: 16,
                     overflow: 'hidden',
                   }}
@@ -111,16 +111,16 @@ export const AddSongModal = ({ opened, onClose, onSongAdded }: AddSongModalProps
                   style={{ width: "100%", height: "100%", borderRadius: 16 }}
                 />
                 <Group gap="xs">
-                  <Button variant="light" color="red" size="xs" onClick={() => setShowCamera(false)}>
+                  <Button variant="light" color="red" size="lg" onClick={() => setShowCamera(false)}>
                     Prekliči
                   </Button>
-                  <Button variant="filled" color="green" size="xs" onClick={takePhoto}>
+                  <Button variant="filled" color="green" size="lg" onClick={takePhoto}>
                     📸 Shrani
                   </Button>
                 </Group>
               </Stack>
             ) : (
-              <Button variant="light" color="violet" onClick={() => setShowCamera(true)}>
+              <Button variant="light" size="xl" color="violet" onClick={() => setShowCamera(true)}>
                 📸 selfie
               </Button>
             )}

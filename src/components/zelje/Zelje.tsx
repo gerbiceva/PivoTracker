@@ -16,7 +16,7 @@ import { SongCard } from './SongCard';
 import { AddSongModal } from './AddSongModal';
 import { supabaseClient } from '../../supabase/supabaseClient';
 
-type ZeljeSong = {
+export type ZeljeSong = {
   id: string;
   song_name: string;
   selfie_ref: string | null;
@@ -25,7 +25,7 @@ type ZeljeSong = {
   emoji_fire: number;
   emoji_dislike: number;
   emoji_party: number;
-  status: 'queued' | 'playing' | 'done';
+  status: 'queued' | 'playing' | 'done' | "voting";
 };
 
 export const Zelje = () => {
@@ -105,7 +105,7 @@ export const Zelje = () => {
               </ThemeIcon>
               <Title order={2} >Zdaj predvajam</Title>
             </Group>
-            <SongCard key={playing.id} song={playing} isQueue onReact={() => { }} />
+            <SongCard key={playing.id} song={playing} isQueue onReact={handleReact} />
           </Box>
         )}
 

@@ -11,6 +11,7 @@ import {
 import { IconHeartFilled } from '@tabler/icons-react';
 import { useState, useMemo, memo } from 'react';
 import { useDebouncedCallback } from '@mantine/hooks';
+import { ZeljeSong } from './Zelje';
 
 const EMOJI_REACTIONS = ['🔥', '❤️', '🎉', '👎'];
 
@@ -76,18 +77,10 @@ const FloatingEmoji = memo(({ emoji, count, index, total, onReact }: FloatingEmo
   );
 });
 
-interface Song {
-  id: string;
-  song_name: string;
-  selfie_ref: string | null;
-  emoji_like: number;
-  emoji_fire: number;
-  emoji_dislike: number;
-  emoji_party: number;
-}
+
 
 interface SongCardProps {
-  song: Song;
+  song: ZeljeSong;
   isQueue?: boolean;
   onReact?: (songId: string, emoji: string) => void;
 }
@@ -162,7 +155,7 @@ export const SongCard = ({ song, isQueue = false, onReact }: SongCardProps) => {
         )}
 
 
-        {!isQueue && (
+        {song.status != "queued" && (
           <Group gap="xs" wrap="nowrap" style={{
             overflow: "visible",
             zIndex: 300,

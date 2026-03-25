@@ -137,7 +137,7 @@ export const ZeljeLeaderboard = () => {
                     />
                   )}
 
-                  <Group gap="xs" wrap="nowrap">
+                  <Stack gap="xs" >
                     {song.emoji_like > 0 && (
                       <Badge variant="light" color="red" size="xl">
                         ❤️ {song.emoji_like}
@@ -158,7 +158,7 @@ export const ZeljeLeaderboard = () => {
                         🎉 {song.emoji_party}
                       </Badge>
                     )}
-                  </Group>
+                  </Stack>
                 </Group>
               </Paper>
             ))}
