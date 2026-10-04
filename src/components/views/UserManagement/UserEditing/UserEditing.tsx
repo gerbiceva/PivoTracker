@@ -10,7 +10,6 @@ import {
   TextInput,
   Group,
   ActionIcon,
-  Badge,
   UnstyledButton,
   Center,
   Tabs,
@@ -23,24 +22,33 @@ import {
   IconSelector,
   IconUserPlus,
 } from '@tabler/icons-react';
-import {
-  SortField,
-  SortState,
-  useUserEditing,
-} from './useUserEditing';
+import { SortField, SortState, useUserEditing } from './useUserEditing';
 import { useNavigate } from 'react-router-dom';
 import { ReactNode, useEffect, useState } from 'react';
 import { useDebouncedValue } from '@mantine/hooks';
-import { numToColor } from '../../../../utils/colorUtils';
+import { useStore } from '@nanostores/react';
+import { $currUser } from '../../../../global-state/user';
+import { PermissionsCell } from './PermissionsCell';
+import { DeleteUserButton } from './DeleteUserButton';
+
+// JANEZ NOVAK / janez novak -> Janez Novak (also Ana-Marija, D'Angelo)
+const capitalizeName = (value: string) =>
+  value
+    .toLocaleLowerCase('sl')
+    .replace(
+      /(^|[\s\-'])(\p{L})/gu,
+      (_, sep, ch) => sep + ch.toLocaleUpperCase('sl'),
+    );
 
 interface SortableThProps {
+  w?: number;
   field: SortField;
   sort: SortState;
   onSort: (field: SortField) => void;
   children: ReactNode;
 }
 
-const SortableTh = ({ field, sort, onSort, children }: SortableThProps) => {
+const SortableTh = ({ w, field, sort, onSort, children }: SortableThProps) => {
   const active = sort.field === field;
   const Icon = active
     ? sort.reversed
@@ -48,7 +56,7 @@ const SortableTh = ({ field, sort, onSort, children }: SortableThProps) => {
       : IconChevronDown
     : IconSelector;
   return (
-    <Table.Th>
+    <Table.Th w={w}>
       <UnstyledButton onClick={() => onSort(field)}>
         <Group gap={4} wrap="nowrap">
           <Text fw="bold" size="sm">
@@ -91,9 +99,13 @@ export const UserEditing = () => {
     floors,
     floor,
     setFloor,
+    permissionTypes,
+    mutatePermissions,
+    mutateUsers,
   } = useUserEditing(debouncedSearchQuery);
 
   const navigate = useNavigate();
+  const canDelete = !!useStore($currUser)?.permissions.includes('DELETE_USERS');
 
   useEffect(() => {
     setPage(1);
@@ -101,7 +113,10 @@ export const UserEditing = () => {
 
   if (error) {
     return (
-      <Alert title="Napaka pri nalaganju uporabnikov" icon={<IconAlertCircle />}>
+      <Alert
+        title="Napaka pri nalaganju uporabnikov"
+        icon={<IconAlertCircle />}
+      >
         {error.message}
       </Alert>
     );
@@ -114,25 +129,33 @@ export const UserEditing = () => {
       style={{ cursor: 'pointer' }}
     >
       <Table.Td>
-        {user.name} {user.surname}
+        {capitalizeName(`${user.name ?? ''} ${user.surname ?? ''}`.trim())}
       </Table.Td>
       <Table.Td>{user.auth_email}</Table.Td>
       <Table.Td>{user.room}</Table.Td>
       <Table.Td>{user.phone_number}</Table.Td>
       <Table.Td>
-        <Group gap={4}>
-          {user.permissions.map((p) => (
-            <Badge
-              key={p.permission_id}
-              variant="light"
-              size="sm"
-              color={numToColor(p.permission_type_id || 0)}
-            >
-              {p.permission_display_name ?? p.permission_name}
-            </Badge>
-          ))}
-        </Group>
+        <PermissionsCell
+          userId={user.base_user_id!}
+          permissions={user.permissions}
+          permissionTypes={permissionTypes}
+          onSaved={() => mutatePermissions()}
+        />
       </Table.Td>
+      {canDelete && (
+        <Table.Td>
+          <DeleteUserButton
+            userId={user.base_user_id!}
+            name={capitalizeName(
+              `${user.name ?? ''} ${user.surname ?? ''}`.trim(),
+            )}
+            onDeleted={() => {
+              mutateUsers();
+              mutatePermissions();
+            }}
+          />
+        </Table.Td>
+      )}
     </Table.Tr>
   ));
 
@@ -176,7 +199,12 @@ export const UserEditing = () => {
             <Table highlightOnHover>
               <Table.Thead>
                 <Table.Tr>
-                  <SortableTh field="name" sort={sort} onSort={toggleSort}>
+                  <SortableTh
+                    w={220}
+                    field="name"
+                    sort={sort}
+                    onSort={toggleSort}
+                  >
                     Ime
                   </SortableTh>
                   <SortableTh field="email" sort={sort} onSort={toggleSort}>
@@ -195,6 +223,7 @@ export const UserEditing = () => {
                   >
                     Dovoljenja
                   </SortableTh>
+                  {canDelete && <Table.Th w={80}>Izbriši</Table.Th>}
                 </Table.Tr>
               </Table.Thead>
               <Table.Tbody>{rows}</Table.Tbody>
@@ -202,7 +231,11 @@ export const UserEditing = () => {
           </Table.ScrollContainer>
         </div>
         <Group justify="space-between">
-          <Pagination total={totalPages} value={activePage} onChange={setPage} />
+          <Pagination
+            total={totalPages}
+            value={activePage}
+            onChange={setPage}
+          />
           <Text size="sm" c="dimmed">
             {totalCount} {usersLabel(totalCount)}
           </Text>

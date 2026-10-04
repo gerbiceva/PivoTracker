@@ -9,6 +9,7 @@ import { Transactions } from '../components/views/Pivo/Transactions/Transactions
 import { PivoByUser } from '../components/views/Pivo/User/PivoByUser';
 import { AddWashingTimetable } from '../components/views/Washing/AddTimetable/AddWashingTimetable';
 import { EnrollUser } from '../components/views/Admin/Users/Enroll';
+import { Administracija } from '../components/views/Admin/Administracija';
 import { PranjeInfo } from '../components/views/Washing/Info/PranjeInfo';
 import { UserEditing } from '../components/views/UserManagement/UserEditing/UserEditing';
 import { EditUserPage } from '../components/views/UserManagement/UserEditing/EditUserPage';
@@ -261,6 +262,14 @@ export const router = createBrowserRouter([
 
       // ADMIN
       {
+        path: '/admin',
+        element: (
+          <ProtectedPath redirectUrl="/auth">
+            <Administracija />
+          </ProtectedPath>
+        ),
+      },
+      {
         path: '/admin/enroll',
         element: (
           <ProtectedPath redirectUrl="/auth">
@@ -273,10 +282,20 @@ export const router = createBrowserRouter([
 
       // ADMIN
       {
+        path: '/admin',
+        element: (
+          <ProtectedPath redirectUrl="/auth">
+            <Administracija />
+          </ProtectedPath>
+        ),
+      },
+      {
         path: '/vrata',
         element: (
           <ProtectedPath redirectUrl="/auth">
-            <Vrata />
+            <PermissionPath permission="OPEN_DOORS">
+              <Vrata />
+            </PermissionPath>
           </ProtectedPath>
         ),
       },

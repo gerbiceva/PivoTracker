@@ -7,6 +7,7 @@ import {
   IconHome,
   IconList,
   IconLogout,
+  IconShieldLock,
   IconTransactionEuro,
   IconUser,
   IconUserPlus,
@@ -20,9 +21,11 @@ import { supabaseClient } from '../supabase/supabaseClient';
 import { useNavigate } from 'react-router-dom';
 import { $currUser } from '../global-state/user';
 import { useStore } from '@nanostores/react';
+import { ADMIN_PERMISSIONS } from '../components/views/Admin/Administracija';
 
 interface CustomSpotlighData extends SpotlightActionData {
-  permission?: string;
+  // a list means: shown if the user has any of them
+  permission?: string | string[];
 }
 
 interface CustomSpotlightGroupData {
@@ -264,6 +267,19 @@ export const CustomSpotlight = () => {
         group: 'Sistem',
         actions: [
           {
+            permission: ADMIN_PERMISSIONS,
+            id: 'administracija',
+            label: 'Administracija',
+            description: 'Dogodki, obljube, uporabniki in pivo',
+            onClick: () => navigate('/admin'),
+            leftSection: (
+              <IconShieldLock
+                style={{ width: rem(24), height: rem(24) }}
+                stroke={1.5}
+              />
+            ),
+          },
+          {
             id: 'logout',
             label: 'Odjava',
             description: 'Odjavi se iz sistema',
@@ -321,6 +337,10 @@ export const CustomSpotlight = () => {
 
       if (!action.permission) {
         return true;
+      }
+
+      if (Array.isArray(action.permission)) {
+        return action.permission.some((p) => permissions.includes(p));
       }
 
       if (action.permission) {

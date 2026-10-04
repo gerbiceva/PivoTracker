@@ -21,9 +21,18 @@ import { RichTextEditor } from './RichTextEditor';
 
 dayjs.extend(utc);
 
-export const ManageEvent = () => {
+interface ManageEventProps {
+  // overrides the :id route param, e.g. when used inside a modal
+  eventId?: number;
+  onSaved?: () => void;
+}
+
+export const ManageEvent = ({
+  eventId: eventIdProp,
+  onSaved,
+}: ManageEventProps = {}) => {
   const { id } = useParams();
-  const eventId = id ? parseInt(id) : 0;
+  const eventId = eventIdProp ?? (id ? parseInt(id) : 0);
   const user = useStore($currUser);
 
   const form = useForm({
@@ -46,6 +55,7 @@ export const ManageEvent = () => {
     query: () =>
       supabaseClient.from('events').select('*').eq('id', eventId).maybeSingle(),
     table: 'events',
+    params: ['event', eventId],
   });
 
   useEffect(() => {
@@ -69,7 +79,6 @@ export const ManageEvent = () => {
     }
 
     let error = null;
-    console.log(error);
 
     const eventData = {
       title: values.title,
@@ -97,12 +106,27 @@ export const ManageEvent = () => {
         ]);
       error = insertError;
     }
+    if (error) {
+      notifications.show({
+        title: 'Napaka',
+        message: error.message,
+        color: 'red',
+      });
+      return;
+    }
     notifications.show({
-      title: 'Posodobljeno',
-      message: 'Event je posodobljen',
+      title: eventId ? 'Posodobljeno' : 'Dodano',
+      message: eventId ? 'Dogodek je posodobljen' : 'Dogodek je dodan',
       color: 'green',
     });
-    form.reset();
+    if (eventId) {
+      // keep the saved values as the new baseline
+      form.setInitialValues(values);
+      form.reset();
+    } else {
+      form.reset();
+    }
+    onSaved?.();
   };
 
   return (

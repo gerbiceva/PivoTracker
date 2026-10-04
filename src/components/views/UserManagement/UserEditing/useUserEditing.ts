@@ -6,6 +6,7 @@ import { Database } from '../../../../supabase/supabase';
 const PAGE_SIZE = 15;
 
 type UserRow = Database['public']['Views']['user_view']['Row'];
+type PermissionType = Database['public']['Tables']['permission_types']['Row'];
 type PermissionRow =
   Database['public']['Views']['user_permissions_view']['Row'];
 
@@ -39,7 +40,11 @@ const compare = (
     case 'email':
       return (a.auth_email ?? '').localeCompare(b.auth_email ?? '');
     case 'room':
-      return (a.room ?? Infinity) - (b.room ?? Infinity);
+      // roommates alphabetically by name
+      return (
+        (a.room ?? Infinity) - (b.room ?? Infinity) ||
+        fullName(a).localeCompare(fullName(b), 'sl')
+      );
     case 'phone':
       return (a.phone_number ?? '').localeCompare(b.phone_number ?? '');
     case 'permissions':
@@ -58,7 +63,7 @@ export const useUserEditing = (query_string?: string) => {
   // 'all' or a floor number as string (Tabs values are strings)
   const [floor, setFloorState] = useState('all');
   const [sort, setSort] = useState<SortState>({
-    field: 'name',
+    field: 'room',
     reversed: false,
   });
 
@@ -66,6 +71,7 @@ export const useUserEditing = (query_string?: string) => {
     data: users,
     error: usersError,
     isLoading: areUsersLoading,
+    mutate: mutateUsers,
   } = getSupaWR({
     query: () => supabaseClient.from('user_view').select('*'),
     table: 'user_view',
@@ -76,6 +82,7 @@ export const useUserEditing = (query_string?: string) => {
     data: permissions,
     error: permissionsError,
     isLoading: arePermissionsLoading,
+    mutate: mutatePermissions,
   } = getSupaWR({
     query: () =>
       supabaseClient
@@ -84,6 +91,12 @@ export const useUserEditing = (query_string?: string) => {
         .order('permission_type_id'),
     table: 'user_permissions_view',
     params: ['all-permissions'],
+  });
+
+  const { data: permissionTypes, error: permissionTypesError } = getSupaWR({
+    query: () =>
+      supabaseClient.from('permission_types').select('*').order('id'),
+    table: 'permission_types',
   });
 
   const usersWithPermissions = useMemo<UserWithPermissions[]>(() => {
@@ -111,9 +124,7 @@ export const useUserEditing = (query_string?: string) => {
     const onFloor =
       floor === 'all'
         ? usersWithPermissions
-        : usersWithPermissions.filter(
-            (u) => floorOf(u.room) === Number(floor),
-          );
+        : usersWithPermissions.filter((u) => floorOf(u.room) === Number(floor));
     const result = query
       ? onFloor.filter((u) =>
           [
@@ -160,7 +171,10 @@ export const useUserEditing = (query_string?: string) => {
     floor,
     setFloor,
     totalCount: filtered.length,
-    error: usersError || permissionsError,
+    error: usersError || permissionsError || permissionTypesError,
+    permissionTypes: (permissionTypes as PermissionType[] | undefined) ?? [],
+    mutatePermissions,
+    mutateUsers,
     isLoading: areUsersLoading || arePermissionsLoading,
     totalPages,
     activePage,

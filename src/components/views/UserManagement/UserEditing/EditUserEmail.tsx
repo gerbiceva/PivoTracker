@@ -17,7 +17,7 @@ import { IconAlertCircle, IconMail } from '@tabler/icons-react';
 import { showNotification } from '@mantine/notifications';
 import { refetchTables } from '../../../../supabase/supa-utils/supaSWRCache';
 
-export const EditUserEmail = ({ userId }: { userId: number; }) => {
+export const EditUserEmail = ({ userId }: { userId: number }) => {
   const {
     data: user,
     error,
@@ -62,7 +62,8 @@ export const EditUserEmail = ({ userId }: { userId: number; }) => {
     if (!user?.auth_user_id) {
       showNotification({
         title: 'Napaka',
-        message: 'Uporabniški račun ni bil najden. Osvežite stran in poskusite znova.',
+        message:
+          'Uporabniški račun ni bil najden. Osvežite stran in poskusite znova.',
         color: 'red',
       });
       return;
@@ -81,21 +82,35 @@ export const EditUserEmail = ({ userId }: { userId: number; }) => {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 30000);
 
-      const { error: updateError } = await supabaseClient.functions.invoke('update-email', {
-        body: { auth_user_id: user.auth_user_id, email: values.email },
-      });
+      const { error: updateError } = await supabaseClient.functions.invoke(
+        'update-email',
+        {
+          body: { auth_user_id: user.auth_user_id, email: values.email },
+        },
+      );
 
       clearTimeout(timeoutId);
 
       if (updateError) {
         const errorMessage = updateError.message?.toLowerCase() || '';
 
-        if (errorMessage.includes('already') || errorMessage.includes('exists')) {
+        if (
+          errorMessage.includes('already') ||
+          errorMessage.includes('exists')
+        ) {
           throw new Error('Ta email naslov je že v uporabi.');
-        } else if (errorMessage.includes('invalid') || errorMessage.includes('format')) {
+        } else if (
+          errorMessage.includes('invalid') ||
+          errorMessage.includes('format')
+        ) {
           throw new Error('Neveljaven format email naslova.');
-        } else if (errorMessage.includes('rate') || errorMessage.includes('limit')) {
-          throw new Error('Preveč zahtev. Prosimo, počakajte pred ponovnim poskusom.');
+        } else if (
+          errorMessage.includes('rate') ||
+          errorMessage.includes('limit')
+        ) {
+          throw new Error(
+            'Preveč zahtev. Prosimo, počakajte pred ponovnim poskusom.',
+          );
         }
 
         throw updateError;
@@ -108,7 +123,7 @@ export const EditUserEmail = ({ userId }: { userId: number; }) => {
         color: 'green',
       });
 
-      refetchTables("user_view");
+      refetchTables('user_view');
 
       form.reset();
       setChangeEmailModalOpen(false);
@@ -124,7 +139,10 @@ export const EditUserEmail = ({ userId }: { userId: number; }) => {
 
       showNotification({
         title: 'Napaka',
-        message: error instanceof Error ? error.message : 'Prišlo je do napake pri spreminjanju email naslova.',
+        message:
+          error instanceof Error
+            ? error.message
+            : 'Prišlo je do napake pri spreminjanju email naslova.',
         color: 'red',
       });
     }
