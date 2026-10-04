@@ -10,18 +10,82 @@ import {
   TextInput,
   Group,
   ActionIcon,
+  Badge,
+  UnstyledButton,
+  Center,
 } from '@mantine/core';
-import { IconAlertCircle, IconSearch, IconUserPlus } from '@tabler/icons-react';
-import { useUserEditing } from './useUserEditing';
+import {
+  IconAlertCircle,
+  IconChevronDown,
+  IconChevronUp,
+  IconSearch,
+  IconSelector,
+  IconUserPlus,
+} from '@tabler/icons-react';
+import {
+  SortField,
+  SortState,
+  floorOf,
+  useUserEditing,
+} from './useUserEditing';
 import { useNavigate } from 'react-router-dom';
-import { useEffect, useState } from 'react';
+import { ReactNode, useEffect, useState } from 'react';
 import { useDebouncedValue } from '@mantine/hooks';
+import { numToColor } from '../../../../utils/colorUtils';
+
+interface SortableThProps {
+  field: SortField;
+  sort: SortState;
+  onSort: (field: SortField) => void;
+  children: ReactNode;
+}
+
+const SortableTh = ({ field, sort, onSort, children }: SortableThProps) => {
+  const active = sort.field === field;
+  const Icon = active
+    ? sort.reversed
+      ? IconChevronUp
+      : IconChevronDown
+    : IconSelector;
+  return (
+    <Table.Th>
+      <UnstyledButton onClick={() => onSort(field)}>
+        <Group gap={4} wrap="nowrap">
+          <Text fw="bold" size="sm">
+            {children}
+          </Text>
+          <Center>
+            <Icon size={14} stroke={1.5} />
+          </Center>
+        </Group>
+      </UnstyledButton>
+    </Table.Th>
+  );
+};
+
+// Slovene dual/plural: 1 uporabnik, 2 uporabnika, 3-4 uporabniki, 5+ uporabnikov
+const usersLabel = (n: number) => {
+  const m = n % 100;
+  if (m === 1) return 'uporabnik';
+  if (m === 2) return 'uporabnika';
+  if (m === 3 || m === 4) return 'uporabniki';
+  return 'uporabnikov';
+};
 
 export const UserEditing = () => {
   const [inputValue, setInputValue] = useState('');
   const [debouncedSearchQuery] = useDebouncedValue(inputValue, 200);
-  const { users, error, isLoading, totalPages, activePage, setPage } =
-    useUserEditing(debouncedSearchQuery);
+  const {
+    users,
+    totalCount,
+    error,
+    isLoading,
+    totalPages,
+    activePage,
+    setPage,
+    sort,
+    toggleSort,
+  } = useUserEditing(debouncedSearchQuery);
 
   const navigate = useNavigate();
 
@@ -31,23 +95,39 @@ export const UserEditing = () => {
 
   if (error) {
     return (
-      <Alert title="Error loading users" icon={<IconAlertCircle />}>
+      <Alert title="Napaka pri nalaganju uporabnikov" icon={<IconAlertCircle />}>
         {error.message}
       </Alert>
     );
   }
 
-  const rows = users?.map((user) => (
+  const rows = users.map((user) => (
     <Table.Tr
       key={user.base_user_id}
       onClick={() => navigate(`/user/edit/${user.base_user_id}`)}
       style={{ cursor: 'pointer' }}
     >
-      <Table.Td>{user.base_user_id}</Table.Td>
-      <Table.Td>{user.name}</Table.Td>
-      <Table.Td>{user.surname}</Table.Td>
+      <Table.Td>
+        {user.name} {user.surname}
+      </Table.Td>
       <Table.Td>{user.auth_email}</Table.Td>
+      <Table.Td>{floorOf(user.room)}</Table.Td>
       <Table.Td>{user.room}</Table.Td>
+      <Table.Td>{user.phone_number}</Table.Td>
+      <Table.Td>
+        <Group gap={4}>
+          {user.permissions.map((p) => (
+            <Badge
+              key={p.permission_id}
+              variant="light"
+              size="sm"
+              color={numToColor(p.permission_type_id || 0)}
+            >
+              {p.permission_display_name ?? p.permission_name}
+            </Badge>
+          ))}
+        </Group>
+      </Table.Td>
     </Table.Tr>
   ));
 
@@ -56,8 +136,8 @@ export const UserEditing = () => {
       <Stack>
         <Group w="100%" justify="space-between">
           <Stack>
-            <Title>User Management</Title>
-            <Text c="dimmed">Edit user information and permissions.</Text>
+            <Title>Upravljanje uporabnikov</Title>
+            <Text c="dimmed">Urejanje podatkov in dovoljenj uporabnikov.</Text>
           </Stack>
           <ActionIcon
             variant="light"
@@ -70,7 +150,7 @@ export const UserEditing = () => {
           </ActionIcon>
         </Group>
         <TextInput
-          placeholder="Search by name or surname"
+          placeholder="Išči po imenu, e-pošti, sobi, telefonu ali dovoljenju"
           value={inputValue}
           onChange={(event) => setInputValue(event.currentTarget.value)}
           leftSection={<IconSearch size={16} />}
@@ -78,25 +158,44 @@ export const UserEditing = () => {
         />
         <div style={{ position: 'relative' }}>
           <LoadingOverlay visible={isLoading} />
-          <Table>
-            <Table.Thead>
-              <Table.Tr>
-                <Table.Th>ID</Table.Th>
-                <Table.Th>Name</Table.Th>
-                <Table.Th>Surname</Table.Th>
-                <Table.Th>Email</Table.Th>
-                <Table.Th>Room</Table.Th>
-              </Table.Tr>
-            </Table.Thead>
-            <Table.Tbody>{rows}</Table.Tbody>
-          </Table>
+          <Table.ScrollContainer minWidth={850}>
+            <Table highlightOnHover>
+              <Table.Thead>
+                <Table.Tr>
+                  <SortableTh field="name" sort={sort} onSort={toggleSort}>
+                    Ime
+                  </SortableTh>
+                  <SortableTh field="email" sort={sort} onSort={toggleSort}>
+                    E-pošta
+                  </SortableTh>
+                  <SortableTh field="floor" sort={sort} onSort={toggleSort}>
+                    Nadstropje
+                  </SortableTh>
+                  <SortableTh field="room" sort={sort} onSort={toggleSort}>
+                    Soba
+                  </SortableTh>
+                  <SortableTh field="phone" sort={sort} onSort={toggleSort}>
+                    Telefon
+                  </SortableTh>
+                  <SortableTh
+                    field="permissions"
+                    sort={sort}
+                    onSort={toggleSort}
+                  >
+                    Dovoljenja
+                  </SortableTh>
+                </Table.Tr>
+              </Table.Thead>
+              <Table.Tbody>{rows}</Table.Tbody>
+            </Table>
+          </Table.ScrollContainer>
         </div>
-        <Pagination
-          total={totalPages}
-          value={activePage}
-          onChange={setPage}
-          mt="sm"
-        />
+        <Group justify="space-between">
+          <Pagination total={totalPages} value={activePage} onChange={setPage} />
+          <Text size="sm" c="dimmed">
+            {totalCount} {usersLabel(totalCount)}
+          </Text>
+        </Group>
       </Stack>
     </Container>
   );
