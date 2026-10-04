@@ -11,7 +11,7 @@ type PermissionRow =
 
 export type UserWithPermissions = UserRow & { permissions: PermissionRow[] };
 
-export type SortField = 'name' | 'email' | 'floor' | 'room' | 'phone' | 'permissions';
+export type SortField = 'name' | 'email' | 'room' | 'phone' | 'permissions';
 export interface SortState {
   field: SortField;
   reversed: boolean;
@@ -38,12 +38,6 @@ const compare = (
       return fullName(a).localeCompare(fullName(b), 'sl');
     case 'email':
       return (a.auth_email ?? '').localeCompare(b.auth_email ?? '');
-    case 'floor':
-      // within a floor, alphabetically by name
-      return (
-        (floorOf(a.room) ?? Infinity) - (floorOf(b.room) ?? Infinity) ||
-        fullName(a).localeCompare(fullName(b), 'sl')
-      );
     case 'room':
       return (a.room ?? Infinity) - (b.room ?? Infinity);
     case 'phone':
@@ -61,6 +55,8 @@ const compare = (
 // client-side because permissions live in a separate view.
 export const useUserEditing = (query_string?: string) => {
   const [activePage, setPage] = useState(1);
+  // 'all' or a floor number as string (Tabs values are strings)
+  const [floor, setFloorState] = useState('all');
   const [sort, setSort] = useState<SortState>({
     field: 'name',
     reversed: false,
@@ -102,10 +98,24 @@ export const useUserEditing = (query_string?: string) => {
     }));
   }, [users, permissions]);
 
+  const floors = useMemo(
+    () =>
+      [...new Set(usersWithPermissions.map((u) => floorOf(u.room)))]
+        .filter((f): f is number => f != null)
+        .sort((a, b) => a - b),
+    [usersWithPermissions],
+  );
+
   const filtered = useMemo(() => {
     const query = query_string?.trim().toLowerCase();
+    const onFloor =
+      floor === 'all'
+        ? usersWithPermissions
+        : usersWithPermissions.filter(
+            (u) => floorOf(u.room) === Number(floor),
+          );
     const result = query
-      ? usersWithPermissions.filter((u) =>
+      ? onFloor.filter((u) =>
           [
             fullName(u),
             u.auth_email,
@@ -118,12 +128,12 @@ export const useUserEditing = (query_string?: string) => {
             .toLowerCase()
             .includes(query.replace(/\s+/g, ' ')),
         )
-      : [...usersWithPermissions];
+      : [...onFloor];
 
     result.sort((a, b) => compare(a, b, sort.field));
     if (sort.reversed) result.reverse();
     return result;
-  }, [usersWithPermissions, query_string, sort]);
+  }, [usersWithPermissions, query_string, sort, floor]);
 
   const totalPages = Math.ceil(filtered.length / PAGE_SIZE);
   const pageUsers = filtered.slice(
@@ -139,8 +149,16 @@ export const useUserEditing = (query_string?: string) => {
     setPage(1);
   };
 
+  const setFloor = (value: string) => {
+    setFloorState(value);
+    setPage(1);
+  };
+
   return {
     users: pageUsers,
+    floors,
+    floor,
+    setFloor,
     totalCount: filtered.length,
     error: usersError || permissionsError,
     isLoading: areUsersLoading || arePermissionsLoading,

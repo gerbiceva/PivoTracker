@@ -13,6 +13,7 @@ import {
   Badge,
   UnstyledButton,
   Center,
+  Tabs,
 } from '@mantine/core';
 import {
   IconAlertCircle,
@@ -25,7 +26,6 @@ import {
 import {
   SortField,
   SortState,
-  floorOf,
   useUserEditing,
 } from './useUserEditing';
 import { useNavigate } from 'react-router-dom';
@@ -72,6 +72,9 @@ const usersLabel = (n: number) => {
   return 'uporabnikov';
 };
 
+const floorLabel = (floor: number) =>
+  floor === 0 ? 'Pritličje' : `${floor}. nadstropje`;
+
 export const UserEditing = () => {
   const [inputValue, setInputValue] = useState('');
   const [debouncedSearchQuery] = useDebouncedValue(inputValue, 200);
@@ -85,6 +88,9 @@ export const UserEditing = () => {
     setPage,
     sort,
     toggleSort,
+    floors,
+    floor,
+    setFloor,
   } = useUserEditing(debouncedSearchQuery);
 
   const navigate = useNavigate();
@@ -111,7 +117,6 @@ export const UserEditing = () => {
         {user.name} {user.surname}
       </Table.Td>
       <Table.Td>{user.auth_email}</Table.Td>
-      <Table.Td>{floorOf(user.room)}</Table.Td>
       <Table.Td>{user.room}</Table.Td>
       <Table.Td>{user.phone_number}</Table.Td>
       <Table.Td>
@@ -154,11 +159,20 @@ export const UserEditing = () => {
           value={inputValue}
           onChange={(event) => setInputValue(event.currentTarget.value)}
           leftSection={<IconSearch size={16} />}
-          mb="md"
         />
+        <Tabs value={floor} onChange={(v) => setFloor(v ?? 'all')}>
+          <Tabs.List>
+            <Tabs.Tab value="all">Vsi</Tabs.Tab>
+            {floors.map((f) => (
+              <Tabs.Tab key={f} value={String(f)}>
+                {floorLabel(f)}
+              </Tabs.Tab>
+            ))}
+          </Tabs.List>
+        </Tabs>
         <div style={{ position: 'relative' }}>
           <LoadingOverlay visible={isLoading} />
-          <Table.ScrollContainer minWidth={850}>
+          <Table.ScrollContainer minWidth={800}>
             <Table highlightOnHover>
               <Table.Thead>
                 <Table.Tr>
@@ -167,9 +181,6 @@ export const UserEditing = () => {
                   </SortableTh>
                   <SortableTh field="email" sort={sort} onSort={toggleSort}>
                     E-pošta
-                  </SortableTh>
-                  <SortableTh field="floor" sort={sort} onSort={toggleSort}>
-                    Nadstropje
                   </SortableTh>
                   <SortableTh field="room" sort={sort} onSort={toggleSort}>
                     Soba
