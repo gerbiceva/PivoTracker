@@ -2,6 +2,7 @@ import {
   Badge,
   Button,
   Group,
+  HoverCard,
   MultiSelect,
   Popover,
   Stack,
@@ -9,7 +10,7 @@ import {
   UnstyledButton,
 } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
-import { useState } from 'react';
+import { useLayoutEffect, useRef, useState } from 'react';
 import { supabaseClient } from '../../../../supabase/supabaseClient';
 import { numToColor } from '../../../../utils/colorUtils';
 import { Database } from '../../../../supabase/supabase';
@@ -35,6 +36,34 @@ export const PermissionsCell = ({
   const [opened, setOpened] = useState(false);
   const [selected, setSelected] = useState<string[]>([]);
   const [saving, setSaving] = useState(false);
+  // how many badges fit on one line; the rest collapse into a "…" badge
+  const [visibleCount, setVisibleCount] = useState(permissions.length);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const measureRef = useRef<HTMLDivElement>(null);
+
+  useLayoutEffect(() => {
+    const container = containerRef.current;
+    const measure = measureRef.current;
+    if (!container || !measure) return;
+    const ELLIPSIS_WIDTH = 32;
+    const recompute = () => {
+      const width = container.clientWidth;
+      const badges = Array.from(measure.children) as HTMLElement[];
+      const allFit = badges.every((b) => b.offsetLeft + b.offsetWidth <= width);
+      if (allFit) {
+        setVisibleCount(badges.length);
+        return;
+      }
+      const fit = badges.filter(
+        (b) => b.offsetLeft + b.offsetWidth <= width - ELLIPSIS_WIDTH,
+      ).length;
+      setVisibleCount(fit);
+    };
+    recompute();
+    const observer = new ResizeObserver(recompute);
+    observer.observe(container);
+    return () => observer.disconnect();
+  }, [permissions]);
 
   const current = permissions
     .map((p) => p.permission_type_id?.toString() ?? '')
@@ -68,6 +97,18 @@ export const PermissionsCell = ({
     onSaved();
   };
 
+  const renderBadge = (p: PermissionRow) => (
+    <Badge
+      key={p.permission_id}
+      variant="light"
+      size="sm"
+      style={{ flexShrink: 0 }}
+      color={numToColor(p.permission_type_id || 0)}
+    >
+      {p.permission_display_name ?? p.permission_name}
+    </Badge>
+  );
+
   return (
     // stop clicks from triggering the row's navigate-to-user handler
     <div onClick={(e) => e.stopPropagation()}>
@@ -81,24 +122,60 @@ export const PermissionsCell = ({
         shadow="md"
       >
         <Popover.Target>
-          <UnstyledButton onClick={() => (opened ? setOpened(false) : open())}>
-            <Group gap={4} mih={22}>
-              {permissions.map((p) => (
-                <Badge
-                  key={p.permission_id}
-                  variant="light"
-                  size="sm"
-                  color={numToColor(p.permission_type_id || 0)}
-                >
-                  {p.permission_display_name ?? p.permission_name}
-                </Badge>
-              ))}
-              {permissions.length === 0 && (
-                <Text size="xs" c="dimmed">
-                  + dodaj
-                </Text>
-              )}
-            </Group>
+          <UnstyledButton
+            w="100%"
+            onClick={() => (opened ? setOpened(false) : open())}
+          >
+            <div ref={containerRef} style={{ position: 'relative' }}>
+              {/* invisible full row, used only to measure badge widths */}
+              <Group
+                ref={measureRef}
+                gap={4}
+                wrap="nowrap"
+                aria-hidden
+                style={{
+                  position: 'absolute',
+                  visibility: 'hidden',
+                  pointerEvents: 'none',
+                }}
+              >
+                {permissions.map(renderBadge)}
+              </Group>
+              <Group
+                gap={4}
+                mih={22}
+                wrap="nowrap"
+                style={{ overflow: 'hidden' }}
+              >
+                {permissions.slice(0, visibleCount).map(renderBadge)}
+                {visibleCount < permissions.length && (
+                  <HoverCard
+                    position="top"
+                    withArrow
+                    shadow="md"
+                    openDelay={100}
+                  >
+                    <HoverCard.Target>
+                      <Badge
+                        variant="default"
+                        size="sm"
+                        style={{ flexShrink: 0 }}
+                      >
+                        …
+                      </Badge>
+                    </HoverCard.Target>
+                    <HoverCard.Dropdown maw={320}>
+                      <Group gap={4}>{permissions.map(renderBadge)}</Group>
+                    </HoverCard.Dropdown>
+                  </HoverCard>
+                )}
+                {permissions.length === 0 && (
+                  <Text size="xs" c="dimmed">
+                    + dodaj
+                  </Text>
+                )}
+              </Group>
+            </div>
           </UnstyledButton>
         </Popover.Target>
         <Popover.Dropdown>

@@ -13,6 +13,7 @@ import {
   UnstyledButton,
   Center,
   Tabs,
+  Drawer,
 } from '@mantine/core';
 import {
   IconAlertCircle,
@@ -30,6 +31,7 @@ import { useStore } from '@nanostores/react';
 import { $currUser } from '../../../../global-state/user';
 import { PermissionsCell } from './PermissionsCell';
 import { DeleteUserButton } from './DeleteUserButton';
+import { EditUserForms } from './EditUserPage';
 
 // JANEZ NOVAK / janez novak -> Janez Novak (also Ana-Marija, D'Angelo)
 const capitalizeName = (value: string) =>
@@ -105,6 +107,10 @@ export const UserEditing = () => {
   } = useUserEditing(debouncedSearchQuery);
 
   const navigate = useNavigate();
+  const [editingUser, setEditingUser] = useState<{
+    id: number;
+    name: string;
+  } | null>(null);
   const canDelete = !!useStore($currUser)?.permissions.includes('DELETE_USERS');
 
   useEffect(() => {
@@ -125,7 +131,14 @@ export const UserEditing = () => {
   const rows = users.map((user) => (
     <Table.Tr
       key={user.base_user_id}
-      onClick={() => navigate(`/user/edit/${user.base_user_id}`)}
+      onClick={() =>
+        setEditingUser({
+          id: user.base_user_id!,
+          name: capitalizeName(
+            `${user.name ?? ''} ${user.surname ?? ''}`.trim(),
+          ),
+        })
+      }
       style={{ cursor: 'pointer' }}
     >
       <Table.Td>
@@ -217,6 +230,7 @@ export const UserEditing = () => {
                     Telefon
                   </SortableTh>
                   <SortableTh
+                    w={260}
                     field="permissions"
                     sort={sort}
                     onSort={toggleSort}
@@ -241,6 +255,19 @@ export const UserEditing = () => {
           </Text>
         </Group>
       </Stack>
+      <Drawer
+        opened={!!editingUser}
+        onClose={() => {
+          setEditingUser(null);
+          mutateUsers();
+          mutatePermissions();
+        }}
+        position="right"
+        size="lg"
+        title={<Title order={3}>{editingUser?.name}</Title>}
+      >
+        {editingUser && <EditUserForms userId={editingUser.id} />}
+      </Drawer>
     </Container>
   );
 };
