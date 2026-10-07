@@ -7,12 +7,14 @@ const PAGE_SIZE = 15;
 
 type UserRow = Database['public']['Views']['user_view']['Row'];
 type PermissionType = Database['public']['Tables']['permission_types']['Row'];
+type PermissionGroup = Database['public']['Tables']['permission_groups']['Row'];
 type PermissionRow =
   Database['public']['Views']['user_permissions_view']['Row'];
 
 export type UserWithPermissions = UserRow & { permissions: PermissionRow[] };
 
-export type SortField = 'name' | 'email' | 'room' | 'phone' | 'permissions';
+export type SortField =
+  'name' | 'email' | 'room' | 'phone' | 'group' | 'permissions';
 export interface SortState {
   field: SortField;
   reversed: boolean;
@@ -33,6 +35,7 @@ const compare = (
   a: UserWithPermissions,
   b: UserWithPermissions,
   field: SortField,
+  groupLabel: (u: UserRow) => string,
 ) => {
   switch (field) {
     case 'name':
@@ -47,6 +50,13 @@ const compare = (
       );
     case 'phone':
       return (a.phone_number ?? '').localeCompare(b.phone_number ?? '');
+    case 'group':
+      // users without a role last, then by name
+      return (
+        (a.permgroup_id == null ? 1 : 0) - (b.permgroup_id == null ? 1 : 0) ||
+        groupLabel(a).localeCompare(groupLabel(b), 'sl') ||
+        fullName(a).localeCompare(fullName(b), 'sl')
+      );
     case 'permissions':
       // most permissions first, then alphabetically by permission names
       return (
@@ -99,6 +109,27 @@ export const useUserEditing = (query_string?: string) => {
     table: 'permission_types',
   });
 
+  const {
+    data: groups,
+    error: groupsError,
+    mutate: mutateGroups,
+  } = getSupaWR({
+    query: () =>
+      supabaseClient.from('permission_groups').select('*').order('id'),
+    table: 'permission_groups',
+  });
+
+  const groupLabel = useMemo(() => {
+    const byId = new Map(
+      ((groups as PermissionGroup[] | undefined) ?? []).map((g) => [
+        g.id,
+        g.display_name || g.name,
+      ]),
+    );
+    return (u: UserRow) =>
+      u.permgroup_id == null ? '' : (byId.get(u.permgroup_id) ?? '');
+  }, [groups]);
+
   const usersWithPermissions = useMemo<UserWithPermissions[]>(() => {
     const byUser = new Map<number, PermissionRow[]>();
     for (const p of (permissions as PermissionRow[] | undefined) ?? []) {
@@ -132,6 +163,7 @@ export const useUserEditing = (query_string?: string) => {
             u.auth_email,
             u.room?.toString(),
             u.phone_number,
+            groupLabel(u),
             permissionsLabel(u),
             ...u.permissions.map((p) => p.permission_name),
           ]
@@ -141,10 +173,10 @@ export const useUserEditing = (query_string?: string) => {
         )
       : [...onFloor];
 
-    result.sort((a, b) => compare(a, b, sort.field));
+    result.sort((a, b) => compare(a, b, sort.field, groupLabel));
     if (sort.reversed) result.reverse();
     return result;
-  }, [usersWithPermissions, query_string, sort, floor]);
+  }, [usersWithPermissions, query_string, sort, floor, groupLabel]);
 
   const totalPages = Math.ceil(filtered.length / PAGE_SIZE);
   const pageUsers = filtered.slice(
@@ -167,11 +199,15 @@ export const useUserEditing = (query_string?: string) => {
 
   return {
     users: pageUsers,
+    allUsers: usersWithPermissions,
     floors,
     floor,
     setFloor,
     totalCount: filtered.length,
-    error: usersError || permissionsError || permissionTypesError,
+    error:
+      usersError || permissionsError || permissionTypesError || groupsError,
+    groups: (groups as PermissionGroup[] | undefined) ?? [],
+    mutateGroups,
     permissionTypes: (permissionTypes as PermissionType[] | undefined) ?? [],
     mutatePermissions,
     mutateUsers,

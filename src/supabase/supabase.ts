@@ -41,6 +41,7 @@ export type Database = {
           id: number
           invited_by: number | null
           name: string
+          permgroup_id: number | null
           resident: number | null
           surname: string | null
         }
@@ -50,6 +51,7 @@ export type Database = {
           id?: number
           invited_by?: number | null
           name: string
+          permgroup_id?: number | null
           resident?: number | null
           surname?: string | null
         }
@@ -59,6 +61,7 @@ export type Database = {
           id?: number
           invited_by?: number | null
           name?: string
+          permgroup_id?: number | null
           resident?: number | null
           surname?: string | null
         }
@@ -1206,6 +1209,7 @@ export type Database = {
           birth_date: string | null
           created_at: string | null
           name: string | null
+          permgroup_id: number | null
           phone_number: string | null
           resident_id: number | null
           room: number | null
@@ -1401,6 +1405,10 @@ export type Database = {
       }
       set_group_permissions: {
         Args: { p_group_id: number; p_permission_type_ids: number[] }
+        Returns: undefined
+      }
+      set_user_group: {
+        Args: { p_base_user_id: number; p_group_id: number | null }
         Returns: undefined
       }
       set_user_permissions: {

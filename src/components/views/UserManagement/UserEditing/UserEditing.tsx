@@ -31,6 +31,7 @@ import { useStore } from '@nanostores/react';
 import { $currUser } from '../../../../global-state/user';
 import { PermissionsCell } from './PermissionsCell';
 import { DeleteUserButton } from './DeleteUserButton';
+import { ADMIN_GROUP, GroupCell } from './GroupCell';
 import { EditUserForms } from './EditUserPage';
 
 // JANEZ NOVAK / janez novak -> Janez Novak (also Ana-Marija, D'Angelo)
@@ -90,6 +91,7 @@ export const UserEditing = () => {
   const [debouncedSearchQuery] = useDebouncedValue(inputValue, 200);
   const {
     users,
+    allUsers,
     totalCount,
     error,
     isLoading,
@@ -102,6 +104,7 @@ export const UserEditing = () => {
     floor,
     setFloor,
     permissionTypes,
+    groups,
     mutatePermissions,
     mutateUsers,
   } = useUserEditing(debouncedSearchQuery);
@@ -111,7 +114,16 @@ export const UserEditing = () => {
     id: number;
     name: string;
   } | null>(null);
-  const canDelete = !!useStore($currUser)?.permissions.includes('DELETE_USERS');
+  const currentUser = useStore($currUser);
+  const canDelete = !!currentUser?.permissions.includes('DELETE_USERS');
+  const adminGroupId = groups.find((g) => g.name === ADMIN_GROUP)?.id;
+  const currentUserIsAdmin =
+    adminGroupId != null &&
+    allUsers.some(
+      (u) =>
+        u.base_user_id === currentUser?.base_user_id &&
+        u.permgroup_id === adminGroupId,
+    );
 
   useEffect(() => {
     setPage(1);
@@ -147,6 +159,15 @@ export const UserEditing = () => {
       <Table.Td>{user.auth_email}</Table.Td>
       <Table.Td>{user.room}</Table.Td>
       <Table.Td>{user.phone_number}</Table.Td>
+      <Table.Td>
+        <GroupCell
+          userId={user.base_user_id!}
+          groupId={user.permgroup_id}
+          groups={groups}
+          currentUserIsAdmin={currentUserIsAdmin}
+          onSaved={() => mutateUsers()}
+        />
+      </Table.Td>
       <Table.Td>
         <PermissionsCell
           userId={user.base_user_id!}
@@ -228,6 +249,14 @@ export const UserEditing = () => {
                   </SortableTh>
                   <SortableTh field="phone" sort={sort} onSort={toggleSort}>
                     Telefon
+                  </SortableTh>
+                  <SortableTh
+                    w={190}
+                    field="group"
+                    sort={sort}
+                    onSort={toggleSort}
+                  >
+                    Vloga
                   </SortableTh>
                   <SortableTh
                     w={260}
