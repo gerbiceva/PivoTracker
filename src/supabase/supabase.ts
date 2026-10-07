@@ -360,6 +360,54 @@ export type Database = {
           },
         ]
       }
+      permgroup_permissions: {
+        Row: {
+          group_id: number
+          permission_type: number
+        }
+        Insert: {
+          group_id: number
+          permission_type: number
+        }
+        Update: {
+          group_id?: number
+          permission_type?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "permgroup_permissions_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "permission_groups"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "permgroup_permissions_permission_type_fkey"
+            columns: ["permission_type"]
+            isOneToOne: false
+            referencedRelation: "permission_types"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      permission_groups: {
+        Row: {
+          display_name: string
+          id: number
+          name: string
+        }
+        Insert: {
+          display_name?: string
+          id?: number
+          name: string
+        }
+        Update: {
+          display_name?: string
+          id?: number
+          name?: string
+        }
+        Relationships: []
+      }
       permission_types: {
         Row: {
           display_name: string
@@ -1350,6 +1398,10 @@ export type Database = {
           isOneToOne: true
           isSetofReturn: false
         }
+      }
+      set_group_permissions: {
+        Args: { p_group_id: number; p_permission_type_ids: number[] }
+        Returns: undefined
       }
       set_user_permissions: {
         Args: { p_base_user_id: number; p_permission_type_ids: number[] }

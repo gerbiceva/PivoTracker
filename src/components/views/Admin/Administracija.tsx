@@ -3,6 +3,7 @@ import {
   IconBeer,
   IconCalendarEvent,
   IconHeartHandshake,
+  IconShieldCog,
   IconUsers,
 } from '@tabler/icons-react';
 import { useStore } from '@nanostores/react';
@@ -14,6 +15,7 @@ import { AdminEvents } from './AdminEvents';
 import { ManagePromises } from '../Promises/ManageObljube';
 import { UserEditing } from '../UserManagement/UserEditing/UserEditing';
 import { AdminPivo } from './AdminPivo';
+import { AdminPermGroups } from './AdminPermGroups';
 
 interface AdminTab {
   value: string;
@@ -53,6 +55,13 @@ export const ADMIN_TABS: AdminTab[] = [
     icon: <IconBeer size={16} />,
     permissions: ['MANAGE_TRANSACTIONS', 'MANAGE_ITEMS'],
     content: <AdminPivo />,
+  },
+  {
+    value: 'vloge',
+    label: 'Vloge',
+    icon: <IconShieldCog size={16} />,
+    permissions: ['MANAGE_GROUPS'],
+    content: <AdminPermGroups />,
   },
 ];
 

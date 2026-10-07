@@ -1,31 +1,40 @@
 import { rem } from '@mantine/core';
 import {
+  Icon,
   IconBasket,
   IconBeer,
   IconCalendarEvent,
   IconCalendarPlus,
+  IconHeartHandshake,
   IconHome,
   IconList,
   IconLogout,
-  IconShieldLock,
+  IconSearch,
+  IconShieldCog,
   IconTransactionEuro,
   IconUser,
   IconUserPlus,
+  IconUsers,
   IconWash,
 } from '@tabler/icons-react';
-
-// core styles are required for all packages
-import { IconSearch } from '@tabler/icons-react';
-import { Spotlight, SpotlightActionData } from '@mantine/spotlight';
+import {
+  Spotlight,
+  SpotlightActionData,
+  SpotlightActionGroupData,
+  SpotlightFilterFunction,
+} from '@mantine/spotlight';
 import { supabaseClient } from '../supabase/supabaseClient';
 import { useNavigate } from 'react-router-dom';
 import { $currUser } from '../global-state/user';
 import { useStore } from '@nanostores/react';
-import { ADMIN_PERMISSIONS } from '../components/views/Admin/Administracija';
+import { ADMIN_TABS } from '../components/views/Admin/Administracija';
 
 interface CustomSpotlighData extends SpotlightActionData {
+  id: string;
   // a list means: shown if the user has any of them
   permission?: string | string[];
+  // hidden from the default list, only shown when the query matches
+  searchOnly?: boolean;
 }
 
 interface CustomSpotlightGroupData {
@@ -33,327 +42,281 @@ interface CustomSpotlightGroupData {
   actions: CustomSpotlighData[];
 }
 
+const icon = (TablerIcon: Icon, color?: string) => (
+  <TablerIcon
+    style={{ width: rem(24), height: rem(24) }}
+    stroke={1.5}
+    color={color}
+  />
+);
+
+// icons for the Administracija group, keyed by ADMIN_TABS value
+const ADMIN_TAB_ICONS: Record<string, Icon> = {
+  dogodki: IconCalendarEvent,
+  obljube: IconHeartHandshake,
+  uporabniki: IconUsers,
+  pivo: IconBeer,
+  vloge: IconShieldCog,
+};
+
+// lowercase and strip diacritics, so "crnc" matches "Črnč"
+const normalize = (value: string) =>
+  value.normalize('NFD').replace(/\p{M}/gu, '').toLowerCase().trim();
+
+const keywordsText = (keywords: SpotlightActionData['keywords']) =>
+  Array.isArray(keywords) ? keywords.join(',') : (keywords ?? '');
+
+const makeFilter =
+  (searchOnlyIds: Set<string>): SpotlightFilterFunction =>
+  (rawQuery, data) => {
+    const query = normalize(rawQuery);
+
+    if (!query) {
+      return data
+        .map((item) =>
+          'actions' in item
+            ? {
+                ...item,
+                actions: item.actions.filter((a) => !searchOnlyIds.has(a.id)),
+              }
+            : item,
+        )
+        .filter((item) =>
+          'actions' in item
+            ? item.actions.length > 0
+            : !searchOnlyIds.has(item.id),
+        );
+    }
+
+    // label matches first, then description/keyword matches; keep group order
+    const labelHits: SpotlightActionData[] = [];
+    const otherHits: SpotlightActionData[] = [];
+    data.forEach((item) => {
+      const actions = 'actions' in item ? item.actions : [item];
+      const group = 'actions' in item ? item.group : undefined;
+      actions.forEach((action) => {
+        const tagged = { ...action, group };
+        if (normalize(String(action.label ?? '')).includes(query)) {
+          labelHits.push(tagged);
+        } else if (
+          normalize(action.description ?? '').includes(query) ||
+          normalize(keywordsText(action.keywords)).includes(query)
+        ) {
+          otherHits.push(tagged);
+        }
+      });
+    });
+
+    const result: (SpotlightActionData | SpotlightActionGroupData)[] = [];
+    const groups = new Map<string, SpotlightActionGroupData>();
+    [...labelHits, ...otherHits].forEach(({ group, ...action }) => {
+      if (!group) {
+        result.push(action);
+        return;
+      }
+      let g = groups.get(group);
+      if (!g) {
+        g = { group, actions: [] };
+        groups.set(group, g);
+        result.push(g);
+      }
+      g.actions.push(action);
+    });
+    return result;
+  };
+
 export const CustomSpotlight = () => {
   const navigate = useNavigate();
 
   const user = useStore($currUser);
   const permissions = user?.permissions || [];
 
-  let Spotlightactions: CustomSpotlightGroupData[] = (
-    [
-      {
-        group: 'Domov',
-        actions: [
-          {
-            id: 'home',
-            label: 'Domov',
-            description: 'Prva stran',
-            onClick: () => navigate('/'),
-            leftSection: (
-              <IconHome
-                style={{ width: rem(24), height: rem(24) }}
-                stroke={1.5}
-              />
-            ),
-          },
-        ],
-      },
-      {
-        group: 'Dogodki',
-        actions: [
-          {
-            id: 'events',
-            label: 'Dogodki',
-            description: 'Koledar dogodkov',
-            onClick: () => navigate('/events'),
-            leftSection: (
-              <IconCalendarEvent
-                style={{ width: rem(24), height: rem(24) }}
-                stroke={1.5}
-              />
-            ),
-          },
-          {
-            permission: 'MANAGE_EVENTS',
-            id: 'events',
-            label: 'Dodaj Dogodek',
-            description: 'Koledar dogodkov',
-            onClick: () => navigate('/events/create'),
-            leftSection: (
-              <IconCalendarPlus
-                style={{ width: rem(24), height: rem(24) }}
-                stroke={1.5}
-              />
-            ),
-          },
-        ],
-      },
-      {
-        group: 'Pivo',
-        actions: [
-          // {
-          //   permission: 'MANAGE_TRANSACTIONS',
-          //   id: 'home',
-          //   label: 'Domov',
-          //   description: 'Prva stran',
-          //   onClick: () => navigate('/pivo'),
-          //   leftSection: (
-          //     <IconHome
-          //       style={{ width: rem(24), height: rem(24) }}
-          //       stroke={1.5}
-          //     />
-          //   ),
-          // },
-          {
-            permission: 'MANAGE_TRANSACTIONS',
-            id: 'add',
-            label: 'Dodajanje piva',
-            description: 'Prodaj pivo stranki',
-            onClick: () => navigate('/pivo/add'),
-            leftSection: (
-              <IconBeer
-                style={{ width: rem(24), height: rem(24) }}
-                stroke={1.5}
-              />
-            ),
-          },
-          {
-            permission: 'MANAGE_TRANSACTIONS',
-            id: 'list',
-            label: 'Seznam pufov',
-            description: 'Prikaži seznam pufov',
-            onClick: () => navigate('/pivo/puf'),
-            leftSection: (
-              <IconList
-                style={{ width: rem(24), height: rem(24) }}
-                stroke={1.5}
-              />
-            ),
-          },
-          {
-            permission: 'MANAGE_TRANSACTIONS',
-            id: 'transactions',
-            label: 'Transakcije',
-            description: 'Prikaži vse transakcije',
-            onClick: () => navigate('/pivo/transactions'),
-            leftSection: (
-              <IconTransactionEuro
-                style={{ width: rem(24), height: rem(24) }}
-                stroke={1.5}
-              />
-            ),
-          },
-          {
-            permission: 'MANAGE_TRANSACTIONS',
-            id: 'items',
-            label: 'Ponudba',
-            description: 'Urejanje ponudbe piva',
-            onClick: () => navigate('/pivo/items'),
-            leftSection: (
-              <IconBasket
-                style={{ width: rem(24), height: rem(24) }}
-                stroke={1.5}
-              />
-            ),
-          },
-          // {
-          //   id: 'nabava',
-          //   label: 'Nabava',
-          //   description: 'Nabava piva iz trgovine',
-          //   onClick: () => window.location.replace('/nabava'),
-          //   leftSection: (
-          //     <IconShoppingBag
-          //       style={{ width: rem(24), height: rem(24) }}
-          //       stroke={1.5}
-          //     />
-          //   ),
-          // },
-          // {
-          //   id: 'zaloge',
-          //   label: 'Zaloge',
-          //   description: 'Zaloge in transakcije ministrov',
-          //   onClick: () => window.location.replace('/zaloge'),
-          //   leftSection: (
-          //     <IconDatabase
-          //       style={{ width: rem(24), height: rem(24) }}
-          //       stroke={1.5}
-          //     />
-          //   ),
-          // },
-        ],
-      },
-      {
-        group: 'Admin',
-        actions: [
-          {
-            permission: 'ENROLL',
-            id: 'enroll',
-            label: 'Enroll',
-            description: 'Dodajaj novega uporabnika',
-            onClick: () => window.location.replace('/admin/enroll'),
-            leftSection: (
-              <IconUserPlus
-                style={{ width: rem(24), height: rem(24) }}
-                stroke={1.5}
-              />
-            ),
-          },
-        ],
-      },
-      {
-        group: 'Pranje',
-        actions: [
-          {
-            permission: 'CAN_WASH',
-            id: 'pranje',
-            label: 'Pranje',
-            description: 'Dodaj nov termin za pranje',
-            onClick: () => window.location.replace('/pranje/novo'),
-            leftSection: (
-              <IconWash
-                style={{ width: rem(24), height: rem(24) }}
-                stroke={1.5}
-                color="cyan"
-              />
-            ),
-          },
-          {
-            permission: 'CAN_WASH',
-            id: 'moje-pranje',
-            label: 'Moji termini',
-            description: 'Pregled rezerviranih terminov za pranje',
-            onClick: () => window.location.replace('/pranje/moje'),
-            leftSection: (
-              <IconWash
-                style={{ width: rem(24), height: rem(24) }}
-                stroke={1.5}
-                color="cyan"
-              />
-            ),
-          },
-        ],
-      },
-      {
-        group: 'Uporabnik',
-        actions: [
-          {
-            id: 'preglej-profil',
-            label: 'Preglej profil',
-            description: 'Preglej svoj profil',
-            onClick: () => navigate('/user'),
-            leftSection: (
-              <IconUser
-                style={{ width: rem(24), height: rem(24) }}
-                stroke={1.5}
-              />
-            ),
-          },
-          {
-            permission: 'MANAGE_USERS',
-            id: 'urejanje-uporabnikov',
-            label: 'Urejanje uporabnikov',
-            description: 'Urejanje uporabnikov',
-            onClick: () => navigate('/user/edit'),
-            leftSection: (
-              <IconUser
-                style={{ width: rem(24), height: rem(24) }}
-                stroke={1.5}
-              />
-            ),
-          },
-        ],
-      },
-      {
-        group: 'Sistem',
-        actions: [
-          {
-            permission: ADMIN_PERMISSIONS,
-            id: 'administracija',
-            label: 'Administracija',
-            description: 'Dogodki, obljube, uporabniki in pivo',
-            onClick: () => navigate('/admin'),
-            leftSection: (
-              <IconShieldLock
-                style={{ width: rem(24), height: rem(24) }}
-                stroke={1.5}
-              />
-            ),
-          },
-          {
-            id: 'logout',
-            label: 'Odjava',
-            description: 'Odjavi se iz sistema',
-            onClick: () => {
-              supabaseClient.auth.signOut();
-            },
-            leftSection: (
-              <IconLogout
-                style={{ width: rem(24), height: rem(24) }}
-                stroke={1.5}
-                color="red"
-              />
-            ),
-          },
-        ],
-      },
-      {
-        group: 'Obljube',
-        actions: [
-          {
-            permission: 'ADD_OBLJUBA',
-            id: 'add-promise',
-            label: 'Dodaj Obljubo',
-            description: 'Dodaj novo obljubo',
-            onClick: () => navigate('/promises/create'),
-            leftSection: (
-              <IconBeer
-                style={{ width: rem(24), height: rem(24) }}
-                stroke={1.5}
-              />
-            ),
-          },
-          {
-            permission: 'ADD_OBLJUBA', // Assuming a permission for managing promises
-            id: 'manage-promises',
-            label: 'Upravljaj Obljube',
-            description: 'Preglej in uredi obljube',
-            onClick: () => navigate('/promises/manage'),
-            leftSection: (
-              <IconList
-                style={{ width: rem(24), height: rem(24) }}
-                stroke={1.5}
-              />
-            ),
-          },
-        ],
-      },
-    ] as CustomSpotlightGroupData[]
-  ).map((group) => ({
-    ...group,
-    actions: group.actions.filter((action) => {
-      if (!permissions) {
-        return false;
-      }
+  const hasPermission = (permission?: string | string[]) => {
+    if (!permission) return true;
+    if (Array.isArray(permission)) {
+      return permission.some((p) => permissions.includes(p));
+    }
+    return permissions.includes(permission);
+  };
 
-      if (!action.permission) {
-        return true;
-      }
+  const groups: CustomSpotlightGroupData[] = [
+    {
+      group: 'Navigacija',
+      actions: [
+        {
+          id: 'home',
+          label: 'Domov',
+          description: 'Prva stran',
+          keywords: ['home', 'zacetek'],
+          onClick: () => navigate('/'),
+          leftSection: icon(IconHome),
+        },
+        {
+          id: 'events',
+          label: 'Dogodki',
+          description: 'Koledar dogodkov',
+          keywords: ['events', 'koledar', 'calendar'],
+          onClick: () => navigate('/events'),
+          leftSection: icon(IconCalendarEvent),
+        },
+        {
+          permission: 'CAN_WASH',
+          id: 'pranje',
+          label: 'Pranje',
+          description: 'Dodaj nov termin za pranje',
+          keywords: ['wash', 'laundry', 'pralni stroj', 'termin'],
+          onClick: () => navigate('/pranje/novo'),
+          leftSection: icon(IconWash, 'cyan'),
+        },
+        {
+          permission: 'CAN_WASH',
+          id: 'moje-pranje',
+          label: 'Moji termini',
+          description: 'Pregled rezerviranih terminov za pranje',
+          keywords: ['pranje', 'wash', 'laundry', 'rezervacije'],
+          onClick: () => navigate('/pranje/moje'),
+          leftSection: icon(IconWash, 'cyan'),
+        },
+        {
+          id: 'profile',
+          label: 'Moj profil',
+          description: 'Preglej svoj profil',
+          keywords: ['profile', 'uporabnik', 'racun', 'account'],
+          onClick: () => navigate('/user'),
+          leftSection: icon(IconUser),
+        },
+      ],
+    },
+    {
+      // one entry per admin tab, with the same permissions as the tab itself
+      group: 'Administracija',
+      actions: ADMIN_TABS.map((tab) => ({
+        permission: tab.permissions,
+        id: `admin-${tab.value}`,
+        label: tab.label,
+        description: 'Administracija',
+        keywords: ['admin', 'upravljanje', 'manage'],
+        onClick: () => navigate(`/admin?tab=${tab.value}`),
+        leftSection: icon(ADMIN_TAB_ICONS[tab.value] ?? IconList),
+      })),
+    },
+    {
+      group: 'Hitra dejanja',
+      actions: [
+        {
+          permission: 'ENROLL',
+          searchOnly: true,
+          id: 'enroll',
+          label: 'Dodaj uporabnika',
+          description: 'Vpis novega uporabnika',
+          keywords: ['enroll', 'nov uporabnik', 'registracija', 'add user'],
+          onClick: () => navigate('/admin/enroll'),
+          leftSection: icon(IconUserPlus),
+        },
+        {
+          permission: 'MANAGE_USERS',
+          searchOnly: true,
+          id: 'edit-users',
+          label: 'Urejanje uporabnikov',
+          description: 'Uredi podatke in dovoljenja',
+          keywords: ['users', 'dovoljenja', 'permissions'],
+          onClick: () => navigate('/admin?tab=uporabniki'),
+          leftSection: icon(IconUsers),
+        },
+        {
+          permission: 'MANAGE_EVENTS',
+          searchOnly: true,
+          id: 'events-create',
+          label: 'Dodaj dogodek',
+          description: 'Ustvari nov dogodek',
+          keywords: ['nov dogodek', 'create event'],
+          onClick: () => navigate('/events/create'),
+          leftSection: icon(IconCalendarPlus),
+        },
+        {
+          permission: 'ADD_OBLJUBA',
+          searchOnly: true,
+          id: 'promise-create',
+          label: 'Dodaj obljubo',
+          description: 'Dodaj novo obljubo',
+          keywords: ['obljuba', 'promise'],
+          onClick: () => navigate('/promises/create'),
+          leftSection: icon(IconHeartHandshake),
+        },
+        {
+          permission: 'MANAGE_TRANSACTIONS',
+          searchOnly: true,
+          id: 'pivo-add',
+          label: 'Dodajanje piva',
+          description: 'Prodaj pivo stranki',
+          keywords: ['pivo', 'prodaja', 'sell', 'beer'],
+          onClick: () => navigate('/pivo/add'),
+          leftSection: icon(IconBeer),
+        },
+        {
+          permission: 'MANAGE_TRANSACTIONS',
+          searchOnly: true,
+          id: 'pivo-puf',
+          label: 'Seznam pufov',
+          description: 'Prikaži seznam pufov',
+          keywords: ['puf', 'dolg', 'debt'],
+          onClick: () => navigate('/pivo/puf'),
+          leftSection: icon(IconList),
+        },
+        {
+          permission: 'MANAGE_TRANSACTIONS',
+          searchOnly: true,
+          id: 'pivo-transactions',
+          label: 'Transakcije',
+          description: 'Prikaži vse transakcije',
+          keywords: ['transactions', 'plačila'],
+          onClick: () => navigate('/pivo/transactions'),
+          leftSection: icon(IconTransactionEuro),
+        },
+        {
+          permission: 'MANAGE_TRANSACTIONS',
+          searchOnly: true,
+          id: 'pivo-items',
+          label: 'Ponudba',
+          description: 'Urejanje ponudbe piva',
+          keywords: ['items', 'cene', 'cenik'],
+          onClick: () => navigate('/pivo/items'),
+          leftSection: icon(IconBasket),
+        },
+      ],
+    },
+  ];
 
-      if (Array.isArray(action.permission)) {
-        return action.permission.some((p) => permissions.includes(p));
-      }
+  const searchOnlyIds = new Set<string>();
+  const actions: (SpotlightActionData | SpotlightActionGroupData)[] = groups
+    .map((g) => ({
+      group: g.group,
+      // strip our own fields so they don't get spread onto DOM elements
+      actions: g.actions
+        .filter((a) => hasPermission(a.permission))
+        .map(({ permission: _permission, searchOnly, ...a }) => {
+          if (searchOnly) searchOnlyIds.add(a.id);
+          return a;
+        }),
+    }))
+    .filter((g) => g.actions.length > 0);
 
-      if (action.permission) {
-        return permissions.includes(action.permission);
-      }
-      return false;
-    }),
-  }));
+  actions.push({
+    id: 'logout',
+    label: 'Odjava',
+    description: 'Odjavi se iz sistema',
+    keywords: ['logout', 'sign out'],
+    onClick: () => {
+      supabaseClient.auth.signOut();
+    },
+    leftSection: icon(IconLogout, 'red'),
+  });
 
   return (
     <Spotlight
-      actions={Spotlightactions}
-      nothingFound="Nothing found..."
+      actions={actions}
+      filter={makeFilter(searchOnlyIds)}
+      nothingFound="Ni zadetkov..."
       highlightQuery
       scrollable
       maxHeight="80vh"
@@ -364,7 +327,7 @@ export const CustomSpotlight = () => {
             stroke={1.5}
           />
         ),
-        placeholder: 'Search...',
+        placeholder: 'Išči...',
       }}
     />
   );
