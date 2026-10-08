@@ -1,23 +1,37 @@
 import {
+  ActionIcon,
   Alert,
   Badge,
   Button,
   Card,
   Group,
   LoadingOverlay,
+  Modal,
   MultiSelect,
   Stack,
   Text,
+  TextInput,
+  Tooltip,
   type MultiSelectProps,
 } from '@mantine/core';
+import { modals } from '@mantine/modals';
 import { notifications } from '@mantine/notifications';
-import { IconAlertCircle, IconLock } from '@tabler/icons-react';
+import {
+  IconAlertCircle,
+  IconCheck,
+  IconLock,
+  IconPencil,
+  IconPlus,
+  IconTrash,
+  IconX,
+} from '@tabler/icons-react';
 import { useEffect, useMemo, useState } from 'react';
 import { getSupaWR } from '../../../supabase/supa-utils/supaSWR';
 import { supabaseClient } from '../../../supabase/supabaseClient';
 import { numToColor } from '../../../utils/colorUtils';
 import { Database } from '../../../supabase/supabase';
 import { PageHeader } from './PageHeader';
+import { isResidentGroup } from '../UserManagement/UserEditing/GroupCell';
 
 type PermissionGroup = Database['public']['Tables']['permission_groups']['Row'];
 type PermissionType = Database['public']['Tables']['permission_types']['Row'];
@@ -39,13 +53,199 @@ interface GroupCardProps {
   current: string[];
   permissionTypes: PermissionType[];
   onSaved: () => void;
+  // renamed or deleted: the group list itself changed
+  onGroupsChanged: () => void;
 }
+
+const showError = (title: string, message: string) =>
+  notifications.show({ color: 'red', title, message });
+
+// Title row of a vloga card: the name, editable in place, plus delete.
+const GroupTitle = ({
+  group,
+  onGroupsChanged,
+}: {
+  group: PermissionGroup;
+  onGroupsChanged: () => void;
+}) => {
+  const label = group.display_name || group.name;
+  const [editing, setEditing] = useState(false);
+  const [name, setName] = useState(label);
+  const [busy, setBusy] = useState(false);
+  // Stanovalec is the default vloga everyone gets reset to
+  const deletable = !isResidentGroup(group);
+
+  const rename = async () => {
+    if (!name.trim() || name.trim() === label) return setEditing(false);
+    setBusy(true);
+    const { error } = await supabaseClient.rpc('rename_permission_group', {
+      p_group_id: group.id,
+      p_display_name: name.trim(),
+    });
+    setBusy(false);
+    if (error) return showError('Preimenovanje ni uspelo', error.message);
+    setEditing(false);
+    onGroupsChanged();
+  };
+
+  const remove = () =>
+    modals.openConfirmModal({
+      title: 'Izbriši vlogo',
+      children: (
+        <Text size="sm">
+          Ali res želiš izbrisati vlogo <b>{label}</b>? Vlogo lahko izbrišeš
+          samo, če je nima noben uporabnik.
+        </Text>
+      ),
+      labels: { confirm: 'Izbriši', cancel: 'Prekliči' },
+      confirmProps: { color: 'red' },
+      onConfirm: async () => {
+        const { error } = await supabaseClient.rpc('delete_permission_group', {
+          p_group_id: group.id,
+        });
+        if (error) return showError('Brisanje ni uspelo', error.message);
+        onGroupsChanged();
+      },
+    });
+
+  if (editing) {
+    return (
+      <Group gap="xs" wrap="nowrap">
+        <TextInput
+          aria-label="Ime vloge"
+          value={name}
+          onChange={(e) => setName(e.currentTarget.value)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') rename();
+            if (e.key === 'Escape') setEditing(false);
+          }}
+          size="xs"
+          flex={1}
+          autoFocus
+        />
+        <ActionIcon aria-label="Shrani ime" loading={busy} onClick={rename}>
+          <IconCheck size={16} />
+        </ActionIcon>
+        <ActionIcon
+          aria-label="Prekliči"
+          variant="subtle"
+          color="gray"
+          onClick={() => {
+            setName(label);
+            setEditing(false);
+          }}
+        >
+          <IconX size={16} />
+        </ActionIcon>
+      </Group>
+    );
+  }
+
+  return (
+    <Group justify="space-between" wrap="nowrap">
+      <Text fw={600}>{label}</Text>
+      <Group gap={4} wrap="nowrap">
+        <Tooltip label="Preimenuj">
+          <ActionIcon
+            variant="subtle"
+            color="gray"
+            aria-label="Preimenuj"
+            onClick={() => {
+              setName(label);
+              setEditing(true);
+            }}
+          >
+            <IconPencil size={16} />
+          </ActionIcon>
+        </Tooltip>
+        <Tooltip
+          label={deletable ? 'Izbriši' : 'Stanovalca ni mogoče izbrisati'}
+        >
+          <ActionIcon
+            variant="subtle"
+            color="red"
+            aria-label="Izbriši"
+            disabled={!deletable}
+            onClick={remove}
+          >
+            <IconTrash size={16} />
+          </ActionIcon>
+        </Tooltip>
+      </Group>
+    </Group>
+  );
+};
+
+// "Dodaj vlogo" button with its name prompt.
+const AddGroupButton = ({ onCreated }: { onCreated: () => void }) => {
+  const [opened, setOpened] = useState(false);
+  const [name, setName] = useState('');
+  const [busy, setBusy] = useState(false);
+
+  const create = async () => {
+    if (!name.trim()) return;
+    setBusy(true);
+    const { error } = await supabaseClient.rpc('create_permission_group', {
+      p_display_name: name.trim(),
+    });
+    setBusy(false);
+    if (error) return showError('Vloge ni bilo mogoče dodati', error.message);
+    setOpened(false);
+    setName('');
+    onCreated();
+  };
+
+  return (
+    <>
+      <Button
+        leftSection={<IconPlus size={16} />}
+        onClick={() => setOpened(true)}
+      >
+        Dodaj vlogo
+      </Button>
+      <Modal
+        opened={opened}
+        onClose={() => setOpened(false)}
+        title="Nova vloga"
+      >
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            create();
+          }}
+        >
+          <Stack>
+            <TextInput
+              label="Ime vloge"
+              placeholder="npr. Minister za šport"
+              value={name}
+              onChange={(e) => setName(e.currentTarget.value)}
+              data-autofocus
+            />
+            <Text size="sm" c="dimmed">
+              Dovoljenja vlogi dodaš na njeni kartici, ko je ustvarjena.
+            </Text>
+            <Group justify="flex-end">
+              <Button variant="default" onClick={() => setOpened(false)}>
+                Prekliči
+              </Button>
+              <Button type="submit" loading={busy} disabled={!name.trim()}>
+                Dodaj
+              </Button>
+            </Group>
+          </Stack>
+        </form>
+      </Modal>
+    </>
+  );
+};
 
 const GroupCard = ({
   group,
   current,
   permissionTypes,
   onSaved,
+  onGroupsChanged,
 }: GroupCardProps) => {
   const [selected, setSelected] = useState<string[]>(current);
   const [saving, setSaving] = useState(false);
@@ -91,7 +291,7 @@ const GroupCard = ({
   return (
     <Card withBorder padding="md">
       <Stack gap="xs">
-        <Text fw={600}>{group.display_name || group.name}</Text>
+        <GroupTitle group={group} onGroupsChanged={onGroupsChanged} />
         <MultiSelect
           data={options}
           value={selected}
@@ -163,6 +363,7 @@ export const AdminPermGroups = () => {
       <PageHeader
         title="Vloge"
         description="Dovoljenja, ki jih dobi vsak član vloge. Dodatna dovoljenja posameznim uporabnikom se urejajo pri uporabnikih."
+        action={<AddGroupButton onCreated={() => groups.mutate()} />}
       />
       <Alert variant="light" icon={<IconLock />}>
         Vloge Administrator ni mogoče urejati.
@@ -174,6 +375,10 @@ export const AdminPermGroups = () => {
           current={byGroup.get(g.id) ?? []}
           permissionTypes={types.data ?? []}
           onSaved={() => links.mutate()}
+          onGroupsChanged={() => {
+            groups.mutate();
+            links.mutate();
+          }}
         />
       ))}
     </Stack>

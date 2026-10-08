@@ -1403,6 +1403,18 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      create_permission_group: {
+        Args: { p_display_name: string }
+        Returns: number
+      }
+      delete_permission_group: {
+        Args: { p_group_id: number }
+        Returns: undefined
+      }
+      rename_permission_group: {
+        Args: { p_group_id: number; p_display_name: string }
+        Returns: undefined
+      }
       set_group_permissions: {
         Args: { p_group_id: number; p_permission_type_ids: number[] }
         Returns: undefined
