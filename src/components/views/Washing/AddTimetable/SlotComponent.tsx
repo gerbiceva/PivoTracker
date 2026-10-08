@@ -1,14 +1,10 @@
 import {
   alpha,
-  Badge,
   darken,
-  Group,
   lighten,
   MantineColor,
-  Paper,
   parseThemeColor,
   Progress,
-  Stack,
   Text,
   useMantineTheme,
 } from '@mantine/core';
@@ -17,6 +13,7 @@ import dayjs, { Dayjs } from 'dayjs';
 import { CalendarDay, dayType } from './AddWashingTimetable';
 import { useMemo } from 'react';
 import { addReservation } from './addReservation';
+import { SlotCard } from './SlotCard';
 
 interface Section {
   isSpacer: boolean;
@@ -100,42 +97,12 @@ export const SlotComponent = ({
       ),
       centered: true,
       children: (
-        <Paper
-          radius="md"
-          p="md"
-          mb="xs"
-          bg={alpha(parsedColor.value, 0.08)}
-          style={{ border: `1px solid ${alpha(parsedColor.value, 0.3)}` }}
-        >
-          <Group wrap="nowrap" gap="md">
-            <Paper radius="md" w={56} py={6} ta="center" withBorder>
-              <Text size="10px" fw={700} c="dimmed" tt="uppercase">
-                {start.format('ddd')}
-              </Text>
-              <Text fw={700} size="xl" lh={1.1} c={color}>
-                {start.format('D')}
-              </Text>
-            </Paper>
-            <Stack gap={2}>
-              <Text
-                fw={700}
-                fz={22}
-                lh={1.2}
-                style={{ fontVariantNumeric: 'tabular-nums' }}
-              >
-                {start.format('HH:mm')} – {end.format('HH:mm')}
-              </Text>
-              <Group gap="xs">
-                <Text size="sm" c="dimmed" tt="capitalize">
-                  {start.format('dddd, D. MMMM')}
-                </Text>
-                <Badge variant="light" color={color} size="sm">
-                  Stroj {machine}
-                </Badge>
-              </Group>
-            </Stack>
-          </Group>
-        </Paper>
+        <SlotCard
+          start={start}
+          end={end}
+          machineLabel={`Stroj ${machine}`}
+          color={color}
+        />
       ),
       labels: { confirm: 'Rezerviraj', cancel: 'Prekliči' },
       confirmProps: { color },
