@@ -1,4 +1,5 @@
 import {
+  ActionIcon,
   Anchor,
   Badge,
   Button,
@@ -11,6 +12,7 @@ import {
   Text,
   ThemeIcon,
   Title,
+  Tooltip,
   UnstyledButton,
 } from '@mantine/core';
 import { Link, useSearchParams } from 'react-router-dom';
@@ -19,6 +21,7 @@ import { ReactNode } from 'react';
 import {
   IconBeer,
   IconDoor,
+  IconTrash,
   IconUser,
   IconWash,
   type Icon,
@@ -32,6 +35,7 @@ import { useGetReservationsForUser } from './Washing/MyWashing/UserReservations'
 import { ReadTimeFromUTCString } from '../../utils/timeUtils';
 import { formatCurrency } from '../../utils/Converter';
 import { MyProfileModal } from './UserManagement/MyProfileModal';
+import { removeReservation } from './Washing/RemoveReservation';
 
 interface QuickAction {
   label: string;
@@ -265,12 +269,22 @@ export const HomePage = () => {
                   return (
                     <Group key={r.reservation_id} wrap="nowrap">
                       <DateTile date={start} />
-                      <Stack gap={0}>
+                      <Stack gap={0} flex={1}>
                         <Text fw={600}>{r.machine_name}</Text>
                         <Text size="sm" c="dimmed">
                           {start.format('HH:mm')}–{end.format('HH:mm')}
                         </Text>
                       </Stack>
+                      <Tooltip label="Odstrani termin">
+                        <ActionIcon
+                          variant="subtle"
+                          color="red"
+                          aria-label="Odstrani termin"
+                          onClick={() => removeReservation(r.reservation_id)}
+                        >
+                          <IconTrash size={16} />
+                        </ActionIcon>
+                      </Tooltip>
                     </Group>
                   );
                 })}

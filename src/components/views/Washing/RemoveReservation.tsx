@@ -21,8 +21,8 @@ export const removeReservation = (reservationId: number) => {
         Rezervacija bo izbrisana, termin pa bo prost za ostale.
       </Text>
     ),
-    labels: { confirm: 'Confirm', cancel: 'Cancel' },
-    onCancel: () => console.log('Cancel'),
+    labels: { confirm: 'Izbriši', cancel: 'Prekliči' },
+    confirmProps: { color: 'red' },
     onConfirm: () => {
       supabaseClient
         .from('reservations')
@@ -33,10 +33,10 @@ export const removeReservation = (reservationId: number) => {
         .then((data) => {
           if (data.error) {
             notifications.show({
-              title: 'Error',
+              title: 'Napaka',
               color: 'red',
               autoClose: 1500,
-              message: <Text>Izbris ni mogoč {data.error.message}</Text>,
+              message: <Text>Izbris ni mogoč: {data.error.message}</Text>,
             });
           }
 

@@ -10,15 +10,12 @@ import {
 import { CalendarDay, dayType } from './AddWashingTimetable';
 import { useMemo } from 'react';
 
-import {
-  FormatLocalDateCustom,
-  ReadTimeFromUTCString,
-} from '../../../../utils/timeUtils';
-
 interface Section {
   isSpacer: boolean;
   present: boolean;
   dayEvent?: dayType;
+  // slot start, e.g. "09"; slots are fixed 3h blocks from midnight
+  hour?: string;
 }
 export const SlotComponent = ({
   day,
@@ -66,6 +63,7 @@ export const SlotComponent = ({
         present: allSections[i],
         isSpacer: false,
         dayEvent: dayData[i],
+        hour: String(i * 3).padStart(2, '0'),
       });
     }
 
@@ -93,30 +91,28 @@ export const SlotComponent = ({
           >
             <Progress.Label
               visibleFrom="md"
-              c={lighten(parsedColor.value, 0.8)}
+              c={
+                section.present
+                  ? lighten(parsedColor.value, 0.8)
+                  : alpha(parsedColor.value, 0.45)
+              }
             >
-              {section.present &&
-                section.dayEvent &&
-                `${FormatLocalDateCustom(
-                  ReadTimeFromUTCString(section.dayEvent.slot_start_utc!),
-                  'HH',
-                )}h`}
+              {`${section.hour}h`}
             </Progress.Label>
 
             <Progress.Label
               hiddenFrom="md"
-              c={lighten(parsedColor.value, 0.8)}
+              c={
+                section.present
+                  ? lighten(parsedColor.value, 0.8)
+                  : alpha(parsedColor.value, 0.45)
+              }
               style={{
                 fontSize: '70%',
                 marginTop: '1px',
               }}
             >
-              {section.present &&
-                section.dayEvent &&
-                `${FormatLocalDateCustom(
-                  ReadTimeFromUTCString(section.dayEvent.slot_start_utc!),
-                  'HH',
-                )}`}
+              {section.hour}
             </Progress.Label>
           </Progress.Section>
         ),
