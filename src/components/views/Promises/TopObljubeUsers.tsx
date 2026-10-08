@@ -45,9 +45,16 @@ export const TopObljubeUsers = () => {
           Leaderboard
         </Title>
 
-        <Group w="100%" justify="space-around" my="4rem">
+        {/* one row even on phones: wrapped, the raised places overlap */}
+        <Group w="100%" justify="space-around" wrap="nowrap" gap="xs" my="4rem">
           {topUsers && topUsers[1] && (
-            <Alert p="xl" mt="-2rem" variant="outline" color="gray">
+            <Alert
+              p={{ base: 'xs', sm: 'xl' }}
+              mt="-2rem"
+              miw={0}
+              variant="outline"
+              color="gray"
+            >
               <Stack justify="center" align="center">
                 <ThemeIcon color="gray" size="xl" variant="light">
                   2
@@ -72,7 +79,13 @@ export const TopObljubeUsers = () => {
           )}
 
           {topUsers && topUsers[0] && (
-            <Alert p="xl" mt="-6rem" variant="outline" color="yellow">
+            <Alert
+              p={{ base: 'xs', sm: 'xl' }}
+              mt="-6rem"
+              miw={0}
+              variant="outline"
+              color="yellow"
+            >
               <Stack justify="center" align="center">
                 <ThemeIcon color="yellow" size="xl" variant="light">
                   1
@@ -97,7 +110,12 @@ export const TopObljubeUsers = () => {
           )}
 
           {topUsers && topUsers[2] && (
-            <Alert p="xl" variant="outline" color="orange">
+            <Alert
+              p={{ base: 'xs', sm: 'xl' }}
+              miw={0}
+              variant="outline"
+              color="orange"
+            >
               <Stack justify="center" align="center">
                 <ThemeIcon color="orange" size="xl" variant="light">
                   3

@@ -15,6 +15,7 @@ import '@mantine/notifications/styles.css';
 import '@mantine/spotlight/styles.css';
 import '@mantine/charts/styles.css';
 import '@mantine/dates/styles.css';
+import './mantine/global.css';
 
 import 'dayjs/locale/sl'; // Import Slovenian locale
 import dayjs from 'dayjs';

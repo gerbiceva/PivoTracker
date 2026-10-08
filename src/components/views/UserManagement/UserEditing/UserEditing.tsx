@@ -11,6 +11,7 @@ import {
   Tabs,
   Drawer,
   Button,
+  useMatches,
 } from '@mantine/core';
 import { IconAlertCircle, IconSearch, IconUserPlus } from '@tabler/icons-react';
 import { capitalizeName, useUserEditing } from './useUserEditing';
@@ -62,6 +63,8 @@ export const UserEditing = () => {
   } = useUserEditing(debouncedSearchQuery);
 
   const navigate = useNavigate();
+  // phones show only name, room and role; the rest is in the drawer
+  const tableMinWidth = useMatches({ base: 0, sm: 800 });
   const [editingUser, setEditingUser] = useState<{
     id: number;
     name: string;
@@ -111,7 +114,7 @@ export const UserEditing = () => {
       <Table.Td>
         {capitalizeName(`${user.name ?? ''} ${user.surname ?? ''}`.trim())}
       </Table.Td>
-      <Table.Td>{user.auth_email}</Table.Td>
+      <Table.Td visibleFrom="sm">{user.auth_email}</Table.Td>
       <Table.Td>{user.room}</Table.Td>
       <Table.Td>
         <GroupCell
@@ -122,7 +125,7 @@ export const UserEditing = () => {
           onSaved={() => mutateUsers()}
         />
       </Table.Td>
-      <Table.Td>
+      <Table.Td visibleFrom="sm">
         <PermissionsCell
           userId={user.base_user_id!}
           permissions={user.permissions}
@@ -131,7 +134,7 @@ export const UserEditing = () => {
         />
       </Table.Td>
       {canDelete && (
-        <Table.Td>
+        <Table.Td visibleFrom="sm">
           <DeleteUserButton
             userId={user.base_user_id!}
             name={capitalizeName(
@@ -180,7 +183,7 @@ export const UserEditing = () => {
         </Tabs>
         <div style={{ position: 'relative' }}>
           <LoadingOverlay visible={isLoading} />
-          <Table.ScrollContainer minWidth={800}>
+          <Table.ScrollContainer minWidth={tableMinWidth}>
             <Table highlightOnHover>
               <Table.Thead>
                 <Table.Tr>
@@ -192,7 +195,12 @@ export const UserEditing = () => {
                   >
                     Ime
                   </SortableTh>
-                  <SortableTh field="email" sort={sort} onSort={toggleSort}>
+                  <SortableTh
+                    visibleFrom="sm"
+                    field="email"
+                    sort={sort}
+                    onSort={toggleSort}
+                  >
                     E-pošta
                   </SortableTh>
                   <SortableTh field="room" sort={sort} onSort={toggleSort}>
@@ -208,13 +216,18 @@ export const UserEditing = () => {
                   </SortableTh>
                   <SortableTh
                     w={260}
+                    visibleFrom="sm"
                     field="permissions"
                     sort={sort}
                     onSort={toggleSort}
                   >
                     Dovoljenja
                   </SortableTh>
-                  {canDelete && <Table.Th w={80}>Izbriši</Table.Th>}
+                  {canDelete && (
+                    <Table.Th w={80} visibleFrom="sm">
+                      Izbriši
+                    </Table.Th>
+                  )}
                 </Table.Tr>
               </Table.Thead>
               <Table.Tbody>{rows}</Table.Tbody>

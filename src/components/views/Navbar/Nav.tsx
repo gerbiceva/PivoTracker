@@ -35,6 +35,7 @@ export const Navbar = () => {
           bottom={0}
           left={0}
           variant="dot"
+          visibleFrom="sm"
           style={{
             zIndex: 1,
           }}
@@ -44,7 +45,13 @@ export const Navbar = () => {
       </Tooltip>
 
       {/* navbar */}
-      <Paper w="100%" withBorder px="xl" shadow="lg" py="sm">
+      <Paper
+        w="100%"
+        withBorder
+        px={{ base: 'md', sm: 'xl' }}
+        shadow="lg"
+        py="sm"
+      >
         <Group w="100%" justify="space-between">
           <Group
             onClick={spotlight.open}

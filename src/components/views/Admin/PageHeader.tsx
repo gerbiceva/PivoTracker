@@ -8,10 +8,11 @@ interface PageHeaderProps {
   action?: ReactNode;
 }
 
-// Shared header so every admin page starts the same way.
+// Shared header so every admin page starts the same way. On narrow screens
+// the action wraps below the title.
 export const PageHeader = ({ title, description, action }: PageHeaderProps) => (
-  <Group justify="space-between" align="flex-start" wrap="nowrap" mb="xs">
-    <Stack gap={4}>
+  <Group justify="space-between" align="flex-start" mb="xs">
+    <Stack gap={4} style={{ flex: '1 1 16rem' }}>
       <Title order={2}>{title}</Title>
       {description && <Text c="dimmed">{description}</Text>}
     </Stack>

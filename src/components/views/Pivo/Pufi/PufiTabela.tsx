@@ -5,6 +5,7 @@ import {
   ScrollArea,
   SegmentedControl,
   Stack,
+  Switch,
   Table,
 } from '@mantine/core';
 import { useMemo, useState } from 'react';
@@ -15,10 +16,12 @@ import { formatCurrency } from '../../../../utils/Converter';
 import { sumOrdersOptions, useGetSummedDebt } from './GetEverythingSum';
 import { UserModal } from './UserModal';
 import { PageHeader } from '../../Admin/PageHeader';
+import { capitalizeName } from '../../UserManagement/UserEditing/useUserEditing';
 
 export function PuffTable() {
   const [ord, stOrd] = useState<sumOrdersOptions>('total_difference');
   const { isLoading, data, error } = useGetSummedDebt(ord);
+  const [onlyDebtors, setOnlyDebtors] = useState(true);
 
   const rows = useMemo(() => {
     if (error) {
@@ -50,11 +53,27 @@ export function PuffTable() {
       return undefined;
     }
 
-    return data.map((element) => (
+    const shown = onlyDebtors
+      ? data.filter((element) => (element.total_difference ?? 0) > 0)
+      : data;
+
+    if (shown.length === 0) {
+      return (
+        <Table.Tr>
+          <Table.Td colSpan={100} ta="center" c="dimmed">
+            Nihče nima pufa.
+          </Table.Td>
+        </Table.Tr>
+      );
+    }
+
+    return shown.map((element) => (
       <Table.Tr key={element.name} p="xs">
         <Table.Td align="left">
           <UserTag
-            fullname={'' + element.name + ' ' + element.surname}
+            fullname={capitalizeName(
+              `${element.name ?? ''} ${element.surname ?? ''}`.trim(),
+            )}
             id={element.id?.toString() || ''}
           />
         </Table.Td>
@@ -68,12 +87,14 @@ export function PuffTable() {
         <Table.Td align="right">
           <UserModal
             id={element.id || 0}
-            displayName={(element.name || '') + (element.surname || '')}
+            displayName={capitalizeName(
+              `${element.name ?? ''} ${element.surname ?? ''}`.trim(),
+            )}
           />
         </Table.Td>
       </Table.Tr>
     ));
-  }, [data, error, isLoading]);
+  }, [data, error, isLoading, onlyDebtors]);
 
   return (
     <Stack
@@ -108,6 +129,11 @@ export function PuffTable() {
           stOrd(val);
         }}
         w="100%"
+      />
+      <Switch
+        label="Prikaži samo tiste s pufom"
+        checked={onlyDebtors}
+        onChange={(event) => setOnlyDebtors(event.currentTarget.checked)}
       />
       <ScrollArea type="always" h="100%">
         <Paper withBorder p="sm" pos="relative">

@@ -1,0 +1,7 @@
+/* iOS Safari zooms into inputs with text under 16px on focus */
+@media (max-width: 48em) {
+  .mantine-Input-input,
+  .mantine-PillsInputField-field {
+    font-size: 16px;
+  }
+}

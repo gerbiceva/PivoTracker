@@ -21,7 +21,8 @@ function App() {
       <CustomSpotlight />
       <Container
         size="xl"
-        p="sm"
+        px="md"
+        py="sm"
         w="100%"
         h="100%"
         style={{

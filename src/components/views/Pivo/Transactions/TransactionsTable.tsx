@@ -4,6 +4,7 @@ import { DebtBadge } from '../../../pricing/DebtBadge';
 import { UserTag } from '../../../users/UserTag';
 import { Tables } from '../../../../supabase/supabase';
 import { formatCurrency } from '../../../../utils/Converter';
+import { capitalizeName } from '../../UserManagement/UserEditing/useUserEditing';
 
 interface ITransactionsTableProps extends TableProps {
   transactions: Tables<'named_transactions'>[];
@@ -20,7 +21,7 @@ export const TransactionsTable = ({
         <Table.Td>{element.id}</Table.Td>
         <Table.Td>
           <UserTag
-            fullname={element.fullname || ''}
+            fullname={capitalizeName(element.fullname || '')}
             id={element.customer_id?.toString() || ''}
           />
         </Table.Td>

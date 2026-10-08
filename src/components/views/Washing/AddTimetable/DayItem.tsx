@@ -8,6 +8,7 @@ import {
   Stack,
   ThemeIcon,
   Flex,
+  useMatches,
 } from '@mantine/core';
 import { CalendarDay } from './AddWashingTimetable';
 import { SlotComponent } from './SlotComponent';
@@ -24,6 +25,12 @@ export const WashingDayItem = ({
   day: CalendarDay;
   enabled?: boolean;
 }) => {
+  // stacked machines (narrow screens) are centered
+  const reservationsJustify = useMatches({
+    base: 'center',
+    sm: 'flex-start',
+  });
+
   return (
     <Paper
       withBorder
@@ -87,8 +94,9 @@ export const WashingDayItem = ({
                     Ni rezarvacij za ta dan.
                   </Alert>
                 ))}
-              <SimpleGrid cols={2}>
-                <Group mt="lg">
+              {/* narrow screens: machine 2 goes under machine 1 */}
+              <SimpleGrid cols={{ base: 1, sm: 2 }}>
+                <Group mt="lg" justify={reservationsJustify}>
                   {day.events
                     .filter((ev) => ev.machine_id == 1)
                     .map((event) => (
@@ -97,7 +105,7 @@ export const WashingDayItem = ({
                       </div>
                     ))}
                 </Group>
-                <Group mt="lg">
+                <Group mt="lg" justify={reservationsJustify}>
                   {day.events
                     .filter((ev) => ev.machine_id == 2)
                     .map((event) => (

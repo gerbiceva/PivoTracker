@@ -8,6 +8,7 @@ import {
   Table,
   Text,
   Tooltip,
+  useMatches,
 } from '@mantine/core';
 import { IconAlertCircle, IconEdit, IconPlus } from '@tabler/icons-react';
 import { useStore } from '@nanostores/react';
@@ -26,6 +27,8 @@ export const AdminEvents = () => {
   const user = useStore($currUser);
   const canEdit = !!user?.permissions.includes('MANAGE_EVENTS');
   const [editing, setEditing] = useState<Editing>(null);
+  // the subtitle column is hidden on phones
+  const tableMinWidth = useMatches({ base: 0, sm: 600 });
 
   // computed once per mount so the SWR key stays stable
   const [from] = useState(() => dayjs().startOf('day').toISOString());
@@ -55,7 +58,9 @@ export const AdminEvents = () => {
         {dayjs(event.event_date).local().format('DD. MM. YYYY HH:mm')}
       </Table.Td>
       <Table.Td fw={500}>{event.title}</Table.Td>
-      <Table.Td c="dimmed">{event.subtitle}</Table.Td>
+      <Table.Td c="dimmed" visibleFrom="sm">
+        {event.subtitle}
+      </Table.Td>
       {canEdit && (
         <Table.Td>
           <Tooltip label="Uredi dogodek">
@@ -90,13 +95,13 @@ export const AdminEvents = () => {
         {data && data.length === 0 ? (
           <Text c="dimmed">Ni prihajajočih dogodkov.</Text>
         ) : (
-          <Table.ScrollContainer minWidth={600}>
+          <Table.ScrollContainer minWidth={tableMinWidth}>
             <Table highlightOnHover>
               <Table.Thead>
                 <Table.Tr>
                   <Table.Th w={170}>Datum</Table.Th>
                   <Table.Th>Naslov</Table.Th>
-                  <Table.Th>Podnaslov</Table.Th>
+                  <Table.Th visibleFrom="sm">Podnaslov</Table.Th>
                   {canEdit && <Table.Th w={60} />}
                 </Table.Tr>
               </Table.Thead>

@@ -136,59 +136,61 @@ export const PoplacilaDrawer = ({ row, onClose }: PoplacilaDrawerProps) => {
             </Alert>
           )}
 
-          <Table>
-            <Table.Thead>
-              <Table.Tr>
-                <Table.Th>Datum</Table.Th>
-                {!obljuba && <Table.Th>Obljuba</Table.Th>}
-                <Table.Th>Vir</Table.Th>
-                <Table.Th>Piva</Table.Th>
-                <Table.Th w={40} />
-              </Table.Tr>
-            </Table.Thead>
-            <Table.Tbody>
-              {poplacila?.length === 0 && (
+          <Table.ScrollContainer minWidth={obljuba ? 0 : 480}>
+            <Table>
+              <Table.Thead>
                 <Table.Tr>
-                  <Table.Td colSpan={5}>
-                    <Text size="sm" c="dimmed" ta="center">
-                      Še ni plačil.
-                    </Text>
-                  </Table.Td>
+                  <Table.Th>Datum</Table.Th>
+                  {!obljuba && <Table.Th>Obljuba</Table.Th>}
+                  <Table.Th>Vir</Table.Th>
+                  <Table.Th>Piva</Table.Th>
+                  <Table.Th w={40} />
                 </Table.Tr>
-              )}
-              {poplacila?.map((p) => (
-                <Table.Tr key={p.id}>
-                  <Table.Td>
-                    {formatDate(p.transactions?.ordered_at ?? p.created_at)}
-                  </Table.Td>
-                  {!obljuba && <Table.Td>{p.obljube.reason}</Table.Td>}
-                  <Table.Td>
-                    {p.transactions ? (
-                      `Prodaja: ${p.transactions.ordered}× ${p.transactions.items?.name ?? ''}`
-                    ) : (
-                      <Text size="sm" c="dimmed">
-                        Ročno{p.note ? `: ${p.note}` : ''}
+              </Table.Thead>
+              <Table.Tbody>
+                {poplacila?.length === 0 && (
+                  <Table.Tr>
+                    <Table.Td colSpan={5}>
+                      <Text size="sm" c="dimmed" ta="center">
+                        Še ni plačil.
                       </Text>
-                    )}
-                  </Table.Td>
-                  <Table.Td fw={700}>{p.amount}</Table.Td>
-                  <Table.Td>
-                    {p.transaction_id == null && (
-                      <Tooltip label="Odstrani ročni vpis">
-                        <ActionIcon
-                          variant="subtle"
-                          color="red"
-                          onClick={() => removeManual(p.id)}
-                        >
-                          <IconTrash size={16} />
-                        </ActionIcon>
-                      </Tooltip>
-                    )}
-                  </Table.Td>
-                </Table.Tr>
-              ))}
-            </Table.Tbody>
-          </Table>
+                    </Table.Td>
+                  </Table.Tr>
+                )}
+                {poplacila?.map((p) => (
+                  <Table.Tr key={p.id}>
+                    <Table.Td>
+                      {formatDate(p.transactions?.ordered_at ?? p.created_at)}
+                    </Table.Td>
+                    {!obljuba && <Table.Td>{p.obljube.reason}</Table.Td>}
+                    <Table.Td>
+                      {p.transactions ? (
+                        `Prodaja: ${p.transactions.ordered}× ${p.transactions.items?.name ?? ''}`
+                      ) : (
+                        <Text size="sm" c="dimmed">
+                          Ročno{p.note ? `: ${p.note}` : ''}
+                        </Text>
+                      )}
+                    </Table.Td>
+                    <Table.Td fw={700}>{p.amount}</Table.Td>
+                    <Table.Td>
+                      {p.transaction_id == null && (
+                        <Tooltip label="Odstrani ročni vpis">
+                          <ActionIcon
+                            variant="subtle"
+                            color="red"
+                            onClick={() => removeManual(p.id)}
+                          >
+                            <IconTrash size={16} />
+                          </ActionIcon>
+                        </Tooltip>
+                      )}
+                    </Table.Td>
+                  </Table.Tr>
+                ))}
+              </Table.Tbody>
+            </Table>
+          </Table.ScrollContainer>
 
           {obljuba && row.remaining > 0 && (
             <form onSubmit={form.onSubmit(addManual)}>
@@ -196,7 +198,7 @@ export const PoplacilaDrawer = ({ row, onClose }: PoplacilaDrawerProps) => {
                 <Text fw={600} size="sm">
                   Ročni vpis (odpis ali plačilo izven prodaje)
                 </Text>
-                <Group align="flex-start" wrap="nowrap">
+                <Group align="flex-start">
                   <NumberInput
                     w={110}
                     min={1}
@@ -205,7 +207,7 @@ export const PoplacilaDrawer = ({ row, onClose }: PoplacilaDrawerProps) => {
                     {...form.getInputProps('amount')}
                   />
                   <TextInput
-                    style={{ flex: 1 }}
+                    style={{ flex: '1 1 10rem' }}
                     placeholder="Opomba, npr. odpisano"
                     {...form.getInputProps('note')}
                   />

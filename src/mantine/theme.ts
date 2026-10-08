@@ -1,4 +1,4 @@
-import { createTheme } from '@mantine/core';
+import { Container, createTheme } from '@mantine/core';
 
 export const mantineTheme = createTheme({
   primaryColor: 'cyan',
@@ -10,4 +10,9 @@ export const mantineTheme = createTheme({
   //     light: 'gray.9',
   //   }),
   // },
+  components: {
+    // pages sit inside App's padded Container; without this the side
+    // gutters add up on phones
+    Container: Container.extend({ defaultProps: { px: 0 } }),
+  },
 });

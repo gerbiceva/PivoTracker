@@ -1,4 +1,11 @@
-import { Center, Group, Table, Text, UnstyledButton } from '@mantine/core';
+import {
+  Center,
+  Group,
+  MantineBreakpoint,
+  Table,
+  Text,
+  UnstyledButton,
+} from '@mantine/core';
 import {
   IconChevronDown,
   IconChevronUp,
@@ -13,6 +20,8 @@ export interface SortState<F extends string> {
 
 interface SortableThProps<F extends string> {
   w?: number;
+  // hide the column below this breakpoint
+  visibleFrom?: MantineBreakpoint;
   field: F;
   sort: SortState<F>;
   onSort: (field: F) => void;
@@ -22,6 +31,7 @@ interface SortableThProps<F extends string> {
 // Table header cell that toggles sorting by its field.
 export const SortableTh = <F extends string>({
   w,
+  visibleFrom,
   field,
   sort,
   onSort,
@@ -34,7 +44,7 @@ export const SortableTh = <F extends string>({
       : IconChevronDown
     : IconSelector;
   return (
-    <Table.Th w={w}>
+    <Table.Th w={w} visibleFrom={visibleFrom}>
       <UnstyledButton onClick={() => onSort(field)}>
         <Group gap={4} wrap="nowrap">
           <Text fw="bold" size="sm">

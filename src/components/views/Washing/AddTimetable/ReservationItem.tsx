@@ -35,7 +35,9 @@ export const ReservationItemInfo = ({ reservation }: ReservationItemProps) => {
       <Modal opened={opened} onClose={close} size="xl" centered>
         <Flex justify="center" align="center" gap="xl" mb="md">
           <Tooltip color="pink" label={zodiac}>
-            <Box opacity={0.1}>{zodiac && zodiacToIcon(zodiac, '7rem')}</Box>
+            <Box opacity={0.1} visibleFrom="sm">
+              {zodiac && zodiacToIcon(zodiac, '7rem')}
+            </Box>
           </Tooltip>
           <Stack w="100%">
             <Group w="100%" justify="stretch" wrap="nowrap">

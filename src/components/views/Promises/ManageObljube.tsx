@@ -14,6 +14,7 @@ import {
   Textarea,
   TextInput,
   Tooltip,
+  useMatches,
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { useDebouncedValue } from '@mantine/hooks';
@@ -86,6 +87,9 @@ export const ManagePromises = () => {
   useEffect(() => {
     setPage(1);
   }, [debouncedSearchQuery]);
+
+  // phones drop the less important columns, so the table can be narrower
+  const tableMinWidth = useMatches({ base: 480, sm: 700 });
 
   const [selectedObljuba, setSelectedObljuba] = useState<PromiseElement>();
   // row whose payment log is open; read from the live rows so it updates
@@ -188,7 +192,7 @@ export const ManagePromises = () => {
       <Table.Td>
         <UserTag fullname={row.name || 'N/A'} id={row.who?.toString() || ''} />
       </Table.Td>
-      <Table.Td>{row.amount}</Table.Td>
+      <Table.Td visibleFrom="sm">{row.amount}</Table.Td>
       <Table.Td>
         <Text size="sm" fw={700} c={row.remaining ? 'orange' : 'green'}>
           {row.remaining || 'Plačano'}
@@ -199,7 +203,7 @@ export const ManagePromises = () => {
       ) : (
         <Table.Td>{row.reason}</Table.Td>
       )}
-      <Table.Td>{formatDate(row.created_at)}</Table.Td>
+      <Table.Td visibleFrom="sm">{formatDate(row.created_at)}</Table.Td>
       {!aggregated && row.promise && (
         <Table.Td onClick={(e) => e.stopPropagation()}>
           <Group gap={4} wrap="nowrap">
@@ -241,9 +245,9 @@ export const ManagePromises = () => {
             </Button>
           }
         />
-        <Group wrap="nowrap">
+        <Group>
           <TextInput
-            style={{ flex: 1 }}
+            style={{ flex: '1 1 14rem' }}
             placeholder="Išči po imenu, razlogu ali količini"
             value={inputValue}
             onChange={(event) => setInputValue(event.currentTarget.value)}
@@ -287,7 +291,7 @@ export const ManagePromises = () => {
 
         <div style={{ position: 'relative' }}>
           <LoadingOverlay visible={isLoading} />
-          <Table.ScrollContainer minWidth={700}>
+          <Table.ScrollContainer minWidth={tableMinWidth}>
             <Table highlightOnHover>
               <Table.Thead>
                 <Table.Tr>
@@ -301,6 +305,7 @@ export const ManagePromises = () => {
                   </SortableTh>
                   <SortableTh
                     w={120}
+                    visibleFrom="sm"
                     field="amount"
                     sort={sort}
                     onSort={toggleSort}
@@ -324,6 +329,7 @@ export const ManagePromises = () => {
                   )}
                   <SortableTh
                     w={150}
+                    visibleFrom="sm"
                     field="date"
                     sort={sort}
                     onSort={toggleSort}
