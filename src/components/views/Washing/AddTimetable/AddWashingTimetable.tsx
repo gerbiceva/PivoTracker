@@ -2,21 +2,21 @@ import {
   ActionIcon,
   Alert,
   Button,
-  Text,
+  ColorSwatch,
   Group,
   LoadingOverlay,
-  Stack,
-  Center,
+  Paper,
   SimpleGrid,
-  Box,
+  Stack,
+  Text,
+  ThemeIcon,
 } from '@mantine/core';
 import {
   IconAlertHexagonFilled,
-  IconChevronCompactLeft,
-  IconChevronCompactRight,
+  IconBook,
+  IconCalendarUser,
   IconChevronLeft,
   IconChevronRight,
-  IconHelpCircleFilled,
 } from '@tabler/icons-react';
 import { useCallback, useMemo, useState } from 'react';
 import dayjs from 'dayjs';
@@ -31,6 +31,7 @@ import { getSupaWR } from '../../../../supabase/supa-utils/supaSWR';
 import { supabaseClient } from '../../../../supabase/supabaseClient';
 import { useStore } from '@nanostores/react';
 import { $currUser } from '../../../../global-state/user';
+import { PageHeader } from '../../Admin/PageHeader';
 
 // Extend dayjs with plugins
 dayjs.extend(weekday);
@@ -43,6 +44,26 @@ export interface CalendarDay {
   isToday: boolean;
   events: dayType[];
 }
+
+const steps = [
+  {
+    title: 'Izberi prost termin',
+    text: 'Klikni na prazen kvadratek pri dnevu in potrdi rezervacijo.',
+  },
+  {
+    title: 'Poglej, kdo pere',
+    text: 'Klikni na dan, da vidiš vse rezervacije in kontakte.',
+  },
+  {
+    title: 'Preberi pravila',
+    text: 'Pred prvim pranjem obvezno preberi pravila pranja.',
+  },
+];
+
+const machines = [
+  { label: 'Stroj 1', color: 'indigo' },
+  { label: 'Stroj 2', color: 'orange' },
+];
 
 export const AddWashingTimetable = () => {
   const [currentDate, setCurrentDate] = useState<dayjs.Dayjs>(dayjs().utc());
@@ -108,35 +129,62 @@ export const AddWashingTimetable = () => {
 
   const days = generateWeekDays(data);
 
+  const isCurrentWeek = fromDate.isSame(dayjs().utc().startOf('week'), 'day');
+  const weekLabel = fromDate.isSame(toDate, 'month')
+    ? `${fromDate.format('D.')}–${toDate.format('D. MMMM')}`
+    : `${fromDate.format('D. MMM')} – ${toDate.format('D. MMM')}`;
+
   return (
-    <Stack w="100%" pos="relative">
+    <Stack w="100%" pos="relative" gap="lg">
       <LoadingOverlay visible={isLoading} />
 
-      {/* instructions */}
-      <Alert color="gray" icon={<IconHelpCircleFilled />} title="Navodila">
-        <p>Na tej strani lahko dodaš termine za pranje.</p>
-        <p>Za vsak dan je prikazano kateri termini so že rezervirani.</p>
-        <p>
-          Za dodajanje rezervacij klikni na dropdown in pritisni gumb{' '}
-          <b>Dodaj termin +</b>, ter klikni na enega od prostih terminov, da
-          potrdiš rezervacijo.
-        </p>
+      <PageHeader
+        title="Pranje"
+        description="Rezerviraj termin za pralni stroj."
+        action={
+          <Group gap="xs">
+            <Button
+              variant="default"
+              leftSection={<IconCalendarUser size={16} />}
+              component={Link}
+              to="/pranje/moje"
+            >
+              Moji termini
+            </Button>
+            <Button
+              variant="light"
+              leftSection={<IconBook size={16} />}
+              component={Link}
+              to="/pranje/info"
+            >
+              Pravila pranja
+            </Button>
+          </Group>
+        }
+      />
 
-        <p>
-          Pregled svojega pranja lahko vidiš na strani{' '}
-          <Button variant="subtle" component={Link} to="/pranje/moje">
-            Moji termini
-          </Button>
-          .
-        </p>
-        <p>
-          Preden pereš si obvezno preberi
-          <Button variant="subtle" color="" component={Link} to="/pranje/info">
-            Pravila pranja
-          </Button>
-          .
-        </p>
-      </Alert>
+      {/* instructions */}
+      <SimpleGrid cols={{ base: 1, sm: 3 }} spacing="sm">
+        {steps.map((step, i) => (
+          <Paper key={step.title} withBorder radius="md" p="md">
+            <Group gap="sm" wrap="nowrap" align="flex-start">
+              <ThemeIcon variant="light" radius="xl" size="md">
+                <Text size="sm" fw={700}>
+                  {i + 1}
+                </Text>
+              </ThemeIcon>
+              <Stack gap={2}>
+                <Text fw={600} size="sm">
+                  {step.title}
+                </Text>
+                <Text size="sm" c="dimmed">
+                  {step.text}
+                </Text>
+              </Stack>
+            </Group>
+          </Paper>
+        ))}
+      </SimpleGrid>
 
       {userReservations && userReservations.length >= 3 && (
         <Alert
@@ -144,74 +192,89 @@ export const AddWashingTimetable = () => {
           icon={<IconAlertHexagonFilled />}
           title="Bodi prijazen!"
         >
-          <p>
-            V tem tednu imaš registriranih terminov že:{' '}
-            <b>{userReservations.length}</b>
-          </p>
-          <p>
-            Če v enem tednu registriraš več kot 3 termine, pazi da nisi kreten
-            in jih ostane dovolj tudi za druge.
-          </p>
+          Ta teden imaš že <b>{userReservations.length}</b> termine. Pusti jih
+          nekaj še za druge.
         </Alert>
       )}
 
-      {/* Date select */}
-      <Center>
-        <Group p="md" gap="md" justify="end">
-          <ActionIcon size="lg" variant="subtle" onClick={previousWeek}>
-            <IconChevronCompactLeft />
-          </ActionIcon>
-          <Group>
-            <Text fw="bold" size="xl" c="cyan">
-              {fromDate.format('MMM DD')}
+      {/* week select */}
+      <Paper withBorder radius="md" px="md" py="xs">
+        <Group justify="space-between" gap="xs">
+          <Group gap="xs" wrap="nowrap">
+            <ActionIcon
+              size="lg"
+              variant="subtle"
+              aria-label="Prejšnji teden"
+              onClick={previousWeek}
+            >
+              <IconChevronLeft />
+            </ActionIcon>
+            <Text fw={700} size="lg" miw="9rem" ta="center">
+              {weekLabel}
             </Text>
-            -
-            <Text fw="bold" size="xl" c="cyan">
-              {toDate.format('MMM DD')}
-            </Text>
+            <ActionIcon
+              size="lg"
+              variant="subtle"
+              aria-label="Naslednji teden"
+              onClick={nextWeek}
+            >
+              <IconChevronRight />
+            </ActionIcon>
+            {!isCurrentWeek && (
+              <Button
+                size="xs"
+                variant="light"
+                onClick={() => setCurrentDate(dayjs().utc())}
+              >
+                Ta teden
+              </Button>
+            )}
           </Group>
-          <ActionIcon size="lg" variant="subtle" onClick={nextWeek}>
-            <IconChevronCompactRight />
-          </ActionIcon>
+          <Group gap="md">
+            {machines.map((m) => (
+              <Group key={m.label} gap={6} wrap="nowrap">
+                <ColorSwatch
+                  color={`var(--mantine-color-${m.color}-filled)`}
+                  size={12}
+                />
+                <Text size="sm">{m.label}</Text>
+              </Group>
+            ))}
+            <Group gap={6} wrap="nowrap">
+              <ColorSwatch
+                color="var(--mantine-color-default-border)"
+                size={12}
+              />
+              <Text size="sm" c="dimmed">
+                Prosto
+              </Text>
+            </Group>
+          </Group>
         </Group>
-      </Center>
+      </Paper>
 
-      <SimpleGrid cols={2} visibleFrom="sm">
-        <Center>
-          <Text fw="bold">Stroj 1</Text>
-        </Center>
-        <Center>
-          <Text fw="bold">Stroj 2</Text>
-        </Center>
-      </SimpleGrid>
-
-      <Stack gap="sm" py="lg" pb="4rem">
-        <Box>
-          <Button
-            mb="lg"
-            variant="subtle"
-            leftSection={<IconChevronLeft />}
-            onClick={previousWeek}
-          >
-            Prikaži prejšnji teden
-          </Button>
-        </Box>
-
+      <Stack gap="sm">
         {days.map((day, index) => (
           <WashingDayItem day={day} key={day.date.toString() + index} />
         ))}
-
-        <Box ml="auto">
-          <Button
-            mt="lg"
-            variant="subtle"
-            rightSection={<IconChevronRight />}
-            onClick={nextWeek}
-          >
-            Prikaži naslednji teden
-          </Button>
-        </Box>
       </Stack>
+
+      <Group justify="space-between" pb="4rem">
+        <Button
+          variant="subtle"
+          leftSection={<IconChevronLeft size={18} />}
+          onClick={previousWeek}
+        >
+          Prejšnji teden
+        </Button>
+        <Button
+          variant="subtle"
+          rightSection={<IconChevronRight size={18} />}
+          onClick={nextWeek}
+        >
+          Naslednji teden
+        </Button>
+      </Group>
     </Stack>
   );
 };
