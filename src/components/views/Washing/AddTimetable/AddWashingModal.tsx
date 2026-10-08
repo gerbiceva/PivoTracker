@@ -12,19 +12,15 @@ import {
 import { useDisclosure } from '@mantine/hooks';
 import { IconPlus } from '@tabler/icons-react';
 import { ConfirmAdd } from './ConfirmAdd';
-import { supabaseClient } from '../../../../supabase/supabaseClient';
-import { notifications } from '@mantine/notifications';
 import dayjs, { Dayjs } from 'dayjs';
 import {
   FormatLocalDateCustom,
   ReadTimeFromUTCString,
-  WriteTimeToUTCString,
 } from '../../../../utils/timeUtils';
-import { invalidateDailyWashing, useGetDailySlots } from './GetSlotsByDay';
+import { useGetDailySlots } from './GetSlotsByDay';
 import { groupBy } from '../../../../utils/objectSplit';
-import { invalidateWeeklyWashing } from './GetWashingByWeek';
 import { ReservationItemInfo } from './ReservationItem';
-import { refetchTables } from '../../../../supabase/supa-utils/supaSWRCache';
+import { addReservation } from './addReservation';
 
 export interface WashingModalProps {
   day: dayjs.Dayjs;
@@ -35,39 +31,12 @@ export const AddWashingModal = ({ day, enabled = true }: WashingModalProps) => {
   const [opened, { open, close }] = useDisclosure(false);
   const { data, isLoading, error } = useGetDailySlots(opened ? day : null);
 
-  const AddReservation = (
+  const AddReservation = async (
     dateTimeStart: Dayjs,
     dateTimeEnd: Dayjs,
     machine: number,
   ) => {
-    supabaseClient
-      .rpc('add_reservation_with_range', {
-        p_slot_start: WriteTimeToUTCString(dateTimeStart),
-        p_slot_end: WriteTimeToUTCString(dateTimeEnd),
-        p_machine_id: machine,
-      })
-      .select()
-      .then((data) => {
-        if (data.error) {
-          notifications.show({
-            title: 'Error',
-            color: 'red',
-            autoClose: 1500,
-            message: <Text>{data.error.message}</Text>,
-          });
-        } else {
-          notifications.show({
-            title: 'Dodano',
-            color: 'green',
-            autoClose: 1500,
-            message: <Text>Dodano.</Text>,
-          });
-          invalidateWeeklyWashing();
-          invalidateDailyWashing();
-          refetchTables('reservations');
-          close();
-        }
-      });
+    if (await addReservation(dateTimeStart, dateTimeEnd, machine)) close();
   };
 
   const dataSplit = groupBy(data || [], 'machine_name');
