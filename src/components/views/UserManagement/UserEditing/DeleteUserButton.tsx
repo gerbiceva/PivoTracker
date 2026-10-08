@@ -1,4 +1,4 @@
-import { ActionIcon, Text, Tooltip } from '@mantine/core';
+import { ActionIcon, Button, Text, Tooltip } from '@mantine/core';
 import { modals } from '@mantine/modals';
 import { notifications } from '@mantine/notifications';
 import { IconTrash } from '@tabler/icons-react';
@@ -9,6 +9,8 @@ interface DeleteUserButtonProps {
   userId: number;
   name: string;
   onDeleted: () => void;
+  // full text button (drawer) instead of the table's trash icon
+  asButton?: boolean;
 }
 
 // edge function errors carry a { error } JSON body; surface that message
@@ -28,6 +30,7 @@ export const DeleteUserButton = ({
   userId,
   name,
   onDeleted,
+  asButton,
 }: DeleteUserButtonProps) => {
   const deleteUser = async () => {
     const { error } = await supabaseClient.functions.invoke('delete-user', {
@@ -62,6 +65,14 @@ export const DeleteUserButton = ({
       confirmProps: { color: 'red' },
       onConfirm: deleteUser,
     });
+
+  if (asButton) {
+    return (
+      <Button size="xs" variant="outline" color="red" onClick={confirm}>
+        Izbriši uporabnika
+      </Button>
+    );
+  }
 
   return (
     <Tooltip label="Izbriši uporabnika">

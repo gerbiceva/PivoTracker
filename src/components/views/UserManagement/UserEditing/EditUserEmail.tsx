@@ -17,7 +17,13 @@ import { IconAlertCircle, IconMail } from '@tabler/icons-react';
 import { showNotification } from '@mantine/notifications';
 import { refetchTables } from '../../../../supabase/supa-utils/supaSWRCache';
 
-export const EditUserEmail = ({ userId }: { userId: number }) => {
+export const EditUserEmail = ({
+  userId,
+  withTitle = true,
+}: {
+  userId: number;
+  withTitle?: boolean;
+}) => {
   const {
     data: user,
     error,
@@ -172,9 +178,11 @@ export const EditUserEmail = ({ userId }: { userId: number }) => {
     <Box>
       <LoadingOverlay visible={isLoading} />
       <Stack>
-        <Text size="xs" fw="bold" c="dimmed" mt="xl">
-          EMAIL NASLOV
-        </Text>
+        {withTitle && (
+          <Text size="xs" fw="bold" c="dimmed" mt="xl">
+            EMAIL NASLOV
+          </Text>
+        )}
 
         <Group align="end">
           <TextInput

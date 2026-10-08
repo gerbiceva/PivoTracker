@@ -23,7 +23,12 @@ import {
   IconSelector,
   IconUserPlus,
 } from '@tabler/icons-react';
-import { SortField, SortState, useUserEditing } from './useUserEditing';
+import {
+  capitalizeName,
+  SortField,
+  SortState,
+  useUserEditing,
+} from './useUserEditing';
 import { useNavigate } from 'react-router-dom';
 import { ReactNode, useEffect, useState } from 'react';
 import { useDebouncedValue } from '@mantine/hooks';
@@ -32,16 +37,7 @@ import { $currUser } from '../../../../global-state/user';
 import { PermissionsCell } from './PermissionsCell';
 import { DeleteUserButton } from './DeleteUserButton';
 import { ADMIN_GROUP, GroupCell } from './GroupCell';
-import { EditUserForms } from './EditUserPage';
-
-// JANEZ NOVAK / janez novak -> Janez Novak (also Ana-Marija, D'Angelo)
-const capitalizeName = (value: string) =>
-  value
-    .toLocaleLowerCase('sl')
-    .replace(
-      /(^|[\s\-'])(\p{L})/gu,
-      (_, sep, ch) => sep + ch.toLocaleUpperCase('sl'),
-    );
+import { UserDetails, UserDetailsHeader } from './UserDetails';
 
 interface SortableThProps {
   w?: number;
@@ -125,6 +121,9 @@ export const UserEditing = () => {
         u.permgroup_id === adminGroupId,
     );
 
+  // read from the live list so the drawer reflects saves immediately
+  const drawerUser = allUsers.find((u) => u.base_user_id === editingUser?.id);
+
   useEffect(() => {
     setPage(1);
   }, [debouncedSearchQuery]);
@@ -158,7 +157,6 @@ export const UserEditing = () => {
       </Table.Td>
       <Table.Td>{user.auth_email}</Table.Td>
       <Table.Td>{user.room}</Table.Td>
-      <Table.Td>{user.phone_number}</Table.Td>
       <Table.Td>
         <GroupCell
           userId={user.base_user_id!}
@@ -247,9 +245,6 @@ export const UserEditing = () => {
                   <SortableTh field="room" sort={sort} onSort={toggleSort}>
                     Soba
                   </SortableTh>
-                  <SortableTh field="phone" sort={sort} onSort={toggleSort}>
-                    Telefon
-                  </SortableTh>
                   <SortableTh
                     w={190}
                     field="group"
@@ -293,9 +288,26 @@ export const UserEditing = () => {
         }}
         position="right"
         size="lg"
-        title={<Title order={3}>{editingUser?.name}</Title>}
+        title={
+          drawerUser && <UserDetailsHeader user={drawerUser} groups={groups} />
+        }
       >
-        {editingUser && <EditUserForms userId={editingUser.id} />}
+        {drawerUser && (
+          <UserDetails
+            user={drawerUser}
+            allUsers={allUsers}
+            groups={groups}
+            permissionTypes={permissionTypes}
+            onChanged={() => {
+              mutateUsers();
+              mutatePermissions();
+            }}
+            onDeleted={() => {
+              setEditingUser(null);
+              mutateUsers();
+            }}
+          />
+        )}
       </Drawer>
     </Container>
   );

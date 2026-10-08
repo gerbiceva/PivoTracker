@@ -11,10 +11,18 @@ type PermissionGroup = Database['public']['Tables']['permission_groups']['Row'];
 type PermissionRow =
   Database['public']['Views']['user_permissions_view']['Row'];
 
+// JANEZ NOVAK / janez novak -> Janez Novak (also Ana-Marija, D'Angelo)
+export const capitalizeName = (value: string) =>
+  value
+    .toLocaleLowerCase('sl')
+    .replace(
+      /(^|[\s\-'])(\p{L})/gu,
+      (_, sep, ch) => sep + ch.toLocaleUpperCase('sl'),
+    );
+
 export type UserWithPermissions = UserRow & { permissions: PermissionRow[] };
 
-export type SortField =
-  'name' | 'email' | 'room' | 'phone' | 'group' | 'permissions';
+export type SortField = 'name' | 'email' | 'room' | 'group' | 'permissions';
 export interface SortState {
   field: SortField;
   reversed: boolean;
@@ -48,8 +56,6 @@ const compare = (
         (a.room ?? Infinity) - (b.room ?? Infinity) ||
         fullName(a).localeCompare(fullName(b), 'sl')
       );
-    case 'phone':
-      return (a.phone_number ?? '').localeCompare(b.phone_number ?? '');
     case 'group':
       // users without a role last, then by name
       return (

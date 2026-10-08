@@ -15,7 +15,13 @@ import { useEffect } from 'react';
 import { IconAlertCircle } from '@tabler/icons-react';
 import { showNotification } from '@mantine/notifications';
 
-export const EditUserBaseInfo = ({ userId }: { userId: number }) => {
+export const EditUserBaseInfo = ({
+  userId,
+  withTitle = true,
+}: {
+  userId: number;
+  withTitle?: boolean;
+}) => {
   const {
     data: user,
     error,
@@ -90,9 +96,11 @@ export const EditUserBaseInfo = ({ userId }: { userId: number }) => {
       <LoadingOverlay visible={isLoading} />
       <form onSubmit={form.onSubmit(handleSubmit)}>
         <Stack>
-          <Text size="xs" fw="bold" c="dimmed" mt="xl">
-            OSEBNE INFORMACIJE
-          </Text>
+          {withTitle && (
+            <Text size="xs" fw="bold" c="dimmed" mt="xl">
+              OSEBNE INFORMACIJE
+            </Text>
+          )}
           <SimpleGrid cols={{ base: 1, sm: 2 }}>
             <TextInput description="Name" {...form.getInputProps('name')} />
             <TextInput

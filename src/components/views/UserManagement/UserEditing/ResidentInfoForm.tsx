@@ -19,10 +19,17 @@ import { refetchTables } from '../../../../supabase/supa-utils/supaSWRCache';
 
 interface ResidentInfoFormProps {
   baseUserId: number;
+  withTitle?: boolean;
+  // open the create form right away when the user has no resident row
+  startCreating?: boolean;
 }
 
-export const ResidentInfoForm = ({ baseUserId }: ResidentInfoFormProps) => {
-  const [showCreateForm, setShowCreateForm] = useState(false);
+export const ResidentInfoForm = ({
+  baseUserId,
+  withTitle = true,
+  startCreating = false,
+}: ResidentInfoFormProps) => {
+  const [showCreateForm, setShowCreateForm] = useState(startCreating);
   const {
     data: resident,
     error,
@@ -42,7 +49,7 @@ export const ResidentInfoForm = ({ baseUserId }: ResidentInfoFormProps) => {
     initialValues: {
       room: '',
       phone_number: '',
-      birth_date: new Date(),
+      birth_date: null as Date | null,
     },
   });
 
@@ -51,7 +58,7 @@ export const ResidentInfoForm = ({ baseUserId }: ResidentInfoFormProps) => {
       form.setInitialValues({
         room: resident.room?.toString() || '',
         phone_number: resident.phone_number || '',
-        birth_date: new Date(resident.birth_date || ''),
+        birth_date: resident.birth_date ? new Date(resident.birth_date) : null,
       });
       form.reset();
       setShowCreateForm(false); // Hide create form if resident data is loaded
@@ -65,7 +72,9 @@ export const ResidentInfoForm = ({ baseUserId }: ResidentInfoFormProps) => {
         .update({
           room: Number(values.room),
           phone_number: values.phone_number,
-          birth_date: new Date(values.birth_date).toISOString(),
+          birth_date: values.birth_date
+            ? new Date(values.birth_date).toISOString()
+            : null,
         })
         .eq('id', resident.resident_id);
 
@@ -81,7 +90,9 @@ export const ResidentInfoForm = ({ baseUserId }: ResidentInfoFormProps) => {
         p_base_user_id: baseUserId,
         p_room: Number(values.room),
         p_phone_number: values.phone_number,
-        p_birth_date: new Date(values.birth_date).toISOString(),
+        p_birth_date: values.birth_date
+          ? new Date(values.birth_date).toISOString()
+          : undefined,
       });
       notifications.show({
         title: 'Podatki dodani',
@@ -141,9 +152,11 @@ export const ResidentInfoForm = ({ baseUserId }: ResidentInfoFormProps) => {
   return (
     <form onSubmit={form.onSubmit(handleSubmit)}>
       <Stack style={{ position: 'relative' }} w="100%">
-        <Text size="xs" fw="bold" c="dimmed" mt="xl">
-          INFORMACIJE PREBIVALCA
-        </Text>
+        {withTitle && (
+          <Text size="xs" fw="bold" c="dimmed" mt="xl">
+            INFORMACIJE PREBIVALCA
+          </Text>
+        )}
         <SimpleGrid cols={{ base: 1, sm: 2 }}>
           <TextInput description="Room" {...form.getInputProps('room')} />
           <TextInput
