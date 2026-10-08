@@ -4,16 +4,15 @@ import {
   LoadingOverlay,
   Stack,
   Container,
-  Title,
   Text,
   Alert,
   TextInput,
   Group,
-  ActionIcon,
   UnstyledButton,
   Center,
   Tabs,
   Drawer,
+  Button,
 } from '@mantine/core';
 import {
   IconAlertCircle,
@@ -38,6 +37,7 @@ import { PermissionsCell } from './PermissionsCell';
 import { DeleteUserButton } from './DeleteUserButton';
 import { ADMIN_GROUP, GroupCell } from './GroupCell';
 import { UserDetails, UserDetailsHeader } from './UserDetails';
+import { PageHeader } from '../../Admin/PageHeader';
 
 interface SortableThProps {
   w?: number;
@@ -194,21 +194,18 @@ export const UserEditing = () => {
   return (
     <Container>
       <Stack>
-        <Group w="100%" justify="space-between">
-          <Stack>
-            <Title>Upravljanje uporabnikov</Title>
-            <Text c="dimmed">Urejanje podatkov in dovoljenj uporabnikov.</Text>
-          </Stack>
-          <ActionIcon
-            variant="light"
-            size="xl"
-            onClick={() => {
-              navigate('/admin/enroll');
-            }}
-          >
-            <IconUserPlus />
-          </ActionIcon>
-        </Group>
+        <PageHeader
+          title="Uporabniki"
+          description="Urejanje podatkov in dovoljenj uporabnikov."
+          action={
+            <Button
+              leftSection={<IconUserPlus size={16} />}
+              onClick={() => navigate('/admin/enroll')}
+            >
+              Dodaj uporabnika
+            </Button>
+          }
+        />
         <TextInput
           placeholder="Išči po imenu, e-pošti, sobi, telefonu ali dovoljenju"
           value={inputValue}

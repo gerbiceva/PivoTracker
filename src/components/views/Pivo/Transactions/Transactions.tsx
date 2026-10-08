@@ -5,11 +5,11 @@ import {
   Divider,
   LoadingOverlay,
   Stack,
-  Title,
 } from '@mantine/core';
 import { useLiveTransactions } from '../../../hooks.ts/liveTransactionsHook';
 import { Transactiongraph } from './TransactionGraph';
 import { TransactionsTable } from './TransactionsTable';
+import { PageHeader } from '../../Admin/PageHeader';
 
 export const Transactions = () => {
   // const { loading, transactions } = useGetTransactions();
@@ -28,10 +28,8 @@ export const Transactions = () => {
   }
 
   return (
-    <Stack py="xl" w="100%">
-      <Title order={2} pb="xl">
-        Vse transakcije
-      </Title>
+    <Stack w="100%">
+      <PageHeader title="Transakcije" description="Vsi nakupi in plačila." />
       <Box p="lg">
         <Transactiongraph transactions={transactions} />
       </Box>

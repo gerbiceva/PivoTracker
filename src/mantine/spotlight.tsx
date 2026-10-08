@@ -55,9 +55,22 @@ const ADMIN_TAB_ICONS: Record<string, Icon> = {
   dogodki: IconCalendarEvent,
   obljube: IconHeartHandshake,
   uporabniki: IconUsers,
-  pivo: IconBeer,
+  prodaja: IconBeer,
+  pufi: IconList,
+  transakcije: IconTransactionEuro,
+  ponudba: IconBasket,
   vloge: IconShieldCog,
 };
+
+// admin pages listed when the search box is empty; the rest only show up
+// when searched for
+const ADMIN_TABS_LISTED = new Set([
+  'dogodki',
+  'obljube',
+  'prodaja',
+  'uporabniki',
+  'vloge',
+]);
 
 // lowercase and strip diacritics, so "crnc" matches "Črnč"
 const normalize = (value: string) =>
@@ -178,11 +191,12 @@ export const CustomSpotlight = () => {
           leftSection: icon(IconWash, 'cyan'),
         },
         {
+          searchOnly: true,
           id: 'profile',
           label: 'Moj profil',
           description: 'Preglej svoj profil',
           keywords: ['profile', 'uporabnik', 'racun', 'account'],
-          onClick: () => navigate('/user'),
+          onClick: () => navigate('/?profil'),
           leftSection: icon(IconUser),
         },
       ],
@@ -192,6 +206,7 @@ export const CustomSpotlight = () => {
       group: 'Administracija',
       actions: ADMIN_TABS.map((tab) => ({
         permission: tab.permissions,
+        searchOnly: !ADMIN_TABS_LISTED.has(tab.value),
         id: `admin-${tab.value}`,
         label: tab.label,
         description: 'Administracija',

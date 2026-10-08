@@ -1,0 +1,7 @@
+/* every admin page uses the full content width; the pages are shared with
+   standalone routes where their own <Container> still applies */
+.content :global(.mantine-Container-root) {
+  max-width: none;
+  margin-inline: 0;
+  padding-inline: 0;
+}

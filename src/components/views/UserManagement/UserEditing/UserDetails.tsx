@@ -24,7 +24,7 @@ import { supabaseClient } from '../../../../supabase/supabaseClient';
 import { refetchTables } from '../../../../supabase/supa-utils/supaSWRCache';
 import { Database } from '../../../../supabase/supabase';
 import { capitalizeName, UserWithPermissions } from './useUserEditing';
-import { ADMIN_GROUP } from './GroupCell';
+import { ADMIN_GROUP, isResidentGroup } from './GroupCell';
 import { EditUserBaseInfo } from './EditUserBaseInfo';
 import { EditUserEmail } from './EditUserEmail';
 import { ResidentInfoForm } from './ResidentInfoForm';
@@ -35,12 +35,12 @@ type PermissionType = Database['public']['Tables']['permission_types']['Row'];
 type GroupLink = Database['public']['Tables']['permgroup_permissions']['Row'];
 
 const groupLabel = (g: PermissionGroup) => g.display_name || g.name;
-const fullName = (u: UserWithPermissions) =>
+const fullName = (u: Pick<UserWithPermissions, 'name' | 'surname'>) =>
   capitalizeName(`${u.name ?? ''} ${u.surname ?? ''}`.trim());
-const formatDate = (d: string | null) =>
+export const formatDate = (d: string | null) =>
   d ? new Date(d).toLocaleDateString('sl-SI') : null;
 
-const Section = ({
+export const Section = ({
   title,
   action,
   children,
@@ -60,7 +60,13 @@ const Section = ({
   </Stack>
 );
 
-const Field = ({ label, value }: { label: string; value: ReactNode }) => (
+export const Field = ({
+  label,
+  value,
+}: {
+  label: string;
+  value: ReactNode;
+}) => (
   <>
     <Text size="sm" c="dimmed">
       {label}
@@ -87,11 +93,17 @@ const EditToggle = ({
   </Button>
 );
 
+// only what the header shows, so the own-profile modal can use it too
+type HeaderUser = Pick<
+  UserWithPermissions,
+  'name' | 'surname' | 'auth_email' | 'permgroup_id' | 'resident_id' | 'room'
+>;
+
 export const UserDetailsHeader = ({
   user,
   groups,
 }: {
-  user: UserWithPermissions;
+  user: HeaderUser;
   groups: PermissionGroup[];
 }) => {
   const group = groups.find((g) => g.id === user.permgroup_id);
@@ -204,12 +216,15 @@ const RoleAndPermissions = ({
   groups,
   permissionTypes,
   canEdit,
+  allowAdmin,
   onSaved,
 }: {
   user: UserWithPermissions;
   groups: PermissionGroup[];
   permissionTypes: PermissionType[];
   canEdit: boolean;
+  // only admins may move people into or out of the admin group
+  allowAdmin: boolean;
   onSaved: () => void;
 }) => {
   const { data: links } = getSupaWR({
@@ -224,9 +239,16 @@ const RoleAndPermissions = ({
         (map.get(l.group_id) ?? new Set()).add(l.permission_type),
       );
     }
+    // the admin group grants every permission without listing them
+    const adminId = groups.find((g) => g.name === ADMIN_GROUP)?.id;
+    const all = new Set(permissionTypes.map((p) => p.id));
     return (id: number | null) =>
-      id == null ? new Set<number>() : (map.get(id) ?? new Set<number>());
-  }, [links]);
+      id == null
+        ? new Set<number>()
+        : id === adminId
+          ? all
+          : (map.get(id) ?? new Set<number>());
+  }, [links, groups, permissionTypes]);
 
   const savedExtras = useMemo(
     () =>
@@ -268,6 +290,12 @@ const RoleAndPermissions = ({
       ),
     });
   };
+
+  const residentGroup = groups.find(isResidentGroup);
+  // back to a plain resident: Stanovalec and nothing extra
+  const reset = () =>
+    residentGroup && setDraft({ group: residentGroup.id, extras: [] });
+  const isReset = group === residentGroup?.id && extras.length === 0;
 
   const toggle = (id: number) =>
     setDraft({
@@ -311,7 +339,7 @@ const RoleAndPermissions = ({
   const added = permissionTypes.filter((p) => stateOf(p.id) === 'added');
   const kept = permissionTypes.filter((p) => stateOf(p.id) === 'kept');
   const options = groups
-    .filter((g) => g.name !== ADMIN_GROUP)
+    .filter((g) => allowAdmin || g.name !== ADMIN_GROUP)
     .map((g) => ({
       value: g.id.toString(),
       label: groupLabel(g),
@@ -361,9 +389,15 @@ const RoleAndPermissions = ({
       </SimpleGrid>
       {canEdit ? (
         <Group justify="space-between">
-          <Text size="xs" c="dimmed">
-            Dovoljenja iz vloge se urejajo na zavihku Vloge.
-          </Text>
+          <Button
+            size="xs"
+            variant="subtle"
+            color="red"
+            disabled={!residentGroup || isReset || saving}
+            onClick={reset}
+          >
+            Ponastavi na stanovalca
+          </Button>
           <Group gap="xs">
             <Button
               size="xs"
@@ -409,8 +443,19 @@ export const UserDetails = ({
   const [editingResidence, setEditingResidence] = useState(false);
   const [editingPersonal, setEditingPersonal] = useState(false);
   const userId = user.base_user_id!;
-  const isAdmin =
-    groups.find((g) => g.id === user.permgroup_id)?.name === ADMIN_GROUP;
+  const adminGroupId = groups.find((g) => g.name === ADMIN_GROUP)?.id;
+  const currentUserIsAdmin =
+    adminGroupId != null &&
+    allUsers.some(
+      (u) =>
+        u.base_user_id === currentUser?.base_user_id &&
+        u.permgroup_id === adminGroupId,
+    );
+  // admins are reserved for developers: only other admins may edit them
+  const locked =
+    user.permgroup_id != null &&
+    user.permgroup_id === adminGroupId &&
+    !currentUserIsAdmin;
 
   const { data: baseUser } = getSupaWR({
     query: () =>
@@ -458,7 +503,7 @@ export const UserDetails = ({
       <Section
         title="Osebni podatki"
         action={
-          !isAdmin && (
+          !locked && (
             <EditToggle
               editing={editingPersonal}
               onClick={() => {
@@ -492,7 +537,7 @@ export const UserDetails = ({
       <Section
         title="Bivanje"
         action={
-          !isAdmin &&
+          !locked &&
           (user.resident_id || editingResidence ? (
             <Group gap={4}>
               <EditToggle
@@ -555,10 +600,10 @@ export const UserDetails = ({
       </Section>
       <Divider />
 
-      {isAdmin ? (
+      {locked ? (
         <Alert icon={<IconLock />} color="gray" my="md">
-          Administrator je rezerviran za razvijalce. Ima vsa dovoljenja, ni ga
-          mogoče urejati ali izbrisati.
+          Administrator je rezerviran za razvijalce. Ima vsa dovoljenja, urejajo
+          ga lahko samo drugi administratorji.
         </Alert>
       ) : (
         <RoleAndPermissions
@@ -567,6 +612,7 @@ export const UserDetails = ({
           groups={groups}
           permissionTypes={permissionTypes}
           canEdit={can('MANAGE_PERMISSIONS') && can('MANAGE_USERS')}
+          allowAdmin={currentUserIsAdmin}
           onSaved={onChanged}
         />
       )}
@@ -577,7 +623,7 @@ export const UserDetails = ({
           {inviter ? `Povabil: ${fullName(inviter)} · ` : 'Ustvarjen: '}
           {formatDate(user.created_at)}
         </Text>
-        {!isAdmin && can('DELETE_USERS') && (
+        {!locked && can('DELETE_USERS') && (
           <Box>
             <DeleteUserButton
               userId={userId}

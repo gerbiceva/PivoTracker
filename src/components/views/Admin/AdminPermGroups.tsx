@@ -8,7 +8,6 @@ import {
   MultiSelect,
   Stack,
   Text,
-  Title,
   type MultiSelectProps,
 } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
@@ -18,6 +17,7 @@ import { getSupaWR } from '../../../supabase/supa-utils/supaSWR';
 import { supabaseClient } from '../../../supabase/supabaseClient';
 import { numToColor } from '../../../utils/colorUtils';
 import { Database } from '../../../supabase/supabase';
+import { PageHeader } from './PageHeader';
 
 type PermissionGroup = Database['public']['Tables']['permission_groups']['Row'];
 type PermissionType = Database['public']['Tables']['permission_types']['Row'];
@@ -160,13 +160,10 @@ export const AdminPermGroups = () => {
   return (
     <Stack pos="relative">
       <LoadingOverlay visible={isLoading} />
-      <Stack gap={4}>
-        <Title order={2}>Vloge</Title>
-        <Text c="dimmed">
-          Dovoljenja, ki jih dobi vsak član vloge. Dodatna dovoljenja posameznim
-          uporabnikom se urejajo pri uporabnikih.
-        </Text>
-      </Stack>
+      <PageHeader
+        title="Vloge"
+        description="Dovoljenja, ki jih dobi vsak član vloge. Dodatna dovoljenja posameznim uporabnikom se urejajo pri uporabnikih."
+      />
       <Alert variant="light" icon={<IconLock />}>
         Vloge Administrator ni mogoče urejati.
       </Alert>

@@ -10,7 +10,6 @@ import {
   TableTr,
   Text,
   Textarea,
-  Title,
   Alert,
   Group,
   TextInput,
@@ -27,6 +26,7 @@ import { Database } from '../../../supabase/supabase';
 import { supabaseClient } from '../../../supabase/supabaseClient';
 import { useObljubeEditing } from './useObljubeEditing';
 import dayjs from 'dayjs';
+import { PageHeader } from '../Admin/PageHeader';
 
 type PromiseElement =
   Database['public']['Views']['obljube_with_user_info']['Row'];
@@ -189,12 +189,13 @@ export const ManagePromises = () => {
   return (
     <Container>
       <Stack>
-        <Title order={1} mb="md">
-          Manage Promises
-        </Title>
+        <PageHeader
+          title="Obljube"
+          description="Kdo je komu obljubil koliko piva."
+        />
 
         <TextInput
-          placeholder="Search by name or surname"
+          placeholder="Išči po imenu ali priimku"
           value={inputValue}
           onChange={(event) => setInputValue(event.currentTarget.value)}
           leftSection={<IconSearch size={16} />}

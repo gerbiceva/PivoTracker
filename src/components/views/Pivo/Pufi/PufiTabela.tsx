@@ -14,6 +14,7 @@ import { UserTag } from '../../../users/UserTag';
 import { formatCurrency } from '../../../../utils/Converter';
 import { sumOrdersOptions, useGetSummedDebt } from './GetEverythingSum';
 import { UserModal } from './UserModal';
+import { PageHeader } from '../../Admin/PageHeader';
 
 export function PuffTable() {
   const [ord, stOrd] = useState<sumOrdersOptions>('total_difference');
@@ -81,6 +82,7 @@ export function PuffTable() {
         overflow: 'hidden',
       }}
     >
+      <PageHeader title="Seznam pufov" description="Kdo dolguje koliko." />
       <SegmentedControl
         data={[
           {

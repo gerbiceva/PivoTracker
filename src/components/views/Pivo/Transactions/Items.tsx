@@ -1,6 +1,5 @@
 import {
   Button,
-  Container,
   Modal,
   NumberInput,
   Stack,
@@ -18,6 +17,7 @@ import { getSupaWR } from '../../../../supabase/supa-utils/supaSWR';
 import { refetchTables } from '../../../../supabase/supa-utils/supaSWRCache';
 import { Database } from '../../../../supabase/supabase';
 import { supabaseClient } from '../../../../supabase/supabaseClient';
+import { PageHeader } from '../../Admin/PageHeader';
 
 // const editItem = (element: ) => {
 
@@ -104,7 +104,11 @@ export const Items = () => {
       );
     });
   return (
-    <Container>
+    <Stack>
+      <PageHeader
+        title="Ponudba"
+        description="Izdelki in cene na prodaji. Klikni izdelek za urejanje."
+      />
       <Modal opened={opened} onClose={close} title="Urejanje ponudbe piva">
         <form onSubmit={form.onSubmit(handleSubmit)}>
           {/* <form> */}
@@ -137,6 +141,6 @@ export const Items = () => {
         </Table.Thead>
         <Table.Tbody>{rows}</Table.Tbody>
       </Table>
-    </Container>
+    </Stack>
   );
 };

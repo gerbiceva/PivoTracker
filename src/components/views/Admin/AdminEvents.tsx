@@ -2,13 +2,11 @@ import {
   ActionIcon,
   Alert,
   Button,
-  Group,
   LoadingOverlay,
   Modal,
   Stack,
   Table,
   Text,
-  Title,
   Tooltip,
 } from '@mantine/core';
 import { IconAlertCircle, IconEdit, IconPlus } from '@tabler/icons-react';
@@ -19,6 +17,7 @@ import { $currUser } from '../../../global-state/user';
 import { getSupaWR } from '../../../supabase/supa-utils/supaSWR';
 import { supabaseClient } from '../../../supabase/supabaseClient';
 import { ManageEvent } from '../events/ManageEvent';
+import { PageHeader } from './PageHeader';
 
 // null = modal closed, 0 = new event, otherwise the id being edited
 type Editing = number | null;
@@ -71,17 +70,20 @@ export const AdminEvents = () => {
 
   return (
     <Stack>
-      <Group justify="space-between">
-        <Title order={2}>Prihajajoči dogodki</Title>
-        {canEdit && (
-          <Button
-            leftSection={<IconPlus size={16} />}
-            onClick={() => setEditing(0)}
-          >
-            Dodaj dogodek
-          </Button>
-        )}
-      </Group>
+      <PageHeader
+        title="Dogodki"
+        description="Prihajajoči dogodki, ki jih vidijo stanovalci."
+        action={
+          canEdit && (
+            <Button
+              leftSection={<IconPlus size={16} />}
+              onClick={() => setEditing(0)}
+            >
+              Dodaj dogodek
+            </Button>
+          )
+        }
+      />
 
       <div style={{ position: 'relative' }}>
         <LoadingOverlay visible={isLoading} />

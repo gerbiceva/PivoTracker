@@ -8,12 +8,11 @@ import {
   Stack,
   Tooltip,
   Text,
-  Title,
   Fieldset,
-  Center,
   Grid,
   useMatches,
   Alert,
+  Box,
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { useFocusTrap } from '@mantine/hooks';
@@ -26,6 +25,7 @@ import { notifications } from '@mantine/notifications';
 import { supabaseClient } from '../../../../supabase/supabaseClient';
 import { useNavigate } from 'react-router-dom';
 import { useUser } from '../../../../supabase/loader';
+import { PageHeader } from '../../Admin/PageHeader';
 
 interface Order {
   user: Database['public']['Views']['user_view']['Row'] | null;
@@ -136,10 +136,13 @@ export const BeerAdder = () => {
   const focusTrapRef = useFocusTrap();
 
   return (
-    <Center w="100%" h="100%">
+    <Box w="100%">
       <form onSubmit={form.onSubmit(order)}>
         <Stack w="100%">
-          <Title order={1}>Prodaja piva</Title>
+          <PageHeader
+            title="Prodaja piva"
+            description="Vpiši nakup; razlika do plačila gre na puf."
+          />
 
           <Grid p="md" columns={cols} w="100%">
             <Grid.Col span={cols == 3 ? 2 : 1}>
@@ -248,6 +251,6 @@ export const BeerAdder = () => {
           />
         </Stack>
       </form>
-    </Center>
+    </Box>
   );
 };

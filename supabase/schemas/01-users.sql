@@ -457,7 +457,8 @@ CREATE OR REPLACE VIEW "public"."user_view" AS
         r.id AS resident_id,
         r.room,
         r.birth_date,
-        r.phone_number
+        r.phone_number,
+        bu.permgroup_id
     FROM public.base_users bu
     LEFT JOIN public.residents r ON bu.resident = r.id
     JOIN auth.users au ON au.id = bu.auth;

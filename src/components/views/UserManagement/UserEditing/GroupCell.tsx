@@ -9,7 +9,7 @@ type PermissionGroup = Database['public']['Tables']['permission_groups']['Row'];
 // only admins may assign or remove this group; the DB enforces it too
 export const ADMIN_GROUP = 'admin';
 
-const isResidentGroup = (g: PermissionGroup) =>
+export const isResidentGroup = (g: PermissionGroup) =>
   [g.name, g.display_name].some((n) => n?.toLowerCase() === 'stanovalec');
 
 interface GroupCellProps {
