@@ -52,6 +52,20 @@ Deno.serve(async (req) => {
     return json({ error: "Ne moreš izbrisati samega sebe." }, 400);
   }
 
+  // admins are reserved for developers: only other admins may delete them
+  const [{ data: targetIsAdmin, error: targetError }, { data: callerIsAdmin, error: callerError }] =
+    await Promise.all([
+      supabaseUser.rpc("is_admin_user", { p_base_user_id: base_user_id }),
+      supabaseUser.rpc("is_admin_user", { p_base_user_id: callerId }),
+    ]);
+  if (targetError || callerError) {
+    console.error("Error checking admin group:", targetError ?? callerError);
+    return json({ error: "Internal server error" }, 500);
+  }
+  if (targetIsAdmin && !callerIsAdmin) {
+    return json({ error: "Administratorja lahko izbriše samo administrator." }, 403);
+  }
+
   const supabaseAdmin = createClient(
     Deno.env.get("SUPABASE_URL")!,
     Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,

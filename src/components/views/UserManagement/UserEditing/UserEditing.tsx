@@ -135,16 +135,19 @@ export const UserEditing = () => {
       </Table.Td>
       {canDelete && (
         <Table.Td visibleFrom="sm">
-          <DeleteUserButton
-            userId={user.base_user_id!}
-            name={capitalizeName(
-              `${user.name ?? ''} ${user.surname ?? ''}`.trim(),
-            )}
-            onDeleted={() => {
-              mutateUsers();
-              mutatePermissions();
-            }}
-          />
+          {/* admins are reserved for developers: only other admins may delete them */}
+          {(currentUserIsAdmin || user.permgroup_id !== adminGroupId) && (
+            <DeleteUserButton
+              userId={user.base_user_id!}
+              name={capitalizeName(
+                `${user.name ?? ''} ${user.surname ?? ''}`.trim(),
+              )}
+              onDeleted={() => {
+                mutateUsers();
+                mutatePermissions();
+              }}
+            />
+          )}
         </Table.Td>
       )}
     </Table.Tr>
