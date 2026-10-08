@@ -16,6 +16,8 @@ export interface PromiseRow {
   who: number | null;
   name: string;
   amount: number;
+  paid: number;
+  remaining: number;
   count: number;
   // latest promise when aggregated
   created_at: string | null;
@@ -24,7 +26,8 @@ export interface PromiseRow {
   promise?: PromiseElement;
 }
 
-export type ObljubeSortField = 'name' | 'amount' | 'reason' | 'date';
+export type ObljubeSortField =
+  'name' | 'amount' | 'remaining' | 'reason' | 'date';
 
 export const promiseUserName = (p: PromiseElement) =>
   capitalizeName(`${p.user_name ?? ''} ${p.user_surname ?? ''}`.trim());
@@ -47,7 +50,13 @@ export const useObljubeEditing = (query_string?: string) => {
     isLoading,
   } = getSupaWR({
     query: () => supabaseClient.from('obljube_with_user_info').select('*'),
-    table: ['user_view', 'obljube_with_user_info', 'obljube'],
+    table: [
+      'user_view',
+      'obljube_with_user_info',
+      'obljube',
+      'obljube_poplacila',
+      'transactions',
+    ],
     params: ['all-obljube'],
   });
 
@@ -77,11 +86,15 @@ export const useObljubeEditing = (query_string?: string) => {
           who: p.who,
           name: promiseUserName(p),
           amount: 0,
+          paid: 0,
+          remaining: 0,
           count: 0,
           created_at: null,
           reason: null,
         };
         row.amount += p.amount ?? 0;
+        row.paid += p.paid ?? 0;
+        row.remaining += p.remaining ?? 0;
         row.count += 1;
         if (time(p.created_at) > time(row.created_at))
           row.created_at = p.created_at;
@@ -94,6 +107,8 @@ export const useObljubeEditing = (query_string?: string) => {
         who: p.who,
         name: promiseUserName(p),
         amount: p.amount ?? 0,
+        paid: p.paid ?? 0,
+        remaining: p.remaining ?? 0,
         count: 1,
         created_at: p.created_at,
         reason: p.reason,
@@ -108,6 +123,8 @@ export const useObljubeEditing = (query_string?: string) => {
         case 'amount':
           // largest first
           return b.amount - a.amount || byName(a, b);
+        case 'remaining':
+          return b.remaining - a.remaining || byName(a, b);
         case 'reason':
           return (a.reason ?? '').localeCompare(b.reason ?? '', 'sl');
         case 'date':
@@ -143,6 +160,7 @@ export const useObljubeEditing = (query_string?: string) => {
 
   return {
     rows: pageRows,
+    allRows: rows,
     totalCount: rows.length,
     error,
     isLoading,

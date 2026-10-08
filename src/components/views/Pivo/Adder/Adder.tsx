@@ -26,6 +26,7 @@ import { supabaseClient } from '../../../../supabase/supabaseClient';
 import { useNavigate } from 'react-router-dom';
 import { useUser } from '../../../../supabase/loader';
 import { PageHeader } from '../../Admin/PageHeader';
+import { refetchTables } from '../../../../supabase/supa-utils/supaSWRCache';
 
 interface Order {
   user: Database['public']['Views']['user_view']['Row'] | null;
@@ -84,6 +85,8 @@ export const BeerAdder = () => {
               </Stack>
             ),
           });
+          // the sale may have paid off obljube (DB trigger)
+          refetchTables(['transactions', 'obljube_poplacila']);
           resolve();
         });
     });

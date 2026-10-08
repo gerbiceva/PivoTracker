@@ -363,6 +363,51 @@ export type Database = {
           },
         ]
       }
+      obljube_poplacila: {
+        Row: {
+          amount: number
+          created_at: string
+          created_by: number | null
+          id: number
+          note: string | null
+          obljuba_id: number
+          transaction_id: number | null
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          created_by?: number | null
+          id?: number
+          note?: string | null
+          obljuba_id: number
+          transaction_id?: number | null
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          created_by?: number | null
+          id?: number
+          note?: string | null
+          obljuba_id?: number
+          transaction_id?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "obljube_poplacila_obljuba_id_fkey"
+            columns: ["obljuba_id"]
+            isOneToOne: false
+            referencedRelation: "obljube"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "obljube_poplacila_transaction_id_fkey"
+            columns: ["transaction_id"]
+            isOneToOne: false
+            referencedRelation: "transactions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       permgroup_permissions: {
         Row: {
           group_id: number
@@ -889,7 +934,9 @@ export type Database = {
           minister: number | null
           minister_id: number | null
           minister_name: string | null
+          paid: number | null
           reason: string | null
+          remaining: number | null
           user_auth_id: string | null
           user_created_at: string | null
           user_id: number | null
@@ -1045,6 +1092,8 @@ export type Database = {
       top_obljube_users_sum: {
         Row: {
           total_amount: number | null
+          total_paid: number | null
+          total_remaining: number | null
           user_name: string | null
           user_surname: string | null
           who: number | null

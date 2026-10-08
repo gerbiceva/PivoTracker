@@ -20,9 +20,10 @@ export const TopObljubeUsers = () => {
       supabaseClient
         .from('top_obljube_users_sum')
         .select('*')
-        .order('total_amount', { ascending: false })
+        .gt('total_remaining', 0)
+        .order('total_remaining', { ascending: false })
         .limit(30),
-    table: 'obljube',
+    table: ['obljube', 'obljube_poplacila', 'transactions'],
   });
 
   if (error) {
@@ -53,7 +54,7 @@ export const TopObljubeUsers = () => {
                 </ThemeIcon>
                 <Group align="center" justify="center">
                   <Text p="0" size="xl" c="dimmed">
-                    {topUsers[1].total_amount}
+                    {topUsers[1].total_remaining}
                   </Text>
                   <IconBeer opacity={0.3} />
                 </Group>
@@ -78,7 +79,7 @@ export const TopObljubeUsers = () => {
                 </ThemeIcon>
                 <Group align="center" justify="center">
                   <Text p="0" size="xl" c="dimmed">
-                    {topUsers[0].total_amount}
+                    {topUsers[0].total_remaining}
                   </Text>
                   <IconBeer opacity={0.3} />
                 </Group>
@@ -103,7 +104,7 @@ export const TopObljubeUsers = () => {
                 </ThemeIcon>
                 <Group align="center" justify="center">
                   <Text p="0" size="xl" c="dimmed">
-                    {topUsers[2].total_amount}
+                    {topUsers[2].total_remaining}
                   </Text>
                   <IconBeer opacity={0.3} />
                 </Group>
@@ -142,7 +143,7 @@ export const TopObljubeUsers = () => {
                     {position}
                   </Badge>
                   <Text fw={700} size="lg" c="gray">
-                    {user.total_amount}
+                    {user.total_remaining}
                   </Text>
 
                   {/* <UserTag

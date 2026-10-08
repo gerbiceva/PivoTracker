@@ -23,11 +23,13 @@ import { useEffect, useState } from 'react';
 import {
   IconAlertCircle,
   IconEdit,
+  IconHeartHandshake,
   IconSearch,
   IconSum,
   IconTrash,
 } from '@tabler/icons-react';
 import dayjs from 'dayjs';
+import { useNavigate } from 'react-router-dom';
 import { UserTag } from '../../users/UserTag';
 import { refetchTables } from '../../../supabase/supa-utils/supaSWRCache';
 import { supabaseClient } from '../../../supabase/supabaseClient';
@@ -38,6 +40,7 @@ import {
 } from './useObljubeEditing';
 import { PageHeader } from '../Admin/PageHeader';
 import { SortableTh } from '../Admin/SortableTh';
+import { PoplacilaDrawer } from './PoplacilaDrawer';
 
 // Slovene dual/plural: 1 obljuba, 2 obljubi, 3-4 obljube, 5+ obljub
 const promisesLabel = (n: number) => {
@@ -61,11 +64,13 @@ const formatDate = (date: string | null) =>
   date ? dayjs(date).local().format('DD. MM. YYYY') : '';
 
 export const ManagePromises = () => {
+  const navigate = useNavigate();
   const [inputValue, setInputValue] = useState('');
   const [debouncedSearchQuery] = useDebouncedValue(inputValue, 200);
 
   const {
     rows,
+    allRows,
     totalCount,
     error,
     isLoading,
@@ -83,6 +88,9 @@ export const ManagePromises = () => {
   }, [debouncedSearchQuery]);
 
   const [selectedObljuba, setSelectedObljuba] = useState<PromiseElement>();
+  // row whose payment log is open; read from the live rows so it updates
+  const [logKey, setLogKey] = useState<string | null>(null);
+  const logRow = allRows.find((r) => r.key === logKey) ?? null;
 
   const form = useForm<Partial<PromiseElement>>({
     initialValues: { amount: 0, reason: '' },
@@ -172,11 +180,20 @@ export const ManagePromises = () => {
   }
 
   const tableRows = rows.map((row) => (
-    <Table.Tr key={row.key}>
+    <Table.Tr
+      key={row.key}
+      onClick={() => setLogKey(row.key)}
+      style={{ cursor: 'pointer' }}
+    >
       <Table.Td>
         <UserTag fullname={row.name || 'N/A'} id={row.who?.toString() || ''} />
       </Table.Td>
       <Table.Td>{row.amount}</Table.Td>
+      <Table.Td>
+        <Text size="sm" fw={700} c={row.remaining ? 'orange' : 'green'}>
+          {row.remaining || 'Plačano'}
+        </Text>
+      </Table.Td>
       {aggregated ? (
         <Table.Td>{row.count}</Table.Td>
       ) : (
@@ -184,7 +201,7 @@ export const ManagePromises = () => {
       )}
       <Table.Td>{formatDate(row.created_at)}</Table.Td>
       {!aggregated && row.promise && (
-        <Table.Td>
+        <Table.Td onClick={(e) => e.stopPropagation()}>
           <Group gap={4} wrap="nowrap">
             <Tooltip label="Uredi obljubo">
               <ActionIcon
@@ -215,6 +232,14 @@ export const ManagePromises = () => {
         <PageHeader
           title="Obljube"
           description="Kdo je komu obljubil koliko piva."
+          action={
+            <Button
+              leftSection={<IconHeartHandshake size={16} />}
+              onClick={() => navigate('/promises/create')}
+            >
+              Dodaj obljubo
+            </Button>
+          }
         />
         <Group wrap="nowrap">
           <TextInput
@@ -280,7 +305,15 @@ export const ManagePromises = () => {
                     sort={sort}
                     onSort={toggleSort}
                   >
-                    Količina
+                    Obljubljeno
+                  </SortableTh>
+                  <SortableTh
+                    w={120}
+                    field="remaining"
+                    sort={sort}
+                    onSort={toggleSort}
+                  >
+                    Dolguje
                   </SortableTh>
                   {aggregated ? (
                     <Table.Th>Št. obljub</Table.Th>
@@ -316,6 +349,7 @@ export const ManagePromises = () => {
           </Text>
         </Group>
       </Stack>
+      <PoplacilaDrawer row={logRow} onClose={() => setLogKey(null)} />
     </Container>
   );
 };

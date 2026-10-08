@@ -19,7 +19,6 @@ import { notifications } from '@mantine/notifications';
 import {
   IconAlertCircle,
   IconCheck,
-  IconLock,
   IconPencil,
   IconPlus,
   IconTrash,
@@ -365,9 +364,6 @@ export const AdminPermGroups = () => {
         description="Dovoljenja, ki jih dobi vsak član vloge. Dodatna dovoljenja posameznim uporabnikom se urejajo pri uporabnikih."
         action={<AddGroupButton onCreated={() => groups.mutate()} />}
       />
-      <Alert variant="light" icon={<IconLock />}>
-        Vloge Administrator ni mogoče urejati.
-      </Alert>
       {editable.map((g) => (
         <GroupCard
           key={g.id}

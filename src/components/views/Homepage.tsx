@@ -155,11 +155,12 @@ export const HomePage = () => {
   const { data: obljube, isLoading: obljubeLoading } = getSupaWR({
     query: () =>
       supabaseClient
-        .from('obljube')
-        .select('*')
+        .from('obljube_with_user_info')
+        .select('id, reason, amount, paid, remaining')
         .eq('who', userId || 0)
         .order('created_at', { ascending: false }),
-    table: 'obljube',
+    // sales pay off obljube, so a new transaction changes what's owed
+    table: ['obljube', 'obljube_poplacila', 'transactions'],
     params: [userId || 0],
   });
 
@@ -180,7 +181,14 @@ export const HomePage = () => {
   const openProfile = () => setSearchParams({ profil: '' });
   const closeProfile = () => setSearchParams({}, { replace: true });
   const quickActions = QUICK_ACTIONS.filter((a) => can(a.permission));
-  const owedBeers = (obljube ?? []).reduce((sum, o) => sum + o.amount, 0);
+  const owedBeers = (obljube ?? []).reduce(
+    (sum, o) => sum + (o.remaining ?? 0),
+    0,
+  );
+  // open obljube first, paid ones stay visible as history
+  const sortedObljube = [...(obljube ?? [])].sort(
+    (a, b) => Number(!a.remaining) - Number(!b.remaining),
+  );
   const puf = Number(debt?.total_difference ?? 0);
 
   return (
@@ -353,13 +361,33 @@ export const HomePage = () => {
                   color={owedBeers > 0 ? 'orange' : 'green'}
                 />
               )}
-              {obljube?.map((o) => (
-                <Group key={o.id} justify="space-between" wrap="nowrap">
-                  <Text size="sm">{o.reason}</Text>
+              {sortedObljube.map((o) => (
+                <Group
+                  key={o.id}
+                  justify="space-between"
+                  wrap="nowrap"
+                  opacity={o.remaining ? 1 : 0.5}
+                >
+                  <Text size="sm" td={o.remaining ? undefined : 'line-through'}>
+                    {o.reason}
+                  </Text>
                   <Group gap={4} wrap="nowrap">
-                    <Text size="sm" fw={700}>
-                      {o.amount}
-                    </Text>
+                    {o.remaining ? (
+                      <>
+                        <Text size="sm" fw={700}>
+                          {o.remaining}
+                        </Text>
+                        {!!o.paid && (
+                          <Text size="sm" c="dimmed">
+                            / {o.amount}
+                          </Text>
+                        )}
+                      </>
+                    ) : (
+                      <Text size="sm" fw={700}>
+                        Plačano ({o.amount})
+                      </Text>
+                    )}
                     <IconBeer size={16} />
                   </Group>
                 </Group>
