@@ -1,62 +1,91 @@
 import {
+  ActionIcon,
+  Alert,
   Button,
   Container,
+  Group,
+  LoadingOverlay,
   Modal,
   NumberInput,
+  Pagination,
   Stack,
   Table,
-  TableTd,
-  TableTh,
-  TableTr,
   Text,
   Textarea,
-  Alert,
-  Group,
   TextInput,
-  Pagination,
+  Tooltip,
 } from '@mantine/core';
 import { useForm } from '@mantine/form';
-import { useDebouncedValue, useDisclosure } from '@mantine/hooks';
+import { useDebouncedValue } from '@mantine/hooks';
+import { modals } from '@mantine/modals';
 import { notifications } from '@mantine/notifications';
 import { useEffect, useState } from 'react';
-import { IconEdit, IconSearch, IconTrash } from '@tabler/icons-react';
+import {
+  IconAlertCircle,
+  IconEdit,
+  IconSearch,
+  IconSum,
+  IconTrash,
+} from '@tabler/icons-react';
+import dayjs from 'dayjs';
 import { UserTag } from '../../users/UserTag';
 import { refetchTables } from '../../../supabase/supa-utils/supaSWRCache';
-import { Database } from '../../../supabase/supabase';
 import { supabaseClient } from '../../../supabase/supabaseClient';
-import { useObljubeEditing } from './useObljubeEditing';
-import dayjs from 'dayjs';
+import {
+  PromiseElement,
+  promiseUserName,
+  useObljubeEditing,
+} from './useObljubeEditing';
 import { PageHeader } from '../Admin/PageHeader';
+import { SortableTh } from '../Admin/SortableTh';
 
-type PromiseElement =
-  Database['public']['Views']['obljube_with_user_info']['Row'];
+// Slovene dual/plural: 1 obljuba, 2 obljubi, 3-4 obljube, 5+ obljub
+const promisesLabel = (n: number) => {
+  const m = n % 100;
+  if (m === 1) return 'obljuba';
+  if (m === 2) return 'obljubi';
+  if (m === 3 || m === 4) return 'obljube';
+  return 'obljub';
+};
+
+// 1 uporabnik, 2 uporabnika, 3-4 uporabniki, 5+ uporabnikov
+const usersLabel = (n: number) => {
+  const m = n % 100;
+  if (m === 1) return 'uporabnik';
+  if (m === 2) return 'uporabnika';
+  if (m === 3 || m === 4) return 'uporabniki';
+  return 'uporabnikov';
+};
+
+const formatDate = (date: string | null) =>
+  date ? dayjs(date).local().format('DD. MM. YYYY') : '';
 
 export const ManagePromises = () => {
   const [inputValue, setInputValue] = useState('');
   const [debouncedSearchQuery] = useDebouncedValue(inputValue, 200);
 
-  const { activePage, setPage, totalPages, obljube, error, isLoading } =
-    useObljubeEditing(debouncedSearchQuery);
+  const {
+    rows,
+    totalCount,
+    error,
+    isLoading,
+    totalPages,
+    activePage,
+    setPage,
+    sort,
+    toggleSort,
+    aggregated,
+    setAggregated,
+  } = useObljubeEditing(debouncedSearchQuery);
 
   useEffect(() => {
     setPage(1);
   }, [debouncedSearchQuery]);
 
-  const [editModalOpened, { open: openEditModal, close: closeEditModal }] =
-    useDisclosure(false);
-  const [
-    deleteModalOpened,
-    { open: openDeleteModal, close: closeDeleteModal },
-  ] = useDisclosure(false);
   const [selectedObljuba, setSelectedObljuba] = useState<PromiseElement>();
 
   const form = useForm<Partial<PromiseElement>>({
-    initialValues: {
-      amount: 0,
-      reason: '',
-      user_name: '',
-      user_surname: '',
-    },
+    initialValues: { amount: 0, reason: '' },
   });
 
   useEffect(() => {
@@ -64,8 +93,6 @@ export const ManagePromises = () => {
       form.setInitialValues({
         amount: selectedObljuba.amount,
         reason: selectedObljuba.reason || '',
-        user_name: selectedObljuba.user_name,
-        user_surname: selectedObljuba.user_surname,
       });
       form.reset();
     }
@@ -74,117 +101,113 @@ export const ManagePromises = () => {
   const handleEditSubmit = async (values: typeof form.values) => {
     if (!selectedObljuba) return;
 
-    try {
-      const { error } = await supabaseClient
-        .from('obljube')
-        .update({
-          amount: values.amount || undefined,
-          reason: values.reason || undefined,
-        })
-        .eq('id', selectedObljuba.id || -1);
+    const { error } = await supabaseClient
+      .from('obljube')
+      .update({
+        amount: values.amount || undefined,
+        reason: values.reason || undefined,
+      })
+      .eq('id', selectedObljuba.id || -1);
 
-      if (error) {
-        throw error;
-      }
+    if (error) {
       notifications.show({
-        title: 'Success',
-        message: 'Promise updated successfully',
-        color: 'green',
-      });
-      form.resetDirty();
-      refetchTables('obljube');
-      closeEditModal();
-    } catch (error: any) {
-      notifications.show({
-        title: 'Error',
-        message: `Failed to update promise: ${error.message}`,
         color: 'red',
+        title: 'Urejanje ni uspelo',
+        message: error.message,
       });
+      return;
     }
+    notifications.show({
+      color: 'green',
+      title: 'Obljuba posodobljena',
+      message: promiseUserName(selectedObljuba),
+    });
+    form.resetDirty();
+    refetchTables('obljube');
+    setSelectedObljuba(undefined);
   };
 
-  const handleDeletePromise = async () => {
-    if (!selectedObljuba) return;
+  const deletePromise = async (promise: PromiseElement, name: string) => {
+    const { error } = await supabaseClient
+      .from('obljube')
+      .delete()
+      .eq('id', promise.id || -1);
 
-    try {
-      const { error } = await supabaseClient
-        .from('obljube')
-        .delete()
-        .eq('id', selectedObljuba.id || -1);
-
-      if (error) {
-        throw error;
-      }
+    if (error) {
       notifications.show({
-        title: 'Success',
-        message: 'Promise deleted successfully',
-        color: 'green',
-      });
-      refetchTables('obljube');
-      closeDeleteModal();
-    } catch (error: any) {
-      notifications.show({
-        title: 'Error',
-        message: `Failed to delete promise: ${error.message}`,
         color: 'red',
+        title: 'Brisanje ni uspelo',
+        message: error.message,
       });
+      return;
     }
+    notifications.show({
+      color: 'green',
+      title: 'Obljuba izbrisana',
+      message: name,
+    });
+    refetchTables('obljube');
   };
+
+  const confirmDelete = (promise: PromiseElement, name: string) =>
+    modals.openConfirmModal({
+      title: 'Izbriši obljubo',
+      children: (
+        <Text size="sm">
+          Ali res želiš izbrisati obljubo uporabnika <b>{name}</b> (količina:{' '}
+          {promise.amount})? Tega ni mogoče razveljaviti.
+        </Text>
+      ),
+      labels: { confirm: 'Izbriši', cancel: 'Prekliči' },
+      confirmProps: { color: 'red' },
+      onConfirm: () => deletePromise(promise, name),
+    });
 
   if (error) {
     return (
-      <Alert color="red" title="Error loading promises">
+      <Alert title="Napaka pri nalaganju obljub" icon={<IconAlertCircle />}>
         {error.message}
       </Alert>
     );
   }
 
-  const rows = obljube?.map((element) => {
-    const userFullName = element.user_name + ' ' + element.user_surname;
-
-    return (
-      <TableTr key={element.id}>
-        <TableTd>
-          <UserTag
-            fullname={userFullName || 'N/A'}
-            id={element.who?.toString() || ''}
-          />
-        </TableTd>
-        <TableTd>{element.amount}</TableTd>
-        <TableTd>{element.reason}</TableTd>
-        <TableTd>
-          {dayjs(element.created_at || '')
-            .local()
-            .format('DD.MM YYYY')}
-        </TableTd>
-        <TableTd>
-          <Group wrap="nowrap">
-            <Button
-              variant="light"
-              size="xs"
-              onClick={() => {
-                setSelectedObljuba(element);
-                openEditModal();
-              }}
-            >
-              <IconEdit size={16} />
-            </Button>
-            <Button
-              variant="light"
-              color="red"
-              size="xs"
-              onClick={() => {
-                setSelectedObljuba(element);
-                openDeleteModal();
-              }}
-            >
-              <IconTrash size={16} />
-            </Button>
+  const tableRows = rows.map((row) => (
+    <Table.Tr key={row.key}>
+      <Table.Td>
+        <UserTag fullname={row.name || 'N/A'} id={row.who?.toString() || ''} />
+      </Table.Td>
+      <Table.Td>{row.amount}</Table.Td>
+      {aggregated ? (
+        <Table.Td>{row.count}</Table.Td>
+      ) : (
+        <Table.Td>{row.reason}</Table.Td>
+      )}
+      <Table.Td>{formatDate(row.created_at)}</Table.Td>
+      {!aggregated && row.promise && (
+        <Table.Td>
+          <Group gap={4} wrap="nowrap">
+            <Tooltip label="Uredi obljubo">
+              <ActionIcon
+                variant="subtle"
+                onClick={() => setSelectedObljuba(row.promise)}
+              >
+                <IconEdit size={16} />
+              </ActionIcon>
+            </Tooltip>
+            <Tooltip label="Izbriši obljubo">
+              <ActionIcon
+                variant="subtle"
+                color="red"
+                onClick={() => confirmDelete(row.promise!, row.name)}
+              >
+                <IconTrash size={16} />
+              </ActionIcon>
+            </Tooltip>
           </Group>
-        </TableTd>
-      </TableTr>
-    );
-  });
+        </Table.Td>
+      )}
+    </Table.Tr>
+  ));
 
   return (
     <Container>
@@ -193,90 +216,105 @@ export const ManagePromises = () => {
           title="Obljube"
           description="Kdo je komu obljubil koliko piva."
         />
+        <Group wrap="nowrap">
+          <TextInput
+            style={{ flex: 1 }}
+            placeholder="Išči po imenu, razlogu ali količini"
+            value={inputValue}
+            onChange={(event) => setInputValue(event.currentTarget.value)}
+            leftSection={<IconSearch size={16} />}
+          />
+          <Button
+            variant={aggregated ? 'filled' : 'default'}
+            color={aggregated ? 'green' : undefined}
+            leftSection={<IconSum size={16} />}
+            onClick={() => setAggregated(!aggregated)}
+          >
+            Seštej po uporabnikih
+          </Button>
+        </Group>
 
-        <TextInput
-          placeholder="Išči po imenu ali priimku"
-          value={inputValue}
-          onChange={(event) => setInputValue(event.currentTarget.value)}
-          leftSection={<IconSearch size={16} />}
-          mb="md"
-        />
-
-        {/* Edit Promise Modal */}
         <Modal
-          opened={editModalOpened}
-          onClose={closeEditModal}
-          title="Edit Promise"
+          opened={!!selectedObljuba}
+          onClose={() => setSelectedObljuba(undefined)}
+          title="Uredi obljubo"
         >
           <form onSubmit={form.onSubmit(handleEditSubmit)}>
             <Stack>
               <NumberInput
-                label="Beer Amount"
-                placeholder="e.g., 5"
+                label="Količina piva"
+                placeholder="npr. 5"
                 min={1}
                 {...form.getInputProps('amount')}
               />
               <Textarea
-                label="Reason/Notes"
-                placeholder="e.g., Promised 5 beers for helping with the event."
+                label="Razlog"
+                placeholder="npr. Obljubil 5 piv za pomoč pri dogodku."
                 minRows={3}
                 {...form.getInputProps('reason')}
               />
-              <Button type="submit" size="xs" disabled={!form.isDirty()}>
-                Confirm Changes
+              <Button type="submit" disabled={!form.isDirty()}>
+                Shrani
               </Button>
             </Stack>
           </form>
         </Modal>
 
-        {/* Delete Promise Modal */}
-        <Modal
-          opened={deleteModalOpened}
-          onClose={closeDeleteModal}
-          title="Delete Promise"
-          centered
-        >
-          <Stack>
-            <Text>Are you sure you want to delete this promise?</Text>
-            <Group justify="flex-end">
-              <Button variant="default" onClick={closeDeleteModal}>
-                Cancel
-              </Button>
-              <Button color="red" onClick={handleDeletePromise}>
-                Delete
-              </Button>
-            </Group>
-          </Stack>
-        </Modal>
-
-        <Table striped highlightOnHover withColumnBorders>
-          <Table.Thead>
-            <TableTr>
-              <TableTh>User</TableTh>
-              <TableTh>Amount</TableTh>
-              <TableTh>Reason</TableTh>
-              <TableTh>Created At</TableTh>
-              <TableTh>Actions</TableTh>
-            </TableTr>
-          </Table.Thead>
-          <Table.Tbody>
-            {isLoading ? (
-              <TableTr>
-                <TableTd colSpan={5}>
-                  <Text ta="center">Loading promises...</Text>
-                </TableTd>
-              </TableTr>
-            ) : (
-              rows
-            )}
-          </Table.Tbody>
-        </Table>
-        <Pagination
-          total={totalPages}
-          value={activePage}
-          onChange={setPage}
-          mt="sm"
-        />
+        <div style={{ position: 'relative' }}>
+          <LoadingOverlay visible={isLoading} />
+          <Table.ScrollContainer minWidth={700}>
+            <Table highlightOnHover>
+              <Table.Thead>
+                <Table.Tr>
+                  <SortableTh
+                    w={220}
+                    field="name"
+                    sort={sort}
+                    onSort={toggleSort}
+                  >
+                    Ime
+                  </SortableTh>
+                  <SortableTh
+                    w={120}
+                    field="amount"
+                    sort={sort}
+                    onSort={toggleSort}
+                  >
+                    Količina
+                  </SortableTh>
+                  {aggregated ? (
+                    <Table.Th>Št. obljub</Table.Th>
+                  ) : (
+                    <SortableTh field="reason" sort={sort} onSort={toggleSort}>
+                      Razlog
+                    </SortableTh>
+                  )}
+                  <SortableTh
+                    w={150}
+                    field="date"
+                    sort={sort}
+                    onSort={toggleSort}
+                  >
+                    {aggregated ? 'Zadnja obljuba' : 'Datum'}
+                  </SortableTh>
+                  {!aggregated && <Table.Th w={90}>Uredi</Table.Th>}
+                </Table.Tr>
+              </Table.Thead>
+              <Table.Tbody>{tableRows}</Table.Tbody>
+            </Table>
+          </Table.ScrollContainer>
+        </div>
+        <Group justify="space-between">
+          <Pagination
+            total={totalPages}
+            value={activePage}
+            onChange={setPage}
+          />
+          <Text size="sm" c="dimmed">
+            {totalCount}{' '}
+            {aggregated ? usersLabel(totalCount) : promisesLabel(totalCount)}
+          </Text>
+        </Group>
       </Stack>
     </Container>
   );

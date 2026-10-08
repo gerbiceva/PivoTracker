@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import { getSupaWR } from '../../../../supabase/supa-utils/supaSWR';
 import { supabaseClient } from '../../../../supabase/supabaseClient';
 import { Database } from '../../../../supabase/supabase';
+import { SortState as GenericSortState } from '../../Admin/SortableTh';
 
 const PAGE_SIZE = 15;
 
@@ -23,10 +24,7 @@ export const capitalizeName = (value: string) =>
 export type UserWithPermissions = UserRow & { permissions: PermissionRow[] };
 
 export type SortField = 'name' | 'email' | 'room' | 'group' | 'permissions';
-export interface SortState {
-  field: SortField;
-  reversed: boolean;
-}
+export type SortState = GenericSortState<SortField>;
 
 // rooms 0-99 = etage 0, 100-199 = etage 1, ...
 export const floorOf = (room: number | null) =>

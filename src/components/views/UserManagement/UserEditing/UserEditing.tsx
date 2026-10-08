@@ -8,28 +8,14 @@ import {
   Alert,
   TextInput,
   Group,
-  UnstyledButton,
-  Center,
   Tabs,
   Drawer,
   Button,
 } from '@mantine/core';
-import {
-  IconAlertCircle,
-  IconChevronDown,
-  IconChevronUp,
-  IconSearch,
-  IconSelector,
-  IconUserPlus,
-} from '@tabler/icons-react';
-import {
-  capitalizeName,
-  SortField,
-  SortState,
-  useUserEditing,
-} from './useUserEditing';
+import { IconAlertCircle, IconSearch, IconUserPlus } from '@tabler/icons-react';
+import { capitalizeName, useUserEditing } from './useUserEditing';
 import { useNavigate } from 'react-router-dom';
-import { ReactNode, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useDebouncedValue } from '@mantine/hooks';
 import { useStore } from '@nanostores/react';
 import { $currUser } from '../../../../global-state/user';
@@ -38,37 +24,7 @@ import { DeleteUserButton } from './DeleteUserButton';
 import { ADMIN_GROUP, GroupCell } from './GroupCell';
 import { UserDetails, UserDetailsHeader } from './UserDetails';
 import { PageHeader } from '../../Admin/PageHeader';
-
-interface SortableThProps {
-  w?: number;
-  field: SortField;
-  sort: SortState;
-  onSort: (field: SortField) => void;
-  children: ReactNode;
-}
-
-const SortableTh = ({ w, field, sort, onSort, children }: SortableThProps) => {
-  const active = sort.field === field;
-  const Icon = active
-    ? sort.reversed
-      ? IconChevronUp
-      : IconChevronDown
-    : IconSelector;
-  return (
-    <Table.Th w={w}>
-      <UnstyledButton onClick={() => onSort(field)}>
-        <Group gap={4} wrap="nowrap">
-          <Text fw="bold" size="sm">
-            {children}
-          </Text>
-          <Center>
-            <Icon size={14} stroke={1.5} />
-          </Center>
-        </Group>
-      </UnstyledButton>
-    </Table.Th>
-  );
-};
+import { SortableTh } from '../../Admin/SortableTh';
 
 // Slovene dual/plural: 1 uporabnik, 2 uporabnika, 3-4 uporabniki, 5+ uporabnikov
 const usersLabel = (n: number) => {
