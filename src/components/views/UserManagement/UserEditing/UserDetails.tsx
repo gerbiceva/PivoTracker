@@ -29,6 +29,7 @@ import { EditUserBaseInfo } from './EditUserBaseInfo';
 import { EditUserEmail } from './EditUserEmail';
 import { ResidentInfoForm } from './ResidentInfoForm';
 import { DeleteUserButton } from './DeleteUserButton';
+import { WashingStats } from './WashingStats';
 
 type PermissionGroup = Database['public']['Tables']['permission_groups']['Row'];
 type PermissionType = Database['public']['Tables']['permission_types']['Row'];
@@ -614,6 +615,9 @@ export const UserDetails = ({
           </Text>
         )}
       </Section>
+      <Divider />
+
+      <WashingStats userId={userId} />
       <Divider />
 
       {locked ? (

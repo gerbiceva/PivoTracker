@@ -88,8 +88,15 @@ ALTER FUNCTION "public"."add_reservation_with_range"("p_machine_id" integer, "p_
 
 CREATE OR REPLACE FUNCTION "public"."get_reservations_for_user"("p_base_user_id" bigint) RETURNS TABLE("reservation_id" bigint, "machine_id" integer, "machine_name" "text", "slot_start_utc" timestamp with time zone, "slot_end_utc" timestamp with time zone, "note" "text")
     LANGUAGE "plpgsql" SECURITY DEFINER
+    SET "search_path" TO ''
     AS $$
 BEGIN
+    -- only the user themselves or someone with MANAGE_USERS
+    IF p_base_user_id IS DISTINCT FROM public.get_current_base_user_id()
+       AND NOT public.current_user_has_permission('MANAGE_USERS') THEN
+        RAISE EXCEPTION 'Insufficient permissions: can only read own reservations.';
+    END IF;
+
     RETURN QUERY
     SELECT
         r.id AS reservation_id,
@@ -98,8 +105,8 @@ BEGIN
         lower(r.slot) AS slot_start_utc,
         upper(r.slot) AS slot_end_utc,
         r.note
-    FROM reservations r
-    JOIN washing_machines wm ON wm.id = r.machine_id
+    FROM public.reservations r
+    JOIN public.washing_machines wm ON wm.id = r.machine_id
     WHERE r.user_id = p_base_user_id
     ORDER BY lower(r.slot) ASC;
 END;
@@ -289,7 +296,7 @@ GRANT ALL ON FUNCTION "public"."add_reservation_with_range"("p_machine_id" integ
 GRANT ALL ON FUNCTION "public"."add_reservation_with_range"("p_machine_id" integer, "p_slot_start" timestamp with time zone, "p_slot_end" timestamp with time zone, "p_note" "text") TO "authenticated";
 GRANT ALL ON FUNCTION "public"."add_reservation_with_range"("p_machine_id" integer, "p_slot_start" timestamp with time zone, "p_slot_end" timestamp with time zone, "p_note" "text") TO "service_role";
 
-GRANT ALL ON FUNCTION "public"."get_reservations_for_user"("p_base_user_id" bigint) TO "anon";
+REVOKE ALL ON FUNCTION "public"."get_reservations_for_user"("p_base_user_id" bigint) FROM PUBLIC;
 GRANT ALL ON FUNCTION "public"."get_reservations_for_user"("p_base_user_id" bigint) TO "authenticated";
 GRANT ALL ON FUNCTION "public"."get_reservations_for_user"("p_base_user_id" bigint) TO "service_role";
 

@@ -20,6 +20,7 @@ import {
   UserDetailsHeader,
 } from './UserEditing/UserDetails';
 import { capitalizeName } from './UserEditing/useUserEditing';
+import { WashingStats } from './UserEditing/WashingStats';
 
 type PermissionGroup = Database['public']['Tables']['permission_groups']['Row'];
 type PermissionType = Database['public']['Tables']['permission_types']['Row'];
@@ -130,6 +131,13 @@ export const MyProfileModal = ({
             )}
           </Section>
           <Divider />
+
+          {me.permissions.includes('CAN_WASH') && (
+            <>
+              <WashingStats userId={userId} />
+              <Divider />
+            </>
+          )}
 
           <Section title="Dovoljenja">
             {permissions.length > 0 ? (
