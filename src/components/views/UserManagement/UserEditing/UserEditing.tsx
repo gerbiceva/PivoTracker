@@ -72,6 +72,8 @@ export const UserEditing = () => {
   } | null>(null);
   const currentUser = useStore($currUser);
   const canDelete = !!currentUser?.permissions.includes('DELETE_USERS');
+  const canEditPermissions =
+    !!currentUser?.permissions.includes('MANAGE_PERMISSIONS');
   const adminGroupId = groups.find((g) => g.name === ADMIN_GROUP)?.id;
   const currentUserIsAdmin =
     adminGroupId != null &&
@@ -138,6 +140,7 @@ export const UserEditing = () => {
         <PermissionsCell
           userId={user.base_user_id!}
           isAdminUser={user.permgroup_id === adminGroupId}
+          canEdit={canEditPermissions}
           permissions={user.permissions}
           permissionTypes={permissionTypes}
           onSaved={() => mutatePermissions()}

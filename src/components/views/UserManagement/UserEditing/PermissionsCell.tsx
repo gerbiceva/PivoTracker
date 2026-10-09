@@ -1,10 +1,11 @@
 import {
   Badge,
   Button,
+  Checkbox,
   Group,
   HoverCard,
-  MultiSelect,
   Popover,
+  ScrollArea,
   Stack,
   Text,
   UnstyledButton,
@@ -23,6 +24,8 @@ interface PermissionsCellProps {
   userId: number;
   // admins implicitly have every permission, so their list isn't shown
   isAdminUser: boolean;
+  // without MANAGE_PERMISSIONS the badges are shown read-only
+  canEdit: boolean;
   permissions: PermissionRow[];
   permissionTypes: PermissionType[];
   onSaved: () => void;
@@ -32,6 +35,7 @@ interface PermissionsCellProps {
 export const PermissionsCell = ({
   userId,
   isAdminUser,
+  canEdit,
   permissions,
   permissionTypes,
   onSaved,
@@ -112,6 +116,45 @@ export const PermissionsCell = ({
     </Badge>
   );
 
+  const badgeRow = (
+    <div ref={containerRef} style={{ position: 'relative' }}>
+      {/* invisible full row, used only to measure badge widths */}
+      <Group
+        ref={measureRef}
+        gap={4}
+        wrap="nowrap"
+        aria-hidden
+        style={{
+          position: 'absolute',
+          visibility: 'hidden',
+          pointerEvents: 'none',
+        }}
+      >
+        {permissions.map(renderBadge)}
+      </Group>
+      <Group gap={4} mih={22} wrap="nowrap" style={{ overflow: 'hidden' }}>
+        {permissions.slice(0, visibleCount).map(renderBadge)}
+        {visibleCount < permissions.length && (
+          <HoverCard position="top" withArrow shadow="md" openDelay={100}>
+            <HoverCard.Target>
+              <Badge variant="default" size="sm" style={{ flexShrink: 0 }}>
+                …
+              </Badge>
+            </HoverCard.Target>
+            <HoverCard.Dropdown maw={320}>
+              <Group gap={4}>{permissions.map(renderBadge)}</Group>
+            </HoverCard.Dropdown>
+          </HoverCard>
+        )}
+        {permissions.length === 0 && canEdit && (
+          <Text size="xs" c="dimmed">
+            + dodaj
+          </Text>
+        )}
+      </Group>
+    </div>
+  );
+
   if (isAdminUser) {
     return (
       <Badge variant="light" size="sm" color="red">
@@ -120,13 +163,17 @@ export const PermissionsCell = ({
     );
   }
 
+  if (!canEdit) {
+    return badgeRow;
+  }
+
   return (
     // stop clicks from triggering the row's navigate-to-user handler
     <div onClick={(e) => e.stopPropagation()}>
       <Popover
         opened={opened}
         onChange={setOpened}
-        width={320}
+        width={260}
         position="bottom-start"
         trapFocus
         withArrow
@@ -137,72 +184,25 @@ export const PermissionsCell = ({
             w="100%"
             onClick={() => (opened ? setOpened(false) : open())}
           >
-            <div ref={containerRef} style={{ position: 'relative' }}>
-              {/* invisible full row, used only to measure badge widths */}
-              <Group
-                ref={measureRef}
-                gap={4}
-                wrap="nowrap"
-                aria-hidden
-                style={{
-                  position: 'absolute',
-                  visibility: 'hidden',
-                  pointerEvents: 'none',
-                }}
-              >
-                {permissions.map(renderBadge)}
-              </Group>
-              <Group
-                gap={4}
-                mih={22}
-                wrap="nowrap"
-                style={{ overflow: 'hidden' }}
-              >
-                {permissions.slice(0, visibleCount).map(renderBadge)}
-                {visibleCount < permissions.length && (
-                  <HoverCard
-                    position="top"
-                    withArrow
-                    shadow="md"
-                    openDelay={100}
-                  >
-                    <HoverCard.Target>
-                      <Badge
-                        variant="default"
-                        size="sm"
-                        style={{ flexShrink: 0 }}
-                      >
-                        …
-                      </Badge>
-                    </HoverCard.Target>
-                    <HoverCard.Dropdown maw={320}>
-                      <Group gap={4}>{permissions.map(renderBadge)}</Group>
-                    </HoverCard.Dropdown>
-                  </HoverCard>
-                )}
-                {permissions.length === 0 && (
-                  <Text size="xs" c="dimmed">
-                    + dodaj
-                  </Text>
-                )}
-              </Group>
-            </div>
+            {badgeRow}
           </UnstyledButton>
         </Popover.Target>
         <Popover.Dropdown>
           <Stack gap="xs">
-            <MultiSelect
-              data={permissionTypes.map((t) => ({
-                value: t.id.toString(),
-                label: t.display_name || t.name,
-              }))}
-              value={selected}
-              onChange={setSelected}
-              placeholder="Izberi dovoljenja"
-              comboboxProps={{ withinPortal: false }}
-              hidePickedOptions
-              searchable
-            />
+            <ScrollArea.Autosize mah={300} type="auto" offsetScrollbars>
+              <Checkbox.Group value={selected} onChange={setSelected}>
+                <Stack gap={8}>
+                  {permissionTypes.map((t) => (
+                    <Checkbox
+                      key={t.id}
+                      value={t.id.toString()}
+                      label={t.display_name || t.name}
+                      size="sm"
+                    />
+                  ))}
+                </Stack>
+              </Checkbox.Group>
+            </ScrollArea.Autosize>
             <Group justify="flex-end" gap="xs">
               <Button
                 size="xs"

@@ -81,62 +81,62 @@ const keywordsText = (keywords: SpotlightActionData['keywords']) =>
 
 const makeFilter =
   (searchOnlyIds: Set<string>): SpotlightFilterFunction =>
-  (rawQuery, data) => {
-    const query = normalize(rawQuery);
+    (rawQuery, data) => {
+      const query = normalize(rawQuery);
 
-    if (!query) {
-      return data
-        .map((item) =>
-          'actions' in item
-            ? {
+      if (!query) {
+        return data
+          .map((item) =>
+            'actions' in item
+              ? {
                 ...item,
                 actions: item.actions.filter((a) => !searchOnlyIds.has(a.id)),
               }
-            : item,
-        )
-        .filter((item) =>
-          'actions' in item
-            ? item.actions.length > 0
-            : !searchOnlyIds.has(item.id),
-        );
-    }
+              : item,
+          )
+          .filter((item) =>
+            'actions' in item
+              ? item.actions.length > 0
+              : !searchOnlyIds.has(item.id),
+          );
+      }
 
-    // label matches first, then description/keyword matches; keep group order
-    const labelHits: SpotlightActionData[] = [];
-    const otherHits: SpotlightActionData[] = [];
-    data.forEach((item) => {
-      const actions = 'actions' in item ? item.actions : [item];
-      const group = 'actions' in item ? item.group : undefined;
-      actions.forEach((action) => {
-        const tagged = { ...action, group };
-        if (normalize(String(action.label ?? '')).includes(query)) {
-          labelHits.push(tagged);
-        } else if (
-          normalize(action.description ?? '').includes(query) ||
-          normalize(keywordsText(action.keywords)).includes(query)
-        ) {
-          otherHits.push(tagged);
-        }
+      // label matches first, then description/keyword matches; keep group order
+      const labelHits: SpotlightActionData[] = [];
+      const otherHits: SpotlightActionData[] = [];
+      data.forEach((item) => {
+        const actions = 'actions' in item ? item.actions : [item];
+        const group = 'actions' in item ? item.group : undefined;
+        actions.forEach((action) => {
+          const tagged = { ...action, group };
+          if (normalize(String(action.label ?? '')).includes(query)) {
+            labelHits.push(tagged);
+          } else if (
+            normalize(action.description ?? '').includes(query) ||
+            normalize(keywordsText(action.keywords)).includes(query)
+          ) {
+            otherHits.push(tagged);
+          }
+        });
       });
-    });
 
-    const result: (SpotlightActionData | SpotlightActionGroupData)[] = [];
-    const groups = new Map<string, SpotlightActionGroupData>();
-    [...labelHits, ...otherHits].forEach(({ group, ...action }) => {
-      if (!group) {
-        result.push(action);
-        return;
-      }
-      let g = groups.get(group);
-      if (!g) {
-        g = { group, actions: [] };
-        groups.set(group, g);
-        result.push(g);
-      }
-      g.actions.push(action);
-    });
-    return result;
-  };
+      const result: (SpotlightActionData | SpotlightActionGroupData)[] = [];
+      const groups = new Map<string, SpotlightActionGroupData>();
+      [...labelHits, ...otherHits].forEach(({ group, ...action }) => {
+        if (!group) {
+          result.push(action);
+          return;
+        }
+        let g = groups.get(group);
+        if (!g) {
+          g = { group, actions: [] };
+          groups.set(group, g);
+          result.push(g);
+        }
+        g.actions.push(action);
+      });
+      return result;
+    };
 
 export const CustomSpotlight = () => {
   const navigate = useNavigate();
@@ -179,7 +179,7 @@ export const CustomSpotlight = () => {
           description: 'Dodaj nov termin za pranje',
           keywords: ['wash', 'laundry', 'pralni stroj', 'termin'],
           onClick: () => navigate('/pranje/novo'),
-          leftSection: icon(IconWash, 'cyan'),
+          leftSection: icon(IconWash),
         },
         {
           permission: 'CAN_WASH',
@@ -188,7 +188,7 @@ export const CustomSpotlight = () => {
           description: 'Pregled rezerviranih terminov za pranje',
           keywords: ['pranje', 'wash', 'laundry', 'rezervacije'],
           onClick: () => navigate('/pranje/moje'),
-          leftSection: icon(IconWash, 'cyan'),
+          leftSection: icon(IconWash),
         },
         {
           searchOnly: true,
