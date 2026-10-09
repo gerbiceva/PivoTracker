@@ -78,6 +78,28 @@ Deno.serve(async (req) => {
     });
   }
 
+  if (!name?.trim() || !surname?.trim()) {
+    return new Response(JSON.stringify({ error: "Name and surname are required" }), {
+      status: 400,
+      headers: { 
+        "Content-Type": "application/json",
+        ...corsHeaders,
+      },
+    });
+  }
+
+  // Residents need a room; phone number and date of birth are optional
+  const hasRoom = room !== undefined && room !== null && room !== "";
+  if (hasRoom && !/^\d+$/.test(String(room).trim())) {
+    return new Response(JSON.stringify({ error: "Room must be a number" }), {
+      status: 400,
+      headers: { 
+        "Content-Type": "application/json",
+        ...corsHeaders,
+      },
+    });
+  }
+
   // Validate email format
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   if (!emailRegex.test(email)) {
@@ -150,8 +172,8 @@ Deno.serve(async (req) => {
     const { data: baseUserData, error: baseUserError } = await supabaseAdmin
       .from('base_users')
       .insert({
-        name: name || email.split('@')[0], // Use email prefix as name if not provided
-        surname: surname || null,
+        name: name.trim(),
+        surname: surname.trim(),
         auth: userData.user.id,
         invited_by: inviterBaseUserId // Set the inviter's base_user id
       })
@@ -165,19 +187,14 @@ Deno.serve(async (req) => {
     } else {
       createdBaseUserId = baseUserData?.id;
       
-      // Create a resident record if room number, phone number, or date of birth is provided
-      if (
-        (room !== undefined && room !== null && room !== "") ||
-        (phone_number !== undefined && phone_number !== null && phone_number !== "") ||
-        (date_of_birth !== undefined && date_of_birth !== null && date_of_birth !== "")
-      ) {
+      // Create a resident record when a room is given (room is NOT NULL)
+      if (hasRoom) {
         const { data: residentData, error: residentError } = await supabaseAdmin
           .from('residents')
           .insert({
-            ...(room !== undefined && room !== null && room !== "" && { room: room }),
-            ...(phone_number !== undefined && phone_number !== null && phone_number !== "" && { phone_number: phone_number }),
-            ...(date_of_birth !== undefined && date_of_birth !== null && date_of_birth !== "" && { date_of_birth: date_of_birth }),
-            created_at: new Date().toISOString()
+            room: Number(String(room).trim()),
+            phone_number: phone_number?.trim() || null,
+            birth_date: date_of_birth || null,
           })
           .select('id')
           .single();

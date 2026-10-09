@@ -11,6 +11,10 @@ type PermissionType = Database['public']['Tables']['permission_types']['Row'];
 type PermissionGroup = Database['public']['Tables']['permission_groups']['Row'];
 type PermissionRow =
   Database['public']['Views']['user_permissions_view']['Row'];
+type GroupLink = Database['public']['Tables']['permgroup_permissions']['Row'];
+
+// permission type ids a vloga gives when it is assigned
+export type GroupPreset = (groupId: number | null) => Set<number>;
 
 // JANEZ NOVAK / janez novak -> Janez Novak (also Ana-Marija, D'Angelo)
 export const capitalizeName = (value: string) =>
@@ -123,6 +127,22 @@ export const useUserEditing = (query_string?: string) => {
     table: 'permission_groups',
   });
 
+  const { data: links, mutate: mutateLinks } = getSupaWR({
+    query: () => supabaseClient.from('permgroup_permissions').select('*'),
+    table: 'permgroup_permissions',
+  });
+
+  const groupPreset = useMemo<GroupPreset>(() => {
+    const map = new Map<number, Set<number>>();
+    for (const l of (links as GroupLink[] | undefined) ?? []) {
+      map.set(
+        l.group_id,
+        (map.get(l.group_id) ?? new Set()).add(l.permission_type),
+      );
+    }
+    return (id) => (id == null ? new Set() : (map.get(id) ?? new Set()));
+  }, [links]);
+
   const groupLabel = useMemo(() => {
     const byId = new Map(
       ((groups as PermissionGroup[] | undefined) ?? []).map((g) => [
@@ -212,6 +232,8 @@ export const useUserEditing = (query_string?: string) => {
       usersError || permissionsError || permissionTypesError || groupsError,
     groups: (groups as PermissionGroup[] | undefined) ?? [],
     mutateGroups,
+    groupPreset,
+    mutateLinks,
     permissionTypes: (permissionTypes as PermissionType[] | undefined) ?? [],
     mutatePermissions,
     mutateUsers,

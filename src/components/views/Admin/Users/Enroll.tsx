@@ -1,28 +1,28 @@
-import { Alert, Container, Stack } from '@mantine/core';
-import { IconAlertCircle } from '@tabler/icons-react';
+import { Button, Container, Stack } from '@mantine/core';
+import { IconArrowLeft } from '@tabler/icons-react';
+import { useNavigate } from 'react-router-dom';
 import { UserRegisterForm } from '../../../users/registerUser';
+import { PageHeader } from '../PageHeader';
 
 export const EnrollUser = () => {
+  const navigate = useNavigate();
   return (
-    <Container>
-      <Stack my="xl" p="md">
-        <Alert
-          title="Opozorilo"
-          variant="light"
-          color="gray"
-          my="md"
-          icon={<IconAlertCircle></IconAlertCircle>}
-        >
-          <p>Ustvarite lahko uporabnika, ki živi na gerbičevi, ali ne.</p>
-          <p>
-            Zunanji uporabniki bodo lahko kupovali pivo ter videli dogodke,
-            nimajo pa dostopa do pranja in podobnih funkcij.
-          </p>
-          <p>
-            Po uspešno ustvarjenem računu, se uporabnik z emailom in kodo lahko
-            prijavi v sistem.
-          </p>
-        </Alert>
+    <Container size="sm">
+      <Stack my="xl" gap="lg">
+        <PageHeader
+          title="Nov uporabnik"
+          description="Uporabnik se po ustvarjenem računu prijavi z emailom in kodo, ki jo prejme po pošti."
+          action={
+            <Button
+              variant="subtle"
+              color="gray"
+              leftSection={<IconArrowLeft size={16} />}
+              onClick={() => navigate(-1)}
+            >
+              Nazaj
+            </Button>
+          }
+        />
         <UserRegisterForm />
       </Stack>
     </Container>

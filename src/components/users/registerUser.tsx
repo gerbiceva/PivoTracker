@@ -1,182 +1,289 @@
 import {
   Alert,
   Button,
+  Divider,
   Group,
+  Paper,
   SegmentedControl,
   SimpleGrid,
   Stack,
+  Text,
   TextInput,
 } from '@mantine/core';
-import { DatePickerInput } from '@mantine/dates';
+import { DateInput } from '@mantine/dates';
 import { useForm } from '@mantine/form';
-import { useCallback, useState } from 'react';
+import { useState } from 'react';
 import { supabaseClient } from '../../supabase/supabaseClient';
 import { notifications } from '@mantine/notifications';
+import {
+  IconAt,
+  IconCalendar,
+  IconCheck,
+  IconDoor,
+  IconHome,
+  IconPhone,
+  IconUserPlus,
+  IconWorld,
+} from '@tabler/icons-react';
 
 export interface SignupProps {
   email: string;
   name: string;
   surname: string;
-  room?: string;
-  phone_number?: string;
-  date_of_birth?: Date;
+  room: string | null;
+  phone_number: string | null;
+  date_of_birth: string | null;
   redirectTo?: string;
 }
 
+type UserType = 'resident' | 'external';
+
+interface FormValues {
+  email: string;
+  name: string;
+  surname: string;
+  room: string;
+  phone_number: string;
+  date_of_birth: Date | null;
+}
+
+const optional = (label: string) => (
+  <>
+    {label}{' '}
+    <Text span size="xs" c="dimmed" fw={400}>
+      (neobvezno)
+    </Text>
+  </>
+);
+
+const SectionLabel = ({ children }: { children: string }) => (
+  <Text size="xs" fw={700} c="dimmed" tt="uppercase">
+    {children}
+  </Text>
+);
+
+const userTypeHints: Record<UserType, string> = {
+  resident: 'Prebivalec Gerbičeve ima dostop do pranja in ostalih funkcij doma.',
+  external:
+    'Zunanji uporabnik lahko kupuje pivo in vidi dogodke, nima pa dostopa do pranja.',
+};
+
 export const UserRegisterForm = () => {
-  const [userType, setUserType] = useState('Gerbičevc');
+  const [userType, setUserType] = useState<UserType>('resident');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const form = useForm<SignupProps>({
+  const [lastCreated, setLastCreated] = useState<string | null>(null);
+
+  const form = useForm<FormValues>({
     mode: 'controlled',
     initialValues: {
       email: '',
       name: '',
       surname: '',
       room: '',
-      date_of_birth: new Date(),
       phone_number: '',
+      date_of_birth: null,
     },
     validate: {
-      email: (value) => {
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        return emailRegex.test(value) ? null : 'Invalid email format';
+      email: (value) =>
+        /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim())
+          ? null
+          : 'Neveljaven email',
+      name: (value) => (value.trim() ? null : 'Ime je obvezno'),
+      surname: (value) => (value.trim() ? null : 'Priimek je obvezen'),
+      room: (value) => {
+        if (userType !== 'resident') return null;
+        if (!value.trim()) return 'Soba je obvezna';
+        return /^\d+$/.test(value.trim()) ? null : 'Soba mora biti številka';
       },
     },
   });
 
-  const signUp = useCallback(
-    async (values: SignupProps) => {
-      setLoading(true);
-      setError(null);
+  const signUp = async (body: SignupProps) => {
+    setLoading(true);
+    setError(null);
+    setLastCreated(null);
 
+    const { error } = await supabaseClient.functions.invoke('invite-user', {
+      body,
+    });
+
+    if (error) {
+      // the function returns { error, details } in the body on non-2xx
+      let message = error.message || 'Napaka pri ustvarjanju uporabnika';
       try {
-        // Call the invite-user edge function using supabase functions.invoke
-        const { error } = await supabaseClient.functions.invoke('invite-user', {
-          body: {
-            ...values,
-          } as SignupProps,
-        });
-
-        if (error) {
-          throw new Error(error.message || 'Failed to send invitation');
-        }
-
-        // Show success message to user
-        notifications.show({
-          title: 'Uporabnik ustvarjen',
-          message:
-            'Uporabnik je ustvarjen. Na mail je bila poslana avtorizacijska koda',
-        });
-
-        // Reset form after successful submission
-        form.reset();
-      } catch (err: any) {
-        console.error('Error inviting user:', err);
-        setError(
-          err.message || 'An error occurred while sending the invitation',
-        );
-      } finally {
-        setLoading(false);
+        const payload = await error.context?.json();
+        message = payload?.details || payload?.error || message;
+      } catch {
+        // body wasn't JSON, keep the generic message
       }
-    },
-    [form],
-  );
-
-  const handleSubmit = (values: SignupProps) => {
-    if (userType === 'Zunanji') {
-      const { room, phone_number, date_of_birth, ...rest } = values;
-      return signUp({
-        ...rest,
-        room: undefined,
-        phone_number: undefined,
-        date_of_birth: undefined,
+      console.error('Error inviting user:', error);
+      setError(message);
+    } else {
+      notifications.show({
+        title: 'Uporabnik ustvarjen',
+        message: `${body.email} se lahko zdaj prijavi s kodo, poslano na email.`,
+        color: 'teal',
       });
+      setLastCreated(body.email);
+      form.reset();
     }
-    return signUp(values);
+    setLoading(false);
+  };
+
+  const handleSubmit = (values: FormValues) => {
+    const isResident = userType === 'resident';
+    const phone = values.phone_number.trim();
+    return signUp({
+      email: values.email.trim(),
+      name: values.name.trim(),
+      surname: values.surname.trim(),
+      room: isResident ? values.room.trim() : null,
+      phone_number: isResident && phone ? phone : null,
+      date_of_birth:
+        isResident && values.date_of_birth
+          ? new Date(values.date_of_birth).toISOString()
+          : null,
+    });
   };
 
   return (
-    <form onSubmit={form.onSubmit(handleSubmit)} autoComplete="off">
-      <Stack mx="auto">
-        <SegmentedControl
-          data={['Gerbičevc', 'Zunanji']}
-          size="md"
-          value={userType}
-          onChange={setUserType}
-        />
-        {error && (
-          <Alert
-            title="Error"
-            color="red"
-            withCloseButton
-            onClose={() => setError(null)}
-          >
-            {error}
-          </Alert>
-        )}
-        <Group w="100%" wrap="nowrap" align="end">
-          <TextInput
-            required
-            w="100%"
-            description="Email"
-            placeholder="bruc@brucmail.com"
-            key={form.key('email')}
-            {...form.getInputProps('email')}
-          />
-        </Group>
-        <Group w="100%" wrap="nowrap" align="end">
-          <TextInput
-            required
-            w="100%"
-            description="Ime"
-            placeholder="Marsel"
-            key={form.key('name')}
-            {...form.getInputProps('name')}
-          />
-          <TextInput
-            required
-            w="100%"
-            description="Priimek"
-            placeholder="Levstik"
-            key={form.key('surname')}
-            {...form.getInputProps('surname')}
-          />
-        </Group>
+    <Paper withBorder radius="md" p={{ base: 'md', sm: 'xl' }}>
+      <form onSubmit={form.onSubmit(handleSubmit)} autoComplete="off">
+        <Stack gap="lg">
+          <Stack gap={6}>
+            <SegmentedControl
+              fullWidth
+              size="md"
+              value={userType}
+              onChange={(v) => {
+                setUserType(v as UserType);
+                form.clearFieldError('room');
+              }}
+              data={[
+                {
+                  value: 'resident',
+                  label: (
+                    <Group gap={6} justify="center" wrap="nowrap">
+                      <IconHome size={16} />
+                      <span>Gerbičevc</span>
+                    </Group>
+                  ),
+                },
+                {
+                  value: 'external',
+                  label: (
+                    <Group gap={6} justify="center" wrap="nowrap">
+                      <IconWorld size={16} />
+                      <span>Zunanji</span>
+                    </Group>
+                  ),
+                },
+              ]}
+            />
+            <Text size="sm" c="dimmed">
+              {userTypeHints[userType]}
+            </Text>
+          </Stack>
 
-        {userType === 'Gerbičevc' && (
-          <>
-            <SimpleGrid w="100%" cols={2}>
+          {error && (
+            <Alert
+              title="Napaka"
+              color="red"
+              withCloseButton
+              onClose={() => setError(null)}
+            >
+              {error}
+            </Alert>
+          )}
+          {lastCreated && (
+            <Alert
+              color="teal"
+              icon={<IconCheck />}
+              withCloseButton
+              onClose={() => setLastCreated(null)}
+            >
+              Uporabnik <b>{lastCreated}</b> je ustvarjen. Prijavi se lahko z
+              emailom in kodo, ki jo prejme po pošti.
+            </Alert>
+          )}
+
+          <Stack gap="sm">
+            <SectionLabel>Osnovni podatki</SectionLabel>
+            <TextInput
+              withAsterisk
+              label="Email"
+              placeholder="bruc@brucmail.com"
+              leftSection={<IconAt size={16} />}
+              key={form.key('email')}
+              {...form.getInputProps('email')}
+            />
+            <SimpleGrid cols={{ base: 1, xs: 2 }} spacing="sm">
               <TextInput
-                w="100%"
-                description="Soba"
-                placeholder="101"
-                key={form.key('room')}
-                {...form.getInputProps('room')}
+                withAsterisk
+                label="Ime"
+                placeholder="Marsel"
+                key={form.key('name')}
+                {...form.getInputProps('name')}
               />
               <TextInput
-                w="100%"
-                description="Telefonska"
-                placeholder="031 130 234"
-                key={form.key('phone_number')}
-                {...form.getInputProps('phone_number')}
+                withAsterisk
+                label="Priimek"
+                placeholder="Levstik"
+                key={form.key('surname')}
+                {...form.getInputProps('surname')}
               />
             </SimpleGrid>
-            <DatePickerInput
-              w="100%"
-              description="Datum rojstva"
-              placeholder="1. 1. 2000"
-              key={form.key('date_of_birth')}
-              {...form.getInputProps('date_of_birth')}
-            />
-          </>
-        )}
-        <Group justify="flex-end" mt="md">
-          <Button type="submit" loading={loading}>
-            Submit
-          </Button>
-        </Group>
-      </Stack>
-    </form>
+          </Stack>
+
+          {userType === 'resident' && (
+            <>
+              <Divider />
+              <Stack gap="sm">
+                <SectionLabel>Podatki prebivalca</SectionLabel>
+                <SimpleGrid cols={{ base: 1, xs: 2 }} spacing="sm">
+                  <TextInput
+                    withAsterisk
+                    label="Soba"
+                    placeholder="101"
+                    inputMode="numeric"
+                    leftSection={<IconDoor size={16} />}
+                    key={form.key('room')}
+                    {...form.getInputProps('room')}
+                  />
+                  <TextInput
+                    label={optional('Telefonska')}
+                    placeholder="031 130 234"
+                    type="tel"
+                    leftSection={<IconPhone size={16} />}
+                    key={form.key('phone_number')}
+                    {...form.getInputProps('phone_number')}
+                  />
+                </SimpleGrid>
+                <DateInput
+                  label={optional('Datum rojstva')}
+                  placeholder="Izberi datum"
+                  valueFormat="D. M. YYYY"
+                  clearable
+                  leftSection={<IconCalendar size={16} />}
+                  key={form.key('date_of_birth')}
+                  {...form.getInputProps('date_of_birth')}
+                />
+              </Stack>
+            </>
+          )}
+
+          <Group justify="flex-end">
+            <Button
+              type="submit"
+              loading={loading}
+              leftSection={<IconUserPlus size={16} />}
+            >
+              Ustvari uporabnika
+            </Button>
+          </Group>
+        </Stack>
+      </form>
+    </Paper>
   );
 };

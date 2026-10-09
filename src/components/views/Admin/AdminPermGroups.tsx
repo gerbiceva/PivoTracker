@@ -50,6 +50,7 @@ const renderPermissionOption: MultiSelectProps['renderOption'] = ({
 interface GroupCardProps {
   group: PermissionGroup;
   current: string[];
+  members: number;
   permissionTypes: PermissionType[];
   onSaved: () => void;
   // renamed or deleted: the group list itself changed
@@ -242,6 +243,7 @@ const AddGroupButton = ({ onCreated }: { onCreated: () => void }) => {
 const GroupCard = ({
   group,
   current,
+  members,
   permissionTypes,
   onSaved,
   onGroupsChanged,
@@ -264,11 +266,12 @@ const GroupCard = ({
       label: t.display_name || t.name,
     }));
 
-  const save = async () => {
+  const save = async (propagate: boolean) => {
     setSaving(true);
     const { error } = await supabaseClient.rpc('set_group_permissions', {
       p_group_id: group.id,
       p_permission_type_ids: selected.map(Number).sort((a, b) => a - b),
+      p_propagate: propagate,
     });
     setSaving(false);
     if (error) {
@@ -282,15 +285,59 @@ const GroupCard = ({
     notifications.show({
       color: 'green',
       title: 'Shranjeno',
-      message: `Dovoljenja za ${group.display_name || group.name} so posodobljena.`,
+      message: propagate
+        ? `Vloga ${group.display_name || group.name} in njeni člani so posodobljeni.`
+        : `Prednastavitev vloge ${group.display_name || group.name} je posodobljena.`,
     });
     onSaved();
+  };
+
+  // existing members keep their permissions unless the change is pushed to them
+  const askAndSave = () => {
+    if (members === 0) return save(false);
+    const id = modals.open({
+      title: 'Posodobi tudi obstoječe člane?',
+      children: (
+        <Stack>
+          <Text size="sm">
+            Število članov vloge: {members}. Spremembo lahko uveljaviš samo za
+            nove dodelitve vloge ali pa jo dodaš oz. odstraniš tudi obstoječim
+            članom. Njihova ostala dovoljenja ostanejo nespremenjena.
+          </Text>
+          <Group justify="flex-end" gap="xs">
+            <Button variant="default" onClick={() => modals.close(id)}>
+              Prekliči
+            </Button>
+            <Button
+              variant="light"
+              onClick={() => {
+                modals.close(id);
+                save(false);
+              }}
+            >
+              Samo prednastavitev
+            </Button>
+            <Button
+              onClick={() => {
+                modals.close(id);
+                save(true);
+              }}
+            >
+              Posodobi tudi člane
+            </Button>
+          </Group>
+        </Stack>
+      ),
+    });
   };
 
   return (
     <Card withBorder padding="md">
       <Stack gap="xs">
         <GroupTitle group={group} onGroupsChanged={onGroupsChanged} />
+        <Text size="xs" c="dimmed">
+          {members === 0 ? 'Brez članov' : `Število članov: ${members}`}
+        </Text>
         <MultiSelect
           data={options}
           value={selected}
@@ -309,7 +356,12 @@ const GroupCard = ({
           >
             Prekliči
           </Button>
-          <Button size="xs" disabled={!changed} loading={saving} onClick={save}>
+          <Button
+            size="xs"
+            disabled={!changed}
+            loading={saving}
+            onClick={askAndSave}
+          >
             Shrani
           </Button>
         </Group>
@@ -333,6 +385,20 @@ export const AdminPermGroups = () => {
       supabaseClient.from('permission_types').select('*').order('id'),
     table: 'permission_types',
   });
+  const users = getSupaWR({
+    query: () => supabaseClient.from('user_view').select('permgroup_id'),
+    table: 'user_view',
+    params: ['group-members'],
+  });
+
+  const memberCount = useMemo(() => {
+    const map = new Map<number, number>();
+    users.data?.forEach((u) => {
+      if (u.permgroup_id == null) return;
+      map.set(u.permgroup_id, (map.get(u.permgroup_id) ?? 0) + 1);
+    });
+    return map;
+  }, [users.data]);
 
   const byGroup = useMemo(() => {
     const map = new Map<number, string[]>();
@@ -361,7 +427,7 @@ export const AdminPermGroups = () => {
       <LoadingOverlay visible={isLoading} />
       <PageHeader
         title="Vloge"
-        description="Dovoljenja, ki jih dobi vsak član vloge. Dodatna dovoljenja posameznim uporabnikom se urejajo pri uporabnikih."
+        description="Vloga je prednastavitev: ob dodelitvi uporabnik dobi njena dovoljenja, ki jih lahko nato posamezno spremeniš pri uporabnikih."
         action={<AddGroupButton onCreated={() => groups.mutate()} />}
       />
       {editable.map((g) => (
@@ -369,6 +435,7 @@ export const AdminPermGroups = () => {
           key={g.id}
           group={g}
           current={byGroup.get(g.id) ?? []}
+          members={memberCount.get(g.id) ?? 0}
           permissionTypes={types.data ?? []}
           onSaved={() => links.mutate()}
           onGroupsChanged={() => {

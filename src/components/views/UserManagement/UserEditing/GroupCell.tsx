@@ -1,10 +1,13 @@
-import { Badge, Menu, Text, UnstyledButton } from '@mantine/core';
+import { Badge, Menu, Stack, Text, UnstyledButton } from '@mantine/core';
+import { modals } from '@mantine/modals';
 import { notifications } from '@mantine/notifications';
 import { useState } from 'react';
 import { supabaseClient } from '../../../../supabase/supabaseClient';
 import { Database } from '../../../../supabase/supabase';
+import { GroupPreset } from './useUserEditing';
 
 type PermissionGroup = Database['public']['Tables']['permission_groups']['Row'];
+type PermissionType = Database['public']['Tables']['permission_types']['Row'];
 
 // only admins may assign or remove this group; the DB enforces it too
 export const ADMIN_GROUP = 'admin';
@@ -16,15 +19,23 @@ interface GroupCellProps {
   userId: number;
   groupId: number | null;
   groups: PermissionGroup[];
+  // the user's current permission type ids
+  permissions: number[];
+  permissionTypes: PermissionType[];
+  groupPreset: GroupPreset;
   currentUserIsAdmin: boolean;
   onSaved: () => void;
 }
 
 // Role badge for the user table; clicking it opens a role picker.
+// Picking a role replaces the user's permissions with the role's preset.
 export const GroupCell = ({
   userId,
   groupId,
   groups,
+  permissions,
+  permissionTypes,
+  groupPreset,
   currentUserIsAdmin,
   onSaved,
 }: GroupCellProps) => {
@@ -53,8 +64,7 @@ export const GroupCell = ({
     (g) => currentUserIsAdmin || g.name !== ADMIN_GROUP,
   );
 
-  const change = async (value: number) => {
-    if (value === groupId) return;
+  const assign = async (value: number) => {
     setSaving(true);
     const { error } = await supabaseClient.rpc('set_user_group', {
       p_base_user_id: userId,
@@ -70,6 +80,44 @@ export const GroupCell = ({
       return;
     }
     onSaved();
+  };
+
+  const change = (value: number) => {
+    if (value === groupId) return;
+    const target = groups.find((g) => g.id === value);
+    // the admin group implies everything and leaves the list untouched
+    if (!target || target.name === ADMIN_GROUP) return assign(value);
+    const preset = groupPreset(value);
+    const names = (ids: number[]) =>
+      ids
+        .map((id) => permissionTypes.find((t) => t.id === id))
+        .map((t) => t?.display_name || t?.name)
+        .join(', ');
+    const removed = permissions.filter((id) => !preset.has(id));
+    const added = [...preset].filter((id) => !permissions.includes(id));
+    if (removed.length === 0 && added.length === 0) return assign(value);
+    modals.openConfirmModal({
+      title: `Vloga ${label(target)}`,
+      children: (
+        <Stack gap="xs">
+          <Text size="sm">
+            Dovoljenja bodo zamenjana s prednastavitvijo vloge.
+          </Text>
+          {added.length > 0 && (
+            <Text size="sm" c="green">
+              + {names(added)}
+            </Text>
+          )}
+          {removed.length > 0 && (
+            <Text size="sm" c="red">
+              − {names(removed)}
+            </Text>
+          )}
+        </Stack>
+      ),
+      labels: { confirm: 'Zamenjaj', cancel: 'Prekliči' },
+      onConfirm: () => assign(value),
+    });
   };
 
   return (

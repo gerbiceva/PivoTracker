@@ -142,28 +142,23 @@ export const UserDetailsHeader = ({
   );
 };
 
-type PermState = 'off' | 'role' | 'extra' | 'added' | 'kept';
+type PermState = 'off' | 'on' | 'added' | 'removed';
 
 const PERM_STYLE: Record<
   PermState,
   { bg?: string; border?: string; tag?: string; tagColor?: string }
 > = {
   off: {},
-  role: {
-    bg: 'var(--mantine-color-teal-light)',
-    tag: 'vloga',
-    tagColor: 'teal',
-  },
-  extra: { border: 'var(--mantine-color-teal-filled)', tag: 'dodatno' },
+  on: { border: 'var(--mantine-color-teal-filled)' },
   added: {
     bg: 'var(--mantine-color-green-light)',
     tag: 'novo',
     tagColor: 'green',
   },
-  kept: {
-    bg: 'var(--mantine-color-orange-light)',
-    tag: 'ohranjeno',
-    tagColor: 'orange',
+  removed: {
+    bg: 'var(--mantine-color-red-light)',
+    tag: 'odstranjeno',
+    tagColor: 'red',
   },
 };
 
@@ -177,6 +172,7 @@ const PermissionItem = ({
   onToggle?: () => void;
 }) => {
   const s = PERM_STYLE[state];
+  const checked = state === 'on' || state === 'added';
   return (
     <UnstyledButton
       onClick={onToggle}
@@ -193,12 +189,12 @@ const PermissionItem = ({
       <Group gap="xs" wrap="nowrap">
         <Checkbox
           size="xs"
-          checked={state !== 'off'}
+          checked={checked}
           readOnly
           tabIndex={-1}
           style={{ pointerEvents: 'none' }}
         />
-        <Text size="sm" c={state === 'off' ? 'dimmed' : undefined} flex={1}>
+        <Text size="sm" c={checked ? undefined : 'dimmed'} flex={1}>
           {label}
         </Text>
         {s.tag && (
@@ -211,6 +207,11 @@ const PermissionItem = ({
   );
 };
 
+const sameSet = (a: number[], b: Set<number>) =>
+  a.length === b.size && a.every((id) => b.has(id));
+
+// The vloga is a preset: picking one fills in its permissions, which can then
+// be changed freely. Saved permissions are the user's real permissions.
 const RoleAndPermissions = ({
   user,
   groups,
@@ -231,7 +232,7 @@ const RoleAndPermissions = ({
     query: () => supabaseClient.from('permgroup_permissions').select('*'),
     table: 'permgroup_permissions',
   });
-  const groupPerms = useMemo(() => {
+  const preset = useMemo(() => {
     const map = new Map<number, Set<number>>();
     for (const l of (links as GroupLink[] | undefined) ?? []) {
       map.set(
@@ -239,18 +240,11 @@ const RoleAndPermissions = ({
         (map.get(l.group_id) ?? new Set()).add(l.permission_type),
       );
     }
-    // the admin group grants every permission without listing them
-    const adminId = groups.find((g) => g.name === ADMIN_GROUP)?.id;
-    const all = new Set(permissionTypes.map((p) => p.id));
     return (id: number | null) =>
-      id == null
-        ? new Set<number>()
-        : id === adminId
-          ? all
-          : (map.get(id) ?? new Set<number>());
-  }, [links, groups, permissionTypes]);
+      id == null ? new Set<number>() : (map.get(id) ?? new Set<number>());
+  }, [links]);
 
-  const savedExtras = useMemo(
+  const saved = useMemo(
     () =>
       user.permissions
         .map((p) => p.permission_type_id)
@@ -259,71 +253,72 @@ const RoleAndPermissions = ({
   );
   const [draft, setDraft] = useState<{
     group: number | null;
-    extras: number[];
+    perms: number[];
   } | null>(null);
   const [saving, setSaving] = useState(false);
 
   const group = draft ? draft.group : user.permgroup_id;
-  const extras = draft ? draft.extras : savedExtras;
-  const oldRole = groupPerms(user.permgroup_id);
-  const newRole = groupPerms(group);
+  const perms = draft ? draft.perms : saved;
   const roleChanged = draft != null && draft.group !== user.permgroup_id;
+  const isAdminGroup =
+    group != null && groups.find((g) => g.id === group)?.name === ADMIN_GROUP;
+  const groupPreset = preset(group);
+  const customized =
+    group != null && !isAdminGroup && !sameSet(perms, groupPreset);
 
   const stateOf = (id: number): PermState => {
-    const had = oldRole.has(id) || savedExtras.includes(id);
-    if (newRole.has(id)) return roleChanged && !had ? 'added' : 'role';
-    if (!extras.includes(id)) return 'off';
-    return roleChanged && oldRole.has(id) ? 'kept' : 'extra';
+    const was = saved.includes(id);
+    const is = perms.includes(id);
+    if (is) return was ? 'on' : 'added';
+    return was ? 'removed' : 'off';
   };
 
   const changeGroup = (value: string | null) => {
     const next = value == null ? null : Number(value);
     if (next === user.permgroup_id) return setDraft(null);
-    const nextRole = groupPerms(next);
-    // switching never takes anything away: what the old role gave but the
-    // new one doesn't stays on the user as an extra permission
-    const kept = [...oldRole].filter((id) => !nextRole.has(id));
+    const nextIsAdmin = groups.find((g) => g.id === next)?.name === ADMIN_GROUP;
+    // a new vloga replaces the permissions with its preset; admin and
+    // "no vloga" keep the current list
     setDraft({
       group: next,
-      extras: [...new Set([...savedExtras, ...kept])].filter(
-        (id) => !nextRole.has(id),
-      ),
+      perms: next == null || nextIsAdmin ? saved : [...preset(next)],
     });
   };
 
+  const resetToPreset = () => setDraft({ group, perms: [...groupPreset] });
+
   const residentGroup = groups.find(isResidentGroup);
-  // back to a plain resident: Stanovalec and nothing extra
-  const reset = () =>
-    residentGroup && setDraft({ group: residentGroup.id, extras: [] });
-  const isReset = group === residentGroup?.id && extras.length === 0;
+  const resetToResident = () =>
+    residentGroup &&
+    setDraft({ group: residentGroup.id, perms: [...preset(residentGroup.id)] });
+  const isResident =
+    group === residentGroup?.id &&
+    residentGroup != null &&
+    sameSet(perms, preset(residentGroup.id));
 
   const toggle = (id: number) =>
     setDraft({
       group,
-      extras: extras.includes(id)
-        ? extras.filter((x) => x !== id)
-        : [...extras, id],
+      perms: perms.includes(id)
+        ? perms.filter((x) => x !== id)
+        : [...perms, id],
     });
 
   const save = async () => {
     if (!draft) return;
     setSaving(true);
-    const { error: permError } = await supabaseClient.rpc(
-      'set_user_permissions',
-      {
-        p_base_user_id: user.base_user_id!,
-        p_permission_type_ids: [...draft.extras].sort((a, b) => a - b),
-      },
-    );
-    const { error: groupError } =
-      permError || !roleChanged
-        ? { error: null }
-        : await supabaseClient.rpc('set_user_group', {
-            p_base_user_id: user.base_user_id!,
-            p_group_id: draft.group,
-          });
+    const ids = [...draft.perms].sort((a, b) => a - b);
+    const { error } = roleChanged
+      ? await supabaseClient.rpc('set_user_group', {
+          p_base_user_id: user.base_user_id!,
+          p_group_id: draft.group,
+          p_permission_type_ids: ids,
+        })
+      : await supabaseClient.rpc('set_user_permissions', {
+          p_base_user_id: user.base_user_id!,
+          p_permission_type_ids: ids,
+        });
     setSaving(false);
-    const error = permError || groupError;
     if (error) {
       notifications.show({
         color: 'red',
@@ -336,8 +331,9 @@ const RoleAndPermissions = ({
     onSaved();
   };
 
+  const label = (p: PermissionType) => p.display_name || p.name;
   const added = permissionTypes.filter((p) => stateOf(p.id) === 'added');
-  const kept = permissionTypes.filter((p) => stateOf(p.id) === 'kept');
+  const removed = permissionTypes.filter((p) => stateOf(p.id) === 'removed');
   const options = groups
     .filter((g) => allowAdmin || g.name !== ADMIN_GROUP)
     .map((g) => ({
@@ -347,57 +343,77 @@ const RoleAndPermissions = ({
 
   return (
     <Section title="Vloga in dovoljenja">
-      <Select
-        aria-label="Vloga"
-        size="sm"
-        data={options}
-        value={group?.toString() ?? null}
-        onChange={changeGroup}
-        placeholder="Brez vloge"
-        disabled={!canEdit || saving}
-        clearable
-      />
-      {added.length > 0 && (
-        <Alert color="green" variant="light" p="xs">
-          <Text size="sm" fw={600}>
-            + {added.length} novih iz vloge
+      <Group gap="xs" wrap="nowrap" align="center">
+        <Select
+          aria-label="Vloga"
+          size="sm"
+          flex={1}
+          data={options}
+          value={group?.toString() ?? null}
+          onChange={changeGroup}
+          placeholder="Brez vloge"
+          disabled={!canEdit || saving}
+          clearable
+        />
+        {customized && (
+          <Text size="xs" c="dimmed">
+            prilagojeno
           </Text>
-          <Text size="sm">{added.map((p) => p.display_name).join(', ')}</Text>
+        )}
+      </Group>
+      {(added.length > 0 || removed.length > 0) && (
+        <Alert color="gray" variant="light" p="xs">
+          {added.length > 0 && (
+            <Text size="sm" c="green">
+              + {added.map(label).join(', ')}
+            </Text>
+          )}
+          {removed.length > 0 && (
+            <Text size="sm" c="red">
+              − {removed.map(label).join(', ')}
+            </Text>
+          )}
         </Alert>
       )}
-      {kept.length > 0 && (
-        <Alert color="orange" variant="light" p="xs">
-          <Text size="sm" fw={600}>
-            {kept.length} ostane kot dodatno
-          </Text>
-          <Text size="sm">{kept.map((p) => p.display_name).join(', ')}</Text>
-        </Alert>
-      )}
-      <SimpleGrid cols={{ base: 1, xs: 2 }} spacing={6} verticalSpacing={6}>
-        {permissionTypes.map((p) => {
-          const state = stateOf(p.id);
-          const fromRole = state === 'role' || state === 'added';
-          return (
+      {isAdminGroup ? (
+        <Text size="sm" c="dimmed">
+          Administrator ima vsa dovoljenja.
+        </Text>
+      ) : (
+        <SimpleGrid cols={{ base: 1, xs: 2 }} spacing={6} verticalSpacing={6}>
+          {permissionTypes.map((p) => (
             <PermissionItem
               key={p.id}
-              label={p.display_name || p.name}
-              state={state}
-              onToggle={canEdit && !fromRole ? () => toggle(p.id) : undefined}
+              label={label(p)}
+              state={stateOf(p.id)}
+              onToggle={canEdit ? () => toggle(p.id) : undefined}
             />
-          );
-        })}
-      </SimpleGrid>
+          ))}
+        </SimpleGrid>
+      )}
       {canEdit ? (
         <Group justify="space-between">
-          <Button
-            size="xs"
-            variant="subtle"
-            color="red"
-            disabled={!residentGroup || isReset || saving}
-            onClick={reset}
-          >
-            Ponastavi na stanovalca
-          </Button>
+          <Group gap={0}>
+            <Button
+              size="xs"
+              variant="subtle"
+              color="red"
+              disabled={!residentGroup || isResident || saving}
+              onClick={resetToResident}
+            >
+              Ponastavi na stanovalca
+            </Button>
+            {customized && (
+              <Button
+                size="xs"
+                variant="subtle"
+                disabled={saving}
+                onClick={resetToPreset}
+              >
+                Ponastavi na vlogo
+              </Button>
+            )}
+          </Group>
           <Group gap="xs">
             <Button
               size="xs"

@@ -58,6 +58,7 @@ export const UserEditing = () => {
     setFloor,
     permissionTypes,
     groups,
+    groupPreset,
     mutatePermissions,
     mutateUsers,
   } = useUserEditing(debouncedSearchQuery);
@@ -121,13 +122,22 @@ export const UserEditing = () => {
           userId={user.base_user_id!}
           groupId={user.permgroup_id}
           groups={groups}
+          permissions={user.permissions
+            .map((p) => p.permission_type_id)
+            .filter((id): id is number => id != null)}
+          permissionTypes={permissionTypes}
+          groupPreset={groupPreset}
           currentUserIsAdmin={currentUserIsAdmin}
-          onSaved={() => mutateUsers()}
+          onSaved={() => {
+            mutateUsers();
+            mutatePermissions();
+          }}
         />
       </Table.Td>
       <Table.Td visibleFrom="sm">
         <PermissionsCell
           userId={user.base_user_id!}
+          isAdminUser={user.permgroup_id === adminGroupId}
           permissions={user.permissions}
           permissionTypes={permissionTypes}
           onSaved={() => mutatePermissions()}

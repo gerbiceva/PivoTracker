@@ -1465,11 +1465,19 @@ export type Database = {
         Returns: undefined
       }
       set_group_permissions: {
-        Args: { p_group_id: number; p_permission_type_ids: number[] }
+        Args: {
+          p_group_id: number
+          p_permission_type_ids: number[]
+          p_propagate?: boolean
+        }
         Returns: undefined
       }
       set_user_group: {
-        Args: { p_base_user_id: number; p_group_id: number | null }
+        Args: {
+          p_base_user_id: number
+          p_group_id: number | null
+          p_permission_type_ids?: number[]
+        }
         Returns: undefined
       }
       set_user_permissions: {

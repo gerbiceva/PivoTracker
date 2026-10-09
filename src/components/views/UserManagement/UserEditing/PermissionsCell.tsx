@@ -21,6 +21,8 @@ type PermissionType = Database['public']['Tables']['permission_types']['Row'];
 
 interface PermissionsCellProps {
   userId: number;
+  // admins implicitly have every permission, so their list isn't shown
+  isAdminUser: boolean;
   permissions: PermissionRow[];
   permissionTypes: PermissionType[];
   onSaved: () => void;
@@ -29,6 +31,7 @@ interface PermissionsCellProps {
 // Inline permission editor for the user table: click the badges to edit.
 export const PermissionsCell = ({
   userId,
+  isAdminUser,
   permissions,
   permissionTypes,
   onSaved,
@@ -108,6 +111,14 @@ export const PermissionsCell = ({
       {p.permission_display_name ?? p.permission_name}
     </Badge>
   );
+
+  if (isAdminUser) {
+    return (
+      <Badge variant="light" size="sm" color="red">
+        Vsa dovoljenja
+      </Badge>
+    );
+  }
 
   return (
     // stop clicks from triggering the row's navigate-to-user handler
