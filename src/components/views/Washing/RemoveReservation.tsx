@@ -12,13 +12,24 @@ export type ReservationType = Unpacked<
   Database['public']['Tables']['reservations']['Row']
 >;
 
-export const removeReservation = (reservationId: number) => {
+// ownerName is set when removing someone else's reservation (MANAGE_WASHING)
+export const removeReservation = (
+  reservationId: number,
+  ownerName?: string,
+) => {
   modals.openConfirmModal({
     title: 'Potrdi izbris termina',
     centered: true,
     children: (
       <Text size="sm">
-        Rezervacija bo izbrisana, termin pa bo prost za ostale.
+        {ownerName ? (
+          <>
+            Rezervacija uporabnika <b>{ownerName}</b> bo izbrisana, termin pa
+            bo prost za ostale.
+          </>
+        ) : (
+          'Rezervacija bo izbrisana, termin pa bo prost za ostale.'
+        )}
       </Text>
     ),
     labels: { confirm: 'Izbriši', cancel: 'Prekliči' },

@@ -24,6 +24,9 @@ import { removeReservation } from '../RemoveReservation';
 import { capitalizeName } from '../../UserManagement/UserEditing/useUserEditing';
 import { SlotCard } from './SlotCard';
 import { ReactNode } from 'react';
+import dayjs from 'dayjs';
+import { useStore } from '@nanostores/react';
+import { $currUser } from '../../../../global-state/user';
 
 export interface ReservationItemProps {
   reservation: dayType;
@@ -47,6 +50,8 @@ const InfoRow = ({
 export const ReservationItemInfo = ({ reservation }: ReservationItemProps) => {
   const [opened, { open, close }] = useDisclosure(false);
   const { data } = useGetAuthUser();
+  const user = useStore($currUser);
+  const canManage = !!user?.permissions.includes('MANAGE_WASHING');
 
   const zodiac = getZodiacSign(
     ReadTimeFromUTCString(reservation.date_of_birth),
@@ -64,6 +69,8 @@ export const ReservationItemInfo = ({ reservation }: ReservationItemProps) => {
   const end = ReadTimeFromUTCString(reservation.slot_end_utc).local();
   const bookedAt = ReadTimeFromUTCString(reservation.created_at).local();
   const isMine = data && data.id == reservation.user_id;
+  // ended slots can't be removed (also enforced by RLS)
+  const canRemove = (isMine || canManage) && end.isAfter(dayjs());
 
   return (
     <>
@@ -129,16 +136,19 @@ export const ReservationItemInfo = ({ reservation }: ReservationItemProps) => {
             ) : (
               <span />
             )}
-            {isMine && (
+            {canRemove && (
               <Button
                 variant="light"
                 color="red"
                 leftSection={<IconTrash size={16} />}
                 onClick={() => {
-                  removeReservation(reservation.reservation_id);
+                  removeReservation(
+                    reservation.reservation_id,
+                    isMine ? undefined : name,
+                  );
                 }}
               >
-                Izbriši rezervacijo
+                {isMine ? 'Izbriši rezervacijo' : 'Odstrani iz termina'}
               </Button>
             )}
           </Group>

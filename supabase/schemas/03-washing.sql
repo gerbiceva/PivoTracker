@@ -317,6 +317,9 @@ ALTER TABLE "public"."reservations" ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "reservations_select_by_can_wash" ON "public"."reservations" FOR SELECT TO "authenticated" USING ("public"."current_user_has_permission"('CAN_WASH'::"text"));
 CREATE POLICY "reservations_insert_by_can_wash" ON "public"."reservations" FOR INSERT TO "authenticated" WITH CHECK ("public"."current_user_has_permission"('CAN_WASH'::"text") AND "user_id" = (SELECT "id" FROM "public"."base_users" WHERE "auth" = auth.uid()));
 CREATE POLICY "reservations_delete_own_rows" ON "public"."reservations" FOR DELETE TO "authenticated" USING ("user_id" = (SELECT "id" FROM "public"."base_users" WHERE "auth" = auth.uid()));
+CREATE POLICY "reservations_delete_manage_washing" ON "public"."reservations" FOR DELETE TO "authenticated" USING ("public"."current_user_has_permission"('MANAGE_WASHING'::"text"));
+CREATE POLICY "reservations_select_manage_washing" ON "public"."reservations" FOR SELECT TO "authenticated" USING ("public"."current_user_has_permission"('MANAGE_WASHING'::"text"));
+CREATE POLICY "reservations_delete_not_past" ON "public"."reservations" AS RESTRICTIVE FOR DELETE TO "authenticated" USING (upper("slot") > now());
 
 GRANT ALL ON TABLE "public"."reservations" TO "anon";
 GRANT ALL ON TABLE "public"."reservations" TO "authenticated";
