@@ -550,9 +550,14 @@ export const AdminPermGroups = () => {
     );
   }
 
-  const editable = (groups.data ?? []).filter(
-    (g) => g.name !== ADMIN_GROUP && g.tier !== TIER_ADMIN,
-  );
+  const editable = (groups.data ?? [])
+    .filter((g) => g.name !== ADMIN_GROUP && g.tier !== TIER_ADMIN)
+    // Stanovalec is the default everyone has, so it goes last
+    .sort(
+      (a, b) =>
+        Number(a.tier === TIER_RESIDENT || isResidentGroup(a)) -
+        Number(b.tier === TIER_RESIDENT || isResidentGroup(b)),
+    );
   const isLoading = groups.isLoading || links.isLoading || types.isLoading;
 
   return (
