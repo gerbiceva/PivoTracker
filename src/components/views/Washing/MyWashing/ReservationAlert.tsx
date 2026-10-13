@@ -53,6 +53,13 @@ export const ReservationAlert = ({
             </Text>
           </Group>
 
+          {ReadTimeFromUTCString(reservation.slot_start_utc) <= dayjs().utc() &&
+            ReadTimeFromUTCString(reservation.slot_end_utc) > dayjs().utc() && (
+              <Badge color="green" variant="dot">
+                Poteka
+              </Badge>
+            )}
+
           {onRemove && (
             <ActionIcon
               size="sm"
