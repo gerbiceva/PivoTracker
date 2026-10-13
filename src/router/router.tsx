@@ -25,6 +25,7 @@ import { MyWashing } from '../components/views/Washing/MyWashing/MyWashing';
 import { Alert, Stack } from '@mantine/core';
 import { EditSelf } from '../components/views/UserManagement/ViewSelf';
 import { Vrata } from '../components/vrata/vrata';
+import { Vladajoci } from '../components/views/Vladajoci/Vladajoci';
 
 export const router = createBrowserRouter([
   {
@@ -283,6 +284,15 @@ export const router = createBrowserRouter([
         element: (
           <ProtectedPath redirectUrl="/auth">
             <Administracija />
+          </ProtectedPath>
+        ),
+      },
+      // VLADAJOCI
+      {
+        path: '/vladajoci',
+        element: (
+          <ProtectedPath redirectUrl="/auth">
+            <Vladajoci />
           </ProtectedPath>
         ),
       },

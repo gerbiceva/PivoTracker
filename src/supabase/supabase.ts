@@ -440,19 +440,28 @@ export type Database = {
       }
       permission_groups: {
         Row: {
+          description: string
           display_name: string
           id: number
           name: string
+          sort_order: number
+          tier: number
         }
         Insert: {
+          description?: string
           display_name?: string
           id?: number
           name: string
+          sort_order?: number
+          tier?: number
         }
         Update: {
+          description?: string
           display_name?: string
           id?: number
           name?: string
+          sort_order?: number
+          tier?: number
         }
         Relationships: []
       }
@@ -1460,8 +1469,35 @@ export type Database = {
         Args: { p_group_id: number }
         Returns: undefined
       }
+      get_vladajoci: {
+        Args: never
+        Returns: {
+          base_user_id: number | null
+          description: string
+          floor: number | null
+          group_id: number
+          group_name: string
+          name: string | null
+          phone_number: string | null
+          room: number | null
+          sort_order: number
+          surname: string | null
+        }[]
+      }
       rename_permission_group: {
         Args: { p_group_id: number; p_display_name: string }
+        Returns: undefined
+      }
+      set_permission_group_listing: {
+        Args: {
+          p_description: string
+          p_group_id: number
+          p_sort_order: number
+        }
+        Returns: undefined
+      }
+      set_permission_group_tier: {
+        Args: { p_group_id: number; p_tier: number }
         Returns: undefined
       }
       set_group_permissions: {

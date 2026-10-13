@@ -8,8 +8,10 @@ import {
   LoadingOverlay,
   Modal,
   MultiSelect,
+  // NumberInput,
   Stack,
   Text,
+  Textarea,
   TextInput,
   Tooltip,
   type MultiSelectProps,
@@ -19,6 +21,8 @@ import { notifications } from '@mantine/notifications';
 import {
   IconAlertCircle,
   IconCheck,
+  IconEye,
+  IconEyeOff,
   IconPencil,
   IconPlus,
   IconTrash,
@@ -59,6 +63,59 @@ interface GroupCardProps {
 
 const showError = (title: string, message: string) =>
   notifications.show({ color: 'red', title, message });
+
+// permission_groups.tier: 0 = stanovalec, 1 = admin (dev-only),
+// 2 = shown on the Vladajoči page, 3 = not shown
+const TIER_RESIDENT = 0;
+const TIER_ADMIN = 1;
+const TIER_LISTED = 2;
+const TIER_HIDDEN = 3;
+
+// Shows whether a vloga is on the Vladajoči page; clicking toggles it.
+// Stanovalec is never listed.
+const VisibilityButton = ({
+  group,
+  onGroupsChanged,
+}: {
+  group: PermissionGroup;
+  onGroupsChanged: () => void;
+}) => {
+  const [busy, setBusy] = useState(false);
+  const listed = group.tier === TIER_LISTED;
+  const locked = group.tier === TIER_RESIDENT || isResidentGroup(group);
+
+  const toggle = async () => {
+    setBusy(true);
+    const { error } = await supabaseClient.rpc('set_permission_group_tier', {
+      p_group_id: group.id,
+      p_tier: listed ? TIER_HIDDEN : TIER_LISTED,
+    });
+    setBusy(false);
+    if (error) return showError('Shranjevanje ni uspelo', error.message);
+    onGroupsChanged();
+  };
+
+  let tooltip =
+    'Klikni za prikaz. Člani bodo z imenom, sobo in telefonom vidni vsem stanovalcem.';
+  if (locked) tooltip = 'Stanovalci niso prikazani med vladajočimi';
+  else if (listed) tooltip = 'Klikni, da vlogo skriješ z vladajočih';
+
+  return (
+    <Tooltip label={tooltip} multiline maw={260}>
+      <Button
+        size="compact-xs"
+        variant="light"
+        color={listed ? 'green' : 'red'}
+        leftSection={listed ? <IconEye size={14} /> : <IconEyeOff size={14} />}
+        loading={busy}
+        disabled={locked}
+        onClick={toggle}
+      >
+        {listed ? 'Prikazan' : 'Skrit'}
+      </Button>
+    </Tooltip>
+  );
+};
 
 // Title row of a vloga card: the name, editable in place, plus delete.
 const GroupTitle = ({
@@ -145,6 +202,7 @@ const GroupTitle = ({
     <Group justify="space-between" wrap="nowrap">
       <Text fw={600}>{label}</Text>
       <Group gap={4} wrap="nowrap">
+        <VisibilityButton group={group} onGroupsChanged={onGroupsChanged} />
         <Tooltip label="Preimenuj">
           <ActionIcon
             variant="subtle"
@@ -172,6 +230,78 @@ const GroupTitle = ({
           </ActionIcon>
         </Tooltip>
       </Group>
+    </Group>
+  );
+};
+
+type Listing = Pick<PermissionGroup, 'sort_order' | 'description'>;
+
+// How a vloga shows up on the Vladajoči contact page, only while it's shown
+// there. The description saves when the field loses focus.
+const ListingSettings = ({
+  group,
+  onGroupsChanged,
+}: {
+  group: PermissionGroup;
+  onGroupsChanged: () => void;
+}) => {
+  // TODO: set vrstni red by dragging vloge up/down instead of a number
+  // const [order, setOrder] = useState<string | number>(group.sort_order);
+  const [description, setDescription] = useState(group.description);
+  useEffect(() => {
+    // setOrder(group.sort_order);
+    setDescription(group.description);
+  }, [group.sort_order, group.description]);
+
+  const save = async (patch: Partial<Listing>) => {
+    const next: Listing = {
+      sort_order: group.sort_order,
+      description: group.description,
+      ...patch,
+    };
+    const { error } = await supabaseClient.rpc('set_permission_group_listing', {
+      p_group_id: group.id,
+      p_sort_order: next.sort_order,
+      p_description: next.description,
+    });
+    if (error) return showError('Shranjevanje ni uspelo', error.message);
+    onGroupsChanged();
+  };
+
+  if (group.tier !== TIER_LISTED) return null;
+
+  return (
+    <Group align="flex-start" gap="xs" wrap="nowrap">
+      {/* <NumberInput
+        label="Vrstni red"
+        w={110}
+        size="xs"
+        allowDecimal={false}
+        value={order}
+        onChange={setOrder}
+        onBlur={() => {
+          const value = Number(order);
+          if (order === '' || !Number.isInteger(value)) {
+            return setOrder(group.sort_order);
+          }
+          if (value !== group.sort_order) save({ sort_order: value });
+        }}
+      /> */}
+      <Textarea
+        label="Opis"
+        placeholder="npr. Pivo, pufi, nabava in zaloge"
+        size="xs"
+        autosize
+        minRows={1}
+        flex={1}
+        value={description}
+        onChange={(e) => setDescription(e.currentTarget.value)}
+        onBlur={() => {
+          if (description.trim() !== group.description) {
+            save({ description: description.trim() });
+          }
+        }}
+      />
     </Group>
   );
 };
@@ -338,6 +468,7 @@ const GroupCard = ({
         <Text size="xs" c="dimmed">
           {members === 0 ? 'Brez članov' : `Število članov: ${members}`}
         </Text>
+        <ListingSettings group={group} onGroupsChanged={onGroupsChanged} />
         <MultiSelect
           data={options}
           value={selected}
@@ -419,7 +550,9 @@ export const AdminPermGroups = () => {
     );
   }
 
-  const editable = (groups.data ?? []).filter((g) => g.name !== ADMIN_GROUP);
+  const editable = (groups.data ?? []).filter(
+    (g) => g.name !== ADMIN_GROUP && g.tier !== TIER_ADMIN,
+  );
   const isLoading = groups.isLoading || links.isLoading || types.isLoading;
 
   return (

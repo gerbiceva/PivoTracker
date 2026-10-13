@@ -19,6 +19,7 @@ import { Link, useSearchParams } from 'react-router-dom';
 import { useStore } from '@nanostores/react';
 import { ReactNode } from 'react';
 import {
+  IconAddressBook,
   IconBeer,
   IconDoor,
   IconTrash,
@@ -62,6 +63,12 @@ const QUICK_ACTIONS: QuickAction[] = [
     to: '/vrata',
     icon: IconDoor,
     permission: 'OPEN_DOORS',
+  },
+  {
+    label: 'Vladajoči',
+    hint: 'Kontakti ministrov',
+    to: '/vladajoci',
+    icon: IconAddressBook,
   },
   {
     label: 'Moj profil',

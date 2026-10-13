@@ -119,7 +119,7 @@ export const ResidentInfoForm = ({
   if (error) {
     return (
       <Alert
-        title="Error loading resident info"
+        title="Napaka pri nalaganju podatkov o bivanju"
         icon={<IconAlertCircle />}
         w="100%"
       >
@@ -131,13 +131,13 @@ export const ResidentInfoForm = ({
   if (!resident?.resident_id && !showCreateForm) {
     return (
       <Alert
-        title="Resident not found"
+        title="Ni podatkov o bivanju"
         color="blue"
         icon={<IconAlertCircle />}
         mt="xl"
         variant="outline"
       >
-        <Text>No resident information found for this user.</Text>
+        <Text>Uporabnik nima podatkov o stanovalcu.</Text>
         <Button
           mt="md"
           variant="subtle"
@@ -158,13 +158,13 @@ export const ResidentInfoForm = ({
           </Text>
         )}
         <SimpleGrid cols={{ base: 1, sm: 2 }}>
-          <TextInput description="Room" {...form.getInputProps('room')} />
+          <TextInput description="Soba" {...form.getInputProps('room')} />
           <TextInput
-            description="Phone Number"
+            description="Telefonska številka"
             {...form.getInputProps('phone_number')}
           />
           <DateInput
-            description="Birth Date"
+            description="Datum rojstva"
             {...form.getInputProps('birth_date')}
           />
         </SimpleGrid>

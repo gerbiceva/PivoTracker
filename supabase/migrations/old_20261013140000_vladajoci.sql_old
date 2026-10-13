@@ -1,0 +1,153 @@
+-- Vladajoči: the dom's government (predsednik, namestnik, ministri) listed as
+-- a contact list for every logged-in user. Which vloge are listed is the
+-- vloga's tier: 0 = not listed (default), 1 = listed, 2 = admin (dev-only,
+-- never listed). New vloge stay hidden until someone switches them on.
+-- per_floor marks vloge with one holder per floor (minister za tekoče zadeve);
+-- the floor is derived from the room number (room / 100, 0 = pritličje).
+
+-- tier was added in the dashboard; repeated here for fresh databases
+ALTER TABLE public.permission_groups
+    ADD COLUMN IF NOT EXISTS tier smallint NOT NULL DEFAULT 0,
+    ADD COLUMN IF NOT EXISTS per_floor boolean NOT NULL DEFAULT false,
+    ADD COLUMN IF NOT EXISTS sort_order integer NOT NULL DEFAULT 100,
+    ADD COLUMN IF NOT EXISTS description text NOT NULL DEFAULT '';
+
+ALTER TABLE public.permission_groups
+    DROP CONSTRAINT IF EXISTS permission_groups_tier_check;
+ALTER TABLE public.permission_groups
+    ADD CONSTRAINT permission_groups_tier_check CHECK (tier IN (0, 1, 2));
+
+UPDATE public.permission_groups SET tier = 2 WHERE name = 'admin';
+UPDATE public.permission_groups SET tier = 0 WHERE name = 'stanovalec';
+
+UPDATE public.permission_groups g
+SET tier = 1, sort_order = v.ord, per_floor = v.per_floor
+FROM (VALUES
+    ('predsenik', 10, false),
+    ('namestnik', 20, false),
+    ('tekoci', 30, true),
+    ('kulturni', 40, false),
+    ('minister_za_obrambo', 50, false)
+) AS v(name, ord, per_floor)
+WHERE g.name = v.name;
+
+-- base_users / residents are not readable by normal residents, so the list
+-- goes through this function and exposes only the contact fields.
+-- Listed vloge with nobody in them still return one row (null user), so the
+-- page can show them as vacant.
+CREATE OR REPLACE FUNCTION public.get_vladajoci()
+RETURNS TABLE(
+    group_id bigint,
+    group_name text,
+    description text,
+    sort_order integer,
+    per_floor boolean,
+    base_user_id bigint,
+    name text,
+    surname text,
+    room integer,
+    floor integer,
+    phone_number text
+)
+    LANGUAGE sql STABLE SECURITY DEFINER
+    SET search_path = ''
+    AS $$
+    SELECT
+        g.id,
+        coalesce(nullif(g.display_name, ''), g.name),
+        g.description,
+        g.sort_order,
+        g.per_floor,
+        bu.id,
+        bu.name,
+        bu.surname,
+        r.room::integer,
+        (r.room / 100)::integer,
+        nullif(btrim(r.phone_number), '')
+    FROM public.permission_groups g
+    LEFT JOIN public.base_users bu ON bu.permgroup_id = g.id
+    LEFT JOIN public.residents r ON r.id = bu.resident
+    WHERE g.tier = 1
+      AND (SELECT auth.uid()) IS NOT NULL
+    ORDER BY g.sort_order, g.id, r.room, bu.surname, bu.name;
+$$;
+
+REVOKE ALL ON FUNCTION public.get_vladajoci() FROM public, anon;
+GRANT EXECUTE ON FUNCTION public.get_vladajoci() TO authenticated, service_role;
+
+-- The Vladajoči checkbox on the Vloge page: only between 0 and 1. Admin
+-- (tier 2) and Stanovalec are fixed.
+CREATE OR REPLACE FUNCTION public.set_permission_group_tier(
+    p_group_id bigint,
+    p_tier smallint
+) RETURNS void
+    LANGUAGE plpgsql SECURITY DEFINER
+    SET search_path = ''
+    AS $$
+DECLARE
+    g public.permission_groups;
+BEGIN
+    IF NOT public.current_user_has_permission('MANAGE_GROUPS') THEN
+        RAISE EXCEPTION 'Insufficient permissions: User does not have MANAGE_GROUPS.';
+    END IF;
+
+    IF p_tier NOT IN (0, 1) THEN
+        RAISE EXCEPTION 'Tier can only be set to 0 or 1.';
+    END IF;
+
+    SELECT * INTO g FROM public.permission_groups WHERE id = p_group_id;
+    IF NOT FOUND THEN
+        RAISE EXCEPTION 'Permission group % does not exist.', p_group_id;
+    END IF;
+
+    IF g.tier = 2 OR g.name = 'admin' THEN
+        RAISE EXCEPTION 'The admin group cannot be modified.';
+    END IF;
+
+    IF g.name = 'stanovalec' THEN
+        RAISE EXCEPTION 'Vloga Stanovalec ne more biti med vladajočimi.';
+    END IF;
+
+    UPDATE public.permission_groups SET tier = p_tier WHERE id = p_group_id;
+END;
+$$;
+
+REVOKE ALL ON FUNCTION public.set_permission_group_tier(bigint, smallint) FROM public, anon;
+GRANT EXECUTE ON FUNCTION public.set_permission_group_tier(bigint, smallint) TO authenticated, service_role;
+
+-- How a listed vloga shows up: one per floor, order, description.
+CREATE OR REPLACE FUNCTION public.set_permission_group_listing(
+    p_group_id bigint,
+    p_per_floor boolean,
+    p_sort_order integer,
+    p_description text
+) RETURNS void
+    LANGUAGE plpgsql SECURITY DEFINER
+    SET search_path = ''
+    AS $$
+BEGIN
+    IF NOT public.current_user_has_permission('MANAGE_GROUPS') THEN
+        RAISE EXCEPTION 'Insufficient permissions: User does not have MANAGE_GROUPS.';
+    END IF;
+
+    IF EXISTS (
+        SELECT 1 FROM public.permission_groups
+        WHERE id = p_group_id AND (tier = 2 OR name = 'admin')
+    ) THEN
+        RAISE EXCEPTION 'The admin group cannot be modified.';
+    END IF;
+
+    UPDATE public.permission_groups
+    SET per_floor = p_per_floor,
+        sort_order = p_sort_order,
+        description = btrim(coalesce(p_description, ''))
+    WHERE id = p_group_id;
+
+    IF NOT FOUND THEN
+        RAISE EXCEPTION 'Permission group % does not exist.', p_group_id;
+    END IF;
+END;
+$$;
+
+REVOKE ALL ON FUNCTION public.set_permission_group_listing(bigint, boolean, integer, text) FROM public, anon;
+GRANT EXECUTE ON FUNCTION public.set_permission_group_listing(bigint, boolean, integer, text) TO authenticated, service_role;

@@ -1,6 +1,7 @@
 import { rem } from '@mantine/core';
 import {
   Icon,
+  IconAddressBook,
   IconBasket,
   IconBeer,
   IconCalendarEvent,
@@ -171,6 +172,21 @@ export const CustomSpotlight = () => {
           keywords: ['events', 'koledar', 'calendar'],
           onClick: () => navigate('/events'),
           leftSection: icon(IconCalendarEvent),
+        },
+        {
+          id: 'vladajoci',
+          label: 'Vladajoči',
+          description: 'Kontakti predsednika in ministrov',
+          keywords: [
+            'vlada',
+            'minister',
+            'predsednik',
+            'namestnik',
+            'kontakti',
+            'telefon',
+          ],
+          onClick: () => navigate('/vladajoci'),
+          leftSection: icon(IconAddressBook),
         },
         {
           permission: 'CAN_WASH',
