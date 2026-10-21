@@ -681,6 +681,8 @@ const SettingsTab = ({
       children: (
         <Text size="sm">
           Ali res želiš izbrisati vlogo <b>{label}</b>?
+          {members > 0 &&
+            ` ${membersLabel(members)} se premakne v vlogo Stanovalec in dobi njena dovoljenja.`}
         </Text>
       ),
       labels: { confirm: 'Izbriši', cancel: 'Prekliči' },
@@ -690,14 +692,16 @@ const SettingsTab = ({
           p_group_id: group.id,
         });
         if (error) return showError('Brisanje ni uspelo', error.message);
+        // members were moved to Stanovalec
+        if (members > 0) refetchTables(['user_view', 'permissions']);
         onDeleted();
       },
     });
 
-  let deleteNote = 'Vloga nima članov, zato jo lahko izbrišeš.';
+  let deleteNote = 'Vloga nima članov.';
   if (resident) deleteNote = 'Privzete vloge ni mogoče izbrisati.';
   else if (members > 0)
-    deleteNote = `Najprej premakni vse člane (${members}) v drugo vlogo.`;
+    deleteNote = `Člani (${members}) se premaknejo v vlogo Stanovalec in dobijo njena dovoljenja.`;
 
   return (
     <Stack gap="lg" maw={560}>
@@ -742,7 +746,7 @@ const SettingsTab = ({
         <Button
           variant="outline"
           color="red"
-          disabled={resident || members > 0}
+          disabled={resident}
           onClick={remove}
         >
           Izbriši vlogo
