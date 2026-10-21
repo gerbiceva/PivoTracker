@@ -3,7 +3,6 @@ import {
   Anchor,
   Badge,
   Button,
-  Container,
   Group,
   Paper,
   SimpleGrid,
@@ -37,6 +36,8 @@ import { ReadTimeFromUTCString } from '../../utils/timeUtils';
 import { formatCurrency } from '../../utils/Converter';
 import { MyProfileModal } from './UserManagement/MyProfileModal';
 import { removeReservation } from './Washing/RemoveReservation';
+import { HomeCalendar } from './HomeCalendar';
+import classes from './Homepage.module.css';
 
 interface QuickAction {
   label: string;
@@ -203,29 +204,29 @@ export const HomePage = () => {
   const puf = Number(debt?.total_difference ?? 0);
 
   return (
-    <Container>
+    <div className={classes.page}>
       <MyProfileModal opened={profileOpened} onClose={closeProfile} />
-      <Stack mt="xl" gap="xl" mb="3rem">
-        <Group justify="space-between" align="flex-end">
-          <Stack gap={4}>
-            <Title order={1}>
-              {userData ? (
-                `Živjo, ${userData.base_name}`
-              ) : (
-                <Skeleton h={36} w={200} />
-              )}
-            </Title>
-            <Text c="dimmed" tt="capitalize">
-              {dayjs().format('dddd, D. MMMM')}
-            </Text>
-          </Stack>
-          {userData?.base_room != null && (
-            <Badge variant="light" size="lg">
-              Soba {userData.base_room}
-            </Badge>
-          )}
-        </Group>
+      <Group className={classes.greet} justify="space-between" align="flex-end">
+        <Stack gap={4}>
+          <Title order={1}>
+            {userData ? (
+              `Živjo, ${userData.base_name}`
+            ) : (
+              <Skeleton h={36} w={200} />
+            )}
+          </Title>
+          <Text c="dimmed" tt="capitalize">
+            {dayjs().format('dddd, D. MMMM')}
+          </Text>
+        </Stack>
+        {userData?.base_room != null && (
+          <Badge variant="light" size="lg">
+            Soba {userData.base_room}
+          </Badge>
+        )}
+      </Group>
 
+      <Stack className={classes.main} gap="xl">
         <SimpleGrid cols={{ base: 2, sm: Math.min(quickActions.length, 4) }}>
           {quickActions.map((a) => {
             const tile = (
@@ -417,6 +418,10 @@ export const HomePage = () => {
           </Stack>
         </SimpleGrid>
       </Stack>
-    </Container>
+
+      <div className={classes.side}>
+        <HomeCalendar canWash={canWash} authUserId={userData?.auth_user_id} />
+      </div>
+    </div>
   );
 };

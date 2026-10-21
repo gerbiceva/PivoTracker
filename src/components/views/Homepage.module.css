@@ -1,0 +1,37 @@
+/* narrow: one column with the calendar last; wide: calendar to the right of the content */
+.page {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-areas: 'greet' 'main' 'side';
+  gap: var(--mantine-spacing-xl);
+  max-width: 960px;
+  margin: var(--mantine-spacing-xl) auto 3rem;
+}
+
+.greet {
+  grid-area: greet;
+}
+
+.main {
+  grid-area: main;
+  min-width: 0;
+}
+
+.side {
+  grid-area: side;
+  min-width: 0;
+}
+
+@media (min-width: 75em) {
+  .page {
+    max-width: none;
+    grid-template-columns: minmax(0, 960px) 320px;
+    grid-template-areas: 'greet .' 'main side';
+    justify-content: center;
+    column-gap: var(--mantine-spacing-lg);
+  }
+
+  .side {
+    align-self: start;
+  }
+}
