@@ -24,7 +24,7 @@ import { supabaseClient } from '../../../../supabase/supabaseClient';
 import { refetchTables } from '../../../../supabase/supa-utils/supaSWRCache';
 import { Database } from '../../../../supabase/supabase';
 import { capitalizeName, UserWithPermissions } from './useUserEditing';
-import { ADMIN_GROUP, isResidentGroup } from './GroupCell';
+import { ADMIN_GROUP, isResidentGroup, OUTSIDE_GROUP } from './GroupCell';
 import { EditUserBaseInfo } from './EditUserBaseInfo';
 import { EditUserEmail } from './EditUserEmail';
 import { ResidentInfoForm } from './ResidentInfoForm';
@@ -486,13 +486,22 @@ export const UserDetails = ({
   });
   const inviter = allUsers.find((u) => u.base_user_id === baseUser?.invited_by);
 
+  // moved-out people get the zunanji vloga; admins keep theirs
+  const outsideGroup = groups.find((g) => g.name === OUTSIDE_GROUP);
+  const switchToOutside =
+    outsideGroup != null &&
+    user.permgroup_id !== adminGroupId &&
+    user.permgroup_id !== outsideGroup.id;
+
   const moveOut = () =>
     modals.openConfirmModal({
       title: 'Odseli uporabnika',
       children: (
         <Text size="sm">
           {fullName(user)} ne bo imel več sobe, telefona in rojstnega datuma.
-          Uporabnik, njegova prijava in dovoljenja ostanejo.
+          {switchToOutside
+            ? ` Vloga se zamenja z ${outsideGroup.display_name || outsideGroup.name} in dobi njena dovoljenja. Uporabnik in njegova prijava ostaneta.`
+            : ' Uporabnik, njegova prijava in dovoljenja ostanejo.'}
         </Text>
       ),
       labels: { confirm: 'Odseli', cancel: 'Prekliči' },
@@ -509,6 +518,20 @@ export const UserDetails = ({
             message: error.message,
           });
           return;
+        }
+        if (switchToOutside) {
+          const { error: groupError } = await supabaseClient.rpc(
+            'set_user_group',
+            { p_base_user_id: userId, p_group_id: outsideGroup.id },
+          );
+          if (groupError) {
+            notifications.show({
+              color: 'red',
+              title: 'Uporabnik je odseljen, vloge pa ni bilo mogoče zamenjati',
+              message: groupError.message,
+            });
+          }
+          refetchTables(['user_view', 'permissions']);
         }
         refetchTables('residents');
         onChanged();

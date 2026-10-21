@@ -11,6 +11,8 @@ type PermissionType = Database['public']['Tables']['permission_types']['Row'];
 
 // only admins may assign or remove this group; the DB enforces it too
 export const ADMIN_GROUP = 'admin';
+// people who moved out get this vloga
+export const OUTSIDE_GROUP = 'zunanji';
 
 export const isResidentGroup = (g: PermissionGroup) =>
   [g.name, g.display_name].some((n) => n?.toLowerCase() === 'stanovalec');
@@ -43,9 +45,11 @@ export const GroupCell = ({
   const group = groups.find((g) => g.id === groupId);
   const label = (g: PermissionGroup) => g.display_name || g.name;
 
-  // most users are plain residents, so only the other roles get a badge
+  // residents and moved-out people are the usual case, so only the other
+  // roles get a badge
   const isDefault =
-    groupId == null || (group != null && isResidentGroup(group));
+    groupId == null ||
+    (group != null && (isResidentGroup(group) || group.name === OUTSIDE_GROUP));
   const badge = isDefault ? (
     <Text size="sm" c="dimmed">
       {group ? label(group) : 'Brez vloge'}
