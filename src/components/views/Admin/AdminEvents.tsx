@@ -17,7 +17,7 @@ import { useState } from 'react';
 import { $currUser } from '../../../global-state/user';
 import { getSupaWR } from '../../../supabase/supa-utils/supaSWR';
 import { supabaseClient } from '../../../supabase/supabaseClient';
-import { ManageEvent } from '../events/ManageEvent';
+import { ManageEventForm } from '../events/ManageEvent';
 import { PageHeader } from './PageHeader';
 
 // null = modal closed, 0 = new event, otherwise the id being edited
@@ -115,9 +115,13 @@ export const AdminEvents = () => {
         opened={editing !== null}
         onClose={() => setEditing(null)}
         size="xl"
+        title={editing ? 'Uredi dogodek' : 'Nov dogodek'}
+        styles={{
+          title: { fontWeight: 700, fontSize: 'var(--mantine-h3-font-size)' },
+        }}
       >
         {editing !== null && (
-          <ManageEvent
+          <ManageEventForm
             key={editing}
             eventId={editing}
             onSaved={() => {

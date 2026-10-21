@@ -1,10 +1,12 @@
 import {
   Button,
+  Container,
   Group,
+  Input,
   LoadingOverlay,
+  Paper,
   Stack,
   TextInput,
-  Title,
 } from '@mantine/core';
 import { DateTimePicker } from '@mantine/dates';
 import { useForm } from '@mantine/form';
@@ -13,26 +15,58 @@ import { useStore } from '@nanostores/react';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import { useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
+import {
+  IconArrowLeft,
+  IconCalendar,
+  IconCalendarPlus,
+  IconDeviceFloppy,
+} from '@tabler/icons-react';
 import { $currUser } from '../../../global-state/user';
 import { getSupaWR } from '../../../supabase/supa-utils/supaSWR';
 import { supabaseClient } from '../../../supabase/supabaseClient';
 import { RichTextEditor } from './RichTextEditor';
+import { PageHeader } from '../Admin/PageHeader';
 
 dayjs.extend(utc);
 
 interface ManageEventProps {
-  // overrides the :id route param, e.g. when used inside a modal
+  // 0 or missing creates a new event
   eventId?: number;
   onSaved?: () => void;
 }
 
-export const ManageEvent = ({
-  eventId: eventIdProp,
-  onSaved,
-}: ManageEventProps = {}) => {
+// Standalone page for /events/create and /events/edit/:id
+export const ManageEvent = () => {
   const { id } = useParams();
-  const eventId = eventIdProp ?? (id ? parseInt(id) : 0);
+  const navigate = useNavigate();
+  const eventId = id ? parseInt(id) : 0;
+  return (
+    <Container size="md">
+      <Stack my="xl" gap="lg">
+        <PageHeader
+          title={eventId ? 'Uredi dogodek' : 'Nov dogodek'}
+          action={
+            <Button
+              variant="subtle"
+              color="gray"
+              leftSection={<IconArrowLeft size={16} />}
+              onClick={() => navigate(-1)}
+            >
+              Nazaj
+            </Button>
+          }
+        />
+        <Paper withBorder radius="md" p={{ base: 'md', sm: 'xl' }}>
+          <ManageEventForm eventId={eventId} />
+        </Paper>
+      </Stack>
+    </Container>
+  );
+};
+
+// Just the form, without a title, so it also fits in a modal
+export const ManageEventForm = ({ eventId = 0, onSaved }: ManageEventProps) => {
   const user = useStore($currUser);
 
   const form = useForm({
@@ -43,11 +77,11 @@ export const ManageEvent = ({
       body: '',
     },
     validate: {
-      title: (value) => (value.length > 0 ? null : 'Title is required'),
-      subtitle: (value) => (value.length > 0 ? null : 'Subtitle is required'),
+      title: (value) => (value.length > 0 ? null : 'Vpiši naslov'),
+      subtitle: (value) => (value.length > 0 ? null : 'Vpiši podnaslov'),
       eventDate: (value) =>
-        value !== null && value.length > 0 ? null : 'Event date is required', // Validate string length
-      body: (value) => (value.length > 0 ? null : 'Body is required'),
+        value !== null && value.length > 0 ? null : 'Izberi datum',
+      body: (value) => (value.length > 0 ? null : 'Vpiši opis'),
     },
   });
 
@@ -74,7 +108,11 @@ export const ManageEvent = ({
 
   const handleSubmit = async (values: typeof form.values) => {
     if (!user || !user.base_user_id) {
-      alert('You must be logged in to manage events.');
+      notifications.show({
+        title: 'Napaka',
+        message: 'Za urejanje dogodkov moraš biti prijavljen.',
+        color: 'red',
+      });
       return;
     }
 
@@ -132,41 +170,47 @@ export const ManageEvent = ({
   return (
     <form onSubmit={form.onSubmit(handleSubmit)}>
       <LoadingOverlay visible={isLoading} />
-
-      {/* {error && (
-        <Alert title="Napaka" icon={<IconAlertCircle></IconAlertCircle>}>
-          {error.message}
-        </Alert>
-      )} */}
-
-      <Stack gap="xl">
-        <Title>
-          {eventId ? `Uredi Event: ${form.values.title}` : 'Dodaj event'}
-        </Title>
+      <Stack gap="lg">
         <TextInput
-          label="Title"
-          placeholder="Event title"
+          label="Naslov"
+          placeholder="npr. Brucovanje"
+          withAsterisk
           {...form.getInputProps('title')}
-          required
         />
         <TextInput
-          label="Subtitle"
-          placeholder="Podnaslov dogodka"
+          label="Podnaslov"
+          placeholder="Kratek opis v eni vrstici"
+          withAsterisk
           {...form.getInputProps('subtitle')}
-          required
         />
         <DateTimePicker
-          label="Event Date"
-          placeholder="Pick date and time"
+          label="Datum in ura"
+          placeholder="Izberi datum in uro"
+          valueFormat="D. M. YYYY, HH:mm"
+          leftSection={<IconCalendar size={16} />}
+          withAsterisk
           {...form.getInputProps('eventDate')}
         />
-        <RichTextEditor
-          value={form.values.body}
-          onChange={(value) => form.setFieldValue('body', value)}
-        />
-        <Group ml="auto">
-          <Button type="submit" mt="md" disabled={!form.isDirty()}>
-            {eventId ? 'Save Changes' : 'Create Event'}
+        <Input.Wrapper label="Opis" withAsterisk error={form.errors.body}>
+          <RichTextEditor
+            value={form.values.body}
+            onChange={(value) => form.setFieldValue('body', value)}
+          />
+        </Input.Wrapper>
+        <Group justify="flex-end">
+          <Button
+            type="submit"
+            disabled={!form.isDirty()}
+            loading={form.submitting}
+            leftSection={
+              eventId ? (
+                <IconDeviceFloppy size={16} />
+              ) : (
+                <IconCalendarPlus size={16} />
+              )
+            }
+          >
+            {eventId ? 'Shrani spremembe' : 'Ustvari dogodek'}
           </Button>
         </Group>
       </Stack>
