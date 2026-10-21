@@ -36,6 +36,12 @@ export const useLiveTransactions = () => {
       });
   };
 
+  // TRUNCATE sends no realtime DELETE events, so the caller empties the list
+  const clearAll = () => {
+    transactionsBuffer = [];
+    setTransactions([]);
+  };
+
   useEffect(() => {
     supabaseClient
       .channel('schema-db-changes')
@@ -120,6 +126,7 @@ export const useLiveTransactions = () => {
   }, []);
 
   return {
+    clearAll,
     transactions,
     isLoading,
     err,

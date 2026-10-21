@@ -1,0 +1,186 @@
+@startuml dezurstva
+' Reception duty shifts: application pool -> draw -> allotment -> swap market
+hide circle
+skinparam linetype ortho
+skinparam shadowing false
+skinparam roundcorner 6
+skinparam defaultFontName Helvetica
+skinparam ArrowColor #495057
+skinparam class {
+  BackgroundColor #FFFFFF
+  BorderColor #0C8599
+  HeaderBackgroundColor #E3FAFC
+}
+skinparam package {
+  BorderColor #ADB5BD
+  FontColor #495057
+}
+
+package "existing" {
+  entity base_users {
+    * id : bigint <<PK>>
+    --
+    * name : text
+    surname : text
+    auth : uuid
+    resident : bigint <<FK>>
+  }
+  entity residents {
+    * id : bigint <<PK>>
+    --
+    * room : bigint
+    phone_number : text
+  }
+  entity permission_types {
+    * id : bigint <<PK>>
+    --
+    * name : text
+    ..
+    + RECEPTION
+    + MANAGE_RECEPTION
+  }
+}
+
+package "1. prijave + zreb" {
+  entity reception_pools {
+    * id : bigint <<PK>>
+    --
+    * month : date  <<unique, 1st of month>>
+    * opens_at : timestamptz
+    * closes_at : timestamptz
+    * status : pool_status
+    seed : bigint
+    drawn_at : timestamptz
+    published_at : timestamptz
+    created_by : bigint <<FK>>
+    drawn_by : bigint <<FK>>
+    ..
+    pool_status = open | drawn
+    | assigning | published
+    (closed = now() > closes_at)
+  }
+
+  entity reception_applications {
+    * id : bigint <<PK>>
+    --
+    * pool_id : bigint <<FK>>
+    * user_id : bigint <<FK>>
+    * created_at : timestamptz
+    note : text
+    ..
+    unique (pool_id, user_id)
+  }
+
+  entity reception_pick_order {
+    * id : bigint <<PK>>
+    --
+    * pool_id : bigint <<FK>>
+    * position : int
+    * round : smallint
+    * user_id : bigint <<FK>>
+    * status : pick_status
+    * skip_count : smallint = 0
+    dezurstvo_id : bigint <<FK>>
+    picked_at : timestamptz
+    ..
+    unique (pool_id, position) deferrable
+    pick_status = pending | done
+  }
+
+  entity reception_draw_log {
+    * id : bigint <<PK>>
+    --
+    * pool_id : bigint <<FK>>
+    * actor : bigint <<FK>>
+    * action : text
+    * created_at : timestamptz
+    seed : bigint
+    details : jsonb
+    ..
+    action = draw | redraw | move | remove
+    | skip | pick | undo | publish
+  }
+}
+
+package "2. razpored" {
+  entity dezurstva {
+    * id : bigint <<PK>>
+    --
+    * date : date
+    * slot : smallint  <<0..3>>
+    pool_id : bigint <<FK>>
+    user_id : bigint <<FK, null = prosto>>
+    created_by : bigint <<FK>>
+    note : text
+    ..
+    unique (date, slot)
+    slot 0=00-06 1=06-12 2=12-18 3=18-24
+  }
+}
+
+package "3. menjave" {
+  entity dezurstva_offers {
+    * id : bigint <<PK>>
+    --
+    * dezurstvo_id : bigint <<FK>>
+    * offered_by : bigint <<FK>>
+    * kind : offer_kind
+    * status : offer_status
+    target_user_id : bigint <<FK>>
+    taken_by : bigint <<FK>>
+    closed_at : timestamptz
+    note : text
+    ..
+    unique (dezurstvo_id) where status = open
+    offer_kind = swap | giveaway
+    offer_status = open | completed | cancelled
+  }
+
+  entity dezurstva_bids {
+    * id : bigint <<PK>>
+    --
+    * offer_id : bigint <<FK>>
+    * bidder_id : bigint <<FK>>
+    * dezurstvo_id : bigint <<FK, slot given in exchange>>
+    * status : bid_status
+    note : text
+    ..
+    unique (offer_id, dezurstvo_id) where status = pending
+    bid_status = pending | accepted
+    | rejected | withdrawn
+  }
+}
+
+base_users }o--o| residents : resident
+
+reception_pools ||--o{ reception_applications
+reception_pools ||--o{ reception_pick_order
+reception_pools ||--o{ reception_draw_log
+reception_pools |o--o{ dezurstva : generated for
+
+base_users ||--o{ reception_applications : applies
+base_users ||--o{ reception_pick_order : picks
+base_users |o--o{ dezurstva : works
+reception_pick_order |o--o| dezurstva : picked slot
+
+dezurstva ||--o{ dezurstva_offers : offered
+dezurstva_offers ||--o{ dezurstva_bids
+dezurstva ||--o{ dezurstva_bids : given in exchange
+base_users ||--o{ dezurstva_offers : offered_by
+base_users ||--o{ dezurstva_bids : bidder
+
+note bottom of reception_pick_order
+  Draw: when the pool closes, MANAGE_RECEPTION runs
+  draw_reception_pool(pool, seed).
+  slots = days * 4, n = applicants
+  floor(slots / n) full rounds of shuffled applicants
+  + one round of the first (slots mod n) of another shuffle.
+end note
+
+note bottom of dezurstva_offers
+  Writes only via RPCs:
+  offer / cancel / claim / bid / withdraw / accept.
+  A trigger on dezurstva.user_id cancels open offers
+  and withdraws bids that use a slot whose owner changed.
+end note
+@enduml

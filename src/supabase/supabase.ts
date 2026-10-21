@@ -1295,6 +1295,10 @@ export type Database = {
         }
         Returns: number
       }
+      admin_clear_table: {
+        Args: { p_table: string }
+        Returns: undefined
+      }
       add_zelje_song: {
         Args: { selfie_ref: string; song_name: string }
         Returns: {
@@ -1464,6 +1468,10 @@ export type Database = {
       create_permission_group: {
         Args: { p_display_name: string }
         Returns: number
+      }
+      current_user_is_admin: {
+        Args: never
+        Returns: boolean
       }
       delete_permission_group: {
         Args: { p_group_id: number }

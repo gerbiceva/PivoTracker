@@ -2,6 +2,7 @@ import {
   ActionIcon,
   Alert,
   Button,
+  Group,
   LoadingOverlay,
   Modal,
   Stack,
@@ -19,6 +20,7 @@ import { getSupaWR } from '../../../supabase/supa-utils/supaSWR';
 import { supabaseClient } from '../../../supabase/supabaseClient';
 import { ManageEventForm } from '../events/ManageEvent';
 import { PageHeader } from './PageHeader';
+import { ClearTableButton } from './ClearTableButton';
 
 // null = modal closed, 0 = new event, otherwise the id being edited
 type Editing = number | null;
@@ -79,14 +81,22 @@ export const AdminEvents = () => {
         title="Dogodki"
         description="Prihajajoči dogodki, ki jih vidijo stanovalci."
         action={
-          canEdit && (
-            <Button
-              leftSection={<IconPlus size={16} />}
-              onClick={() => setEditing(0)}
-            >
-              Dodaj dogodek
-            </Button>
-          )
+          <Group gap="xs">
+            <ClearTableButton
+              table="events"
+              what="vse dogodke"
+              note="Izbrisani bodo tudi pretekli dogodki."
+              onCleared={() => mutate()}
+            />
+            {canEdit && (
+              <Button
+                leftSection={<IconPlus size={16} />}
+                onClick={() => setEditing(0)}
+              >
+                Dodaj dogodek
+              </Button>
+            )}
+          </Group>
         }
       />
 

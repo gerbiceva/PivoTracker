@@ -1,0 +1,81 @@
+@startuml dezurstva-menjave
+' Swap / give-away flow for a single dezurstvo slot (planning only)
+' Render: plantuml -charset UTF-8 -tpng dezurstva-menjave.puml
+skinparam shadowing false
+skinparam roundcorner 6
+skinparam defaultFontName Helvetica
+skinparam ArrowColor #495057
+skinparam activity {
+  BackgroundColor #FFFFFF
+  BorderColor #0C8599
+  DiamondBackgroundColor #FFFFFF
+  DiamondBorderColor #0C8599
+}
+
+start
+#E3FAFC:**Lastnik**: nekaj se zgodi,
+izmene ne more opraviti;
+#E3FAFC:**Lastnik** odpre svojo prihodnjo izmeno;
+
+if (Kaj želi?) then (zamenjati)
+  #E3FAFC:**Lastnik**: offer_dezurstvo(izmena, 'swap');
+  #F1F3F5:**Sistem**: ponudba = open,
+  vidna vsem z RECEPTION;
+  repeat
+    #FFF4E6:**Drug uporabnik** ponudi eno svojo
+    prihodnjo izmeno v zameno
+    (bid_dezurstvo);
+    #F1F3F5:**Sistem**: predlog = pending,
+    obvesti lastnika;
+  repeat while (Lastnik čaka na več predlogov?) is (da)
+  ->ne;
+  if (Je kateri predlog sprejemljiv?) then (da)
+    #E3FAFC:**Lastnik** izbere en predlog
+    (accept_dezurstvo_bid);
+    #F1F3F5:**Sistem** v eni transakciji:
+    - zaklene obe izmeni
+    - preveri, da sta še od istih ljudi
+      in se nista začeli
+    - zamenja user_id na obeh izmenah
+    - izbran predlog = accepted, ostali = rejected
+    - ponudba = completed;
+    #F1F3F5:**Sistem** (trigger): zapre druge ponudbe
+    in predloge, ki uporabljajo eno od obeh izmen;
+    #F1F3F5:**Sistem** obvesti oba;
+  else (ne)
+    #E3FAFC:**Lastnik** umakne ponudbo
+    (cancel_dezurstvo_offer);
+    #F1F3F5:**Sistem**: ponudba = cancelled,
+    predlogi = rejected;
+  endif
+
+else (podariti)
+  if (Komu?) then (komurkoli)
+    #E3FAFC:**Lastnik**: offer_dezurstvo(izmena, 'giveaway');
+  else (določeni osebi)
+    #E3FAFC:**Lastnik**: offer_dezurstvo(izmena, 'giveaway',
+    target_user_id);
+  endif
+  #F1F3F5:**Sistem**: ponudba = open;
+  #FFF4E6:**Drug uporabnik** (prvi oz. izbrana oseba)
+  klikne Prevzemi (claim_dezurstvo);
+  #F1F3F5:**Sistem**: preveri, da je ponudba odprta
+  in se izmena ni začela, nato
+  user_id = prevzemnik, ponudba = completed;
+  #F1F3F5:**Sistem** obvesti lastnika;
+endif
+stop
+
+legend right
+  <back:#E3FAFC> Lastnik izmene </back>   <back:#FFF4E6> Drug uporabnik </back>   <back:#F1F3F5> Sistem </back>
+  ----
+  Ena izmena ima lahko samo eno odprto ponudbo.
+  Ponuditi, predlagati in prevzeti je mogoče
+  samo izmene, ki se še niso začele.
+  Drug uporabnik lahko svoj predlog kadarkoli umakne
+  (withdraw_dezurstvo_bid).
+  Ko izmena dobi novega lastnika (menjava, podaritev
+  ali MANAGE_RECEPTION), se njene odprte ponudbe
+  in predlogi samodejno zaprejo.
+endlegend
+@enduml

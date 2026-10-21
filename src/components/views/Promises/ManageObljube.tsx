@@ -39,6 +39,7 @@ import {
   promiseUserName,
   useObljubeEditing,
 } from './useObljubeEditing';
+import { ClearTableButton } from '../Admin/ClearTableButton';
 import { PageHeader } from '../Admin/PageHeader';
 import { SortableTh } from '../Admin/SortableTh';
 import { PoplacilaDrawer } from './PoplacilaDrawer';
@@ -237,12 +238,19 @@ export const ManagePromises = () => {
           title="Obljube"
           description="Kdo je komu obljubil koliko piva."
           action={
-            <Button
-              leftSection={<IconHeartHandshake size={16} />}
-              onClick={() => navigate('/promises/create')}
-            >
-              Dodaj obljubo
-            </Button>
+            <Group gap="xs">
+              <ClearTableButton
+                table="obljube"
+                what="vse obljube"
+                note="Izbrisana bodo tudi vsa poplačila obljub. Transakcije ostanejo."
+              />
+              <Button
+                leftSection={<IconHeartHandshake size={16} />}
+                onClick={() => navigate('/promises/create')}
+              >
+                Dodaj obljubo
+              </Button>
+            </Group>
           }
         />
         <Group>
