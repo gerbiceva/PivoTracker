@@ -5,6 +5,7 @@ import {
   Group,
   LoadingOverlay,
   Modal,
+  SegmentedControl,
   Stack,
   Table,
   Text,
@@ -25,10 +26,14 @@ import { ClearTableButton } from './ClearTableButton';
 // null = modal closed, 0 = new event, otherwise the id being edited
 type Editing = number | null;
 
+type Period = 'upcoming' | 'past';
+
 export const AdminEvents = () => {
   const user = useStore($currUser);
   const canEdit = !!user?.permissions.includes('MANAGE_EVENTS');
   const [editing, setEditing] = useState<Editing>(null);
+  const [period, setPeriod] = useState<Period>('upcoming');
+  const upcoming = period === 'upcoming';
   // the subtitle column is hidden on phones
   const tableMinWidth = useMatches({ base: 0, sm: 600 });
 
@@ -36,14 +41,14 @@ export const AdminEvents = () => {
   const [from] = useState(() => dayjs().startOf('day').toISOString());
 
   const { data, error, isLoading, mutate } = getSupaWR({
-    query: () =>
-      supabaseClient
-        .from('events')
-        .select('*')
-        .gte('event_date', from)
-        .order('event_date', { ascending: true }),
+    query: () => {
+      const q = supabaseClient.from('events').select('*');
+      return upcoming
+        ? q.gte('event_date', from).order('event_date', { ascending: true })
+        : q.lt('event_date', from).order('event_date', { ascending: false });
+    },
     table: 'events',
-    params: ['upcoming', from],
+    params: [period, from],
   });
 
   if (error) {
@@ -79,7 +84,7 @@ export const AdminEvents = () => {
     <Stack>
       <PageHeader
         title="Dogodki"
-        description="Prihajajoči dogodki, ki jih vidijo stanovalci."
+        description="Dogodki, ki jih vidijo stanovalci."
         action={
           <Group gap="xs">
             <ClearTableButton
@@ -100,10 +105,22 @@ export const AdminEvents = () => {
         }
       />
 
+      <SegmentedControl
+        value={period}
+        onChange={(v) => setPeriod(v as Period)}
+        data={[
+          { value: 'upcoming', label: 'Prihajajoči' },
+          { value: 'past', label: 'Pretekli' },
+        ]}
+        style={{ alignSelf: 'flex-start' }}
+      />
+
       <div style={{ position: 'relative' }}>
         <LoadingOverlay visible={isLoading} />
         {data && data.length === 0 ? (
-          <Text c="dimmed">Ni prihajajočih dogodkov.</Text>
+          <Text c="dimmed">
+            {upcoming ? 'Ni prihajajočih dogodkov.' : 'Ni preteklih dogodkov.'}
+          </Text>
         ) : (
           <Table.ScrollContainer minWidth={tableMinWidth}>
             <Table highlightOnHover>
