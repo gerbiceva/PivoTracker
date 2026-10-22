@@ -251,6 +251,81 @@ export type Database = {
         }
         Relationships: []
       }
+      notification_dismissals: {
+        Row: {
+          dismissed_at: string
+          notification_id: number
+          user_id: number
+        }
+        Insert: {
+          dismissed_at?: string
+          notification_id: number
+          user_id: number
+        }
+        Update: {
+          dismissed_at?: string
+          notification_id?: number
+          user_id?: number
+        }
+        Relationships: []
+      }
+      notifications: {
+        Row: {
+          action: Database["public"]["Enums"]["notification_action"]
+          action_data: Json | null
+          action_label: string | null
+          audience: Database["public"]["Enums"]["notification_audience"]
+          audience_permission: string | null
+          body: string | null
+          created_at: string
+          created_by: number | null
+          dismissible: boolean
+          expires_at: string | null
+          id: number
+          source_id: number | null
+          source_type: string | null
+          starts_at: string
+          title: string
+          tone: string
+        }
+        Insert: {
+          action?: Database["public"]["Enums"]["notification_action"]
+          action_data?: Json | null
+          action_label?: string | null
+          audience?: Database["public"]["Enums"]["notification_audience"]
+          audience_permission?: string | null
+          body?: string | null
+          created_at?: string
+          created_by?: number | null
+          dismissible?: boolean
+          expires_at?: string | null
+          id?: number
+          source_id?: number | null
+          source_type?: string | null
+          starts_at?: string
+          title: string
+          tone?: string
+        }
+        Update: {
+          action?: Database["public"]["Enums"]["notification_action"]
+          action_data?: Json | null
+          action_label?: string | null
+          audience?: Database["public"]["Enums"]["notification_audience"]
+          audience_permission?: string | null
+          body?: string | null
+          created_at?: string
+          created_by?: number | null
+          dismissible?: boolean
+          expires_at?: string | null
+          id?: number
+          source_id?: number | null
+          source_type?: string | null
+          starts_at?: string
+          title?: string
+          tone?: string
+        }
+        Relationships: []
+      }
       obljube: {
         Row: {
           amount: number
@@ -605,6 +680,51 @@ export type Database = {
             referencedColumns: ["base_user_id"]
           },
         ]
+      }
+      reception_applications: {
+        Row: {
+          created_at: string
+          pool_id: number
+          user_id: number
+        }
+        Insert: {
+          created_at?: string
+          pool_id: number
+          user_id: number
+        }
+        Update: {
+          created_at?: string
+          pool_id?: number
+          user_id?: number
+        }
+        Relationships: []
+      }
+      reception_pools: {
+        Row: {
+          closes_at: string
+          created_at: string
+          created_by: number | null
+          id: number
+          month: string
+          status: Database["public"]["Enums"]["reception_pool_status"]
+        }
+        Insert: {
+          closes_at: string
+          created_at?: string
+          created_by?: number | null
+          id?: number
+          month: string
+          status?: Database["public"]["Enums"]["reception_pool_status"]
+        }
+        Update: {
+          closes_at?: string
+          created_at?: string
+          created_by?: number | null
+          id?: number
+          month?: string
+          status?: Database["public"]["Enums"]["reception_pool_status"]
+        }
+        Relationships: []
       }
       reservations: {
         Row: {
@@ -1445,6 +1565,60 @@ export type Database = {
           surname: string
         }[]
       }
+      apply_to_reception_pool: {
+        Args: { p_pool_id: number }
+        Returns: undefined
+      }
+      cancel_reception_pool: {
+        Args: { p_pool_id: number }
+        Returns: undefined
+      }
+      dismiss_notification: {
+        Args: { p_notification_id: number }
+        Returns: undefined
+      }
+      get_my_notifications: {
+        Args: never
+        Returns: {
+          action: Database["public"]["Enums"]["notification_action"]
+          action_data: Json | null
+          action_label: string | null
+          action_state: Json | null
+          body: string | null
+          created_at: string
+          dismissible: boolean
+          expires_at: string | null
+          id: number
+          title: string
+          tone: string
+        }[]
+      }
+      get_reception_applicants: {
+        Args: { p_pool_id: number }
+        Returns: {
+          applied_at: string
+          name: string
+          room: number | null
+          surname: string | null
+          user_id: number
+        }[]
+      }
+      open_reception_pool: {
+        Args: { p_closes_at: string; p_month: string }
+        Returns: number
+      }
+      undismiss_notification: {
+        Args: { p_notification_id: number }
+        Returns: undefined
+      }
+      update_reception_pool_time: {
+        Args: { p_closes_at: string; p_pool_id: number }
+        Returns: undefined
+      }
+      withdraw_from_reception_pool: {
+        Args: { p_pool_id: number }
+        Returns: undefined
+      }
       react_to_zelje: {
         Args: { emoji_type: string; song_id: string }
         Returns: {
@@ -1534,6 +1708,9 @@ export type Database = {
       }
     }
     Enums: {
+      notification_action: "none" | "link" | "reception_apply"
+      notification_audience: "all" | "permission"
+      reception_pool_status: "open" | "drawn" | "assigning" | "published"
       zelje_status: "queued" | "playing" | "done" | "voting"
     }
     CompositeTypes: {
@@ -1683,6 +1860,9 @@ export const Constants = {
   },
   public: {
     Enums: {
+      notification_action: ["none", "link", "reception_apply"],
+      notification_audience: ["all", "permission"],
+      reception_pool_status: ["open", "drawn", "assigning", "published"],
       zelje_status: ["queued", "playing", "done", "voting"],
     },
   },

@@ -37,6 +37,7 @@ import { formatCurrency } from '../../utils/Converter';
 import { MyProfileModal } from './UserManagement/MyProfileModal';
 import { removeReservation } from './Washing/RemoveReservation';
 import { HomeCalendar } from './HomeCalendar';
+import { HomeNotifications } from './Notifications/HomeNotifications';
 import classes from './Homepage.module.css';
 
 interface QuickAction {
@@ -206,7 +207,13 @@ export const HomePage = () => {
   return (
     <div className={classes.page}>
       <MyProfileModal opened={profileOpened} onClose={closeProfile} />
-      <Group className={classes.greet} justify="space-between" align="flex-end">
+      {/* notifications sit right of the greeting, below it on phones */}
+      <Group
+        className={classes.greet}
+        justify="space-between"
+        align="flex-start"
+        gap="md"
+      >
         <Stack gap={4}>
           <Title order={1}>
             {userData ? (
@@ -215,15 +222,16 @@ export const HomePage = () => {
               <Skeleton h={36} w={200} />
             )}
           </Title>
-          <Text c="dimmed" tt="capitalize">
-            {dayjs().format('dddd, D. MMMM')}
-          </Text>
+          <Group gap="xs">
+            <Text c="dimmed" tt="capitalize">
+              {dayjs().format('dddd, D. MMMM')}
+            </Text>
+            {userData?.base_room != null && (
+              <Badge variant="light">Soba {userData.base_room}</Badge>
+            )}
+          </Group>
         </Stack>
-        {userData?.base_room != null && (
-          <Badge variant="light" size="lg">
-            Soba {userData.base_room}
-          </Badge>
-        )}
+        <HomeNotifications />
       </Group>
 
       <Stack className={classes.main} gap="xl">

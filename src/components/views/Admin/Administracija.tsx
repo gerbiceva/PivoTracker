@@ -12,6 +12,7 @@ import {
   IconBasket,
   IconBeer,
   IconCalendarEvent,
+  IconCalendarUser,
   IconHeartHandshake,
   IconList,
   IconShieldCog,
@@ -24,6 +25,7 @@ import { useSearchParams } from 'react-router-dom';
 import { $currUser } from '../../../global-state/user';
 import { Unauthorized } from '../Unauthorized';
 import { AdminEvents } from './AdminEvents';
+import { AdminDezurstva } from './AdminDezurstva';
 import { ManagePromises } from '../Promises/ManageObljube';
 import { UserEditing } from '../UserManagement/UserEditing/UserEditing';
 import { AdminPermGroups } from './AdminPermGroups';
@@ -53,6 +55,14 @@ export const ADMIN_TABS: AdminTab[] = [
     icon: <IconCalendarEvent size={16} />,
     permissions: ['MANAGE_EVENTS'],
     content: <AdminEvents />,
+  },
+  {
+    value: 'dezurstva',
+    group: 'Dogajanje',
+    label: 'Dežurstva',
+    icon: <IconCalendarUser size={16} />,
+    permissions: ['MANAGE_RECEPTION'],
+    content: <AdminDezurstva />,
   },
   {
     value: 'obljube',
