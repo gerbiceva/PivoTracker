@@ -1,8 +1,8 @@
-/* narrow: one column with the calendar last; wide: calendar to the right of the content */
+/* narrow: one column with the calendar last (links beside the greeting); wide: calendar to the right of the content */
 .page {
   display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  grid-template-areas: 'greet' 'main' 'side';
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-areas: 'greet links' 'main main' 'side side';
   gap: var(--mantine-spacing-xl);
   max-width: 960px;
   margin: var(--mantine-spacing-xl) auto 3rem;
@@ -10,6 +10,12 @@
 
 .greet {
   grid-area: greet;
+}
+
+.links {
+  grid-area: links;
+  align-self: end;
+  justify-self: end;
 }
 
 .main {
@@ -26,7 +32,7 @@
   .page {
     max-width: none;
     grid-template-columns: minmax(0, 960px) 320px;
-    grid-template-areas: 'greet .' 'main side';
+    grid-template-areas: 'greet links' 'main side';
     justify-content: center;
     column-gap: var(--mantine-spacing-lg);
   }

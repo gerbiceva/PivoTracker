@@ -20,7 +20,10 @@ import { ReactNode } from 'react';
 import {
   IconAddressBook,
   IconBeer,
+  IconBrandFacebook,
+  IconBrandInstagram,
   IconDoor,
+  IconTable,
   IconTrash,
   IconUser,
   IconWash,
@@ -76,6 +79,24 @@ const QUICK_ACTIONS: QuickAction[] = [
     hint: 'Podatki in soba',
     to: 'profile',
     icon: IconUser,
+  },
+];
+
+const LINKS = [
+  {
+    label: 'Skupina za dežurstva',
+    href: 'https://www.facebook.com/groups/261783789221572/',
+    icon: IconBrandFacebook,
+  },
+  {
+    label: 'Instagram',
+    href: 'https://www.instagram.com/gerbiceva59/',
+    icon: IconBrandInstagram,
+  },
+  {
+    label: 'Seznam za odbojko G59/ŠD3/ŠD4',
+    href: 'https://docs.google.com/spreadsheets/d/10wQgvdDwPz4_ssDm_4jFyf9nwDa1AW6bKVXc38ihdDM/edit?gid=246482940#gid=246482940',
+    icon: IconTable,
   },
 ];
 
@@ -225,6 +246,26 @@ export const HomePage = () => {
           </Badge>
         )}
       </Group>
+
+      <Paper className={classes.links} withBorder radius="md" p="sm">
+        <Group gap="xs">
+          {LINKS.map((l) => (
+            <Tooltip key={l.href} label={l.label}>
+              <ActionIcon
+                component="a"
+                href={l.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                variant="default"
+                size="lg"
+                aria-label={l.label}
+              >
+                <l.icon size={18} />
+              </ActionIcon>
+            </Tooltip>
+          ))}
+        </Group>
+      </Paper>
 
       <Stack className={classes.main} gap="xl">
         <SimpleGrid cols={{ base: 2, sm: Math.min(quickActions.length, 4) }}>
