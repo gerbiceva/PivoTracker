@@ -12,7 +12,12 @@ import {
   Tooltip,
   useMatches,
 } from '@mantine/core';
-import { IconAlertCircle, IconEdit, IconPlus } from '@tabler/icons-react';
+import {
+  IconAlertCircle,
+  IconEdit,
+  IconPlus,
+  IconTrash,
+} from '@tabler/icons-react';
 import { useStore } from '@nanostores/react';
 import dayjs from 'dayjs';
 import { useState } from 'react';
@@ -20,6 +25,7 @@ import { $currUser } from '../../../global-state/user';
 import { getSupaWR } from '../../../supabase/supa-utils/supaSWR';
 import { supabaseClient } from '../../../supabase/supabaseClient';
 import { ManageEventForm } from '../events/ManageEvent';
+import { deleteEvent } from '../events/deleteEvent';
 import { PageHeader } from './PageHeader';
 import { ClearTableButton } from './ClearTableButton';
 
@@ -70,11 +76,22 @@ export const AdminEvents = () => {
       </Table.Td>
       {canEdit && (
         <Table.Td>
-          <Tooltip label="Uredi dogodek">
-            <ActionIcon variant="subtle" onClick={() => setEditing(event.id)}>
-              <IconEdit size={16} />
-            </ActionIcon>
-          </Tooltip>
+          <Group gap={4} wrap="nowrap">
+            <Tooltip label="Uredi dogodek">
+              <ActionIcon variant="subtle" onClick={() => setEditing(event.id)}>
+                <IconEdit size={16} />
+              </ActionIcon>
+            </Tooltip>
+            <Tooltip label="Izbriši dogodek">
+              <ActionIcon
+                variant="subtle"
+                color="red"
+                onClick={() => deleteEvent(event)}
+              >
+                <IconTrash size={16} />
+              </ActionIcon>
+            </Tooltip>
+          </Group>
         </Table.Td>
       )}
     </Table.Tr>
@@ -129,7 +146,7 @@ export const AdminEvents = () => {
                   <Table.Th w={170}>Datum</Table.Th>
                   <Table.Th>Naslov</Table.Th>
                   <Table.Th visibleFrom="sm">Podnaslov</Table.Th>
-                  {canEdit && <Table.Th w={60} />}
+                  {canEdit && <Table.Th w={90} />}
                 </Table.Tr>
               </Table.Thead>
               <Table.Tbody>{rows}</Table.Tbody>

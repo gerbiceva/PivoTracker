@@ -12,10 +12,11 @@ import {
   Button,
   Divider,
 } from '@mantine/core';
-import { IconAlertCircle, IconEdit } from '@tabler/icons-react';
+import { IconAlertCircle, IconEdit, IconTrash } from '@tabler/icons-react';
 import { ReadTimeFromUTCString } from '../../../utils/timeUtils';
 import { PermissionPath } from '../../PermissionPath';
 import { GerbaEvent } from './EventDisplayRow';
+import { deleteEvent } from './deleteEvent';
 
 export const EventView = () => {
   const { id } = useParams();
@@ -93,12 +94,22 @@ export const EventView = () => {
             <Title order={4}>{event.subtitle}</Title>
           </Stack>
           <PermissionPath permission="MANAGE_EVENTS">
-            <Button
-              leftSection={<IconEdit size={14} />}
-              onClick={() => navigate(`/events/edit/${event.id}`)}
-            >
-              Edit Event
-            </Button>
+            <Group gap="xs">
+              <Button
+                leftSection={<IconEdit size={14} />}
+                onClick={() => navigate(`/events/edit/${event.id}`)}
+              >
+                Edit Event
+              </Button>
+              <Button
+                color="red"
+                variant="light"
+                leftSection={<IconTrash size={14} />}
+                onClick={() => deleteEvent(event, () => navigate('/events'))}
+              >
+                Izbriši
+              </Button>
+            </Group>
           </PermissionPath>
         </Group>
         <Text c="dimmed" size="sm">
